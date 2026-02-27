@@ -15,11 +15,11 @@ interface SidebarProps {
 }
 
 const navItems: { id: NavTab; label: string; icon: React.ElementType; href: string }[] = [
-  { id: "overview",     label: "Overview",         icon: Home,            href: "/overview" },
-  { id: "dashboard",    label: "Dashboard",        icon: LayoutDashboard, href: "/dashboard" },
-  { id: "scheduling",   label: "Scheduling Tool",  icon: Calendar,        href: "/scheduling" },
-  { id: "parameters",   label: "Parameters Setup", icon: Settings2,       href: "/parameters" },
-  { id: "monthly-plan", label: "Data Ingestion",   icon: FileBarChart,    href: "/monthly-plan" },
+  { id: "overview",     label: "Overview",                  icon: Home,            href: "/overview" },
+  { id: "scheduling",   label: "Scheduling Tool",           icon: Calendar,        href: "/scheduling" },
+  { id: "parameters",   label: "Parameters Setup",          icon: Settings2,       href: "/parameters" },
+  { id: "monthly-plan", label: "Data Ingestion",            icon: FileBarChart,    href: "/monthly-plan" },
+  { id: "dashboard",    label: "Future State - Dashboard",  icon: LayoutDashboard, href: "/dashboard" },
 ]
 
 export function Sidebar({ activeTab, collapsed, onCollapsedChange }: SidebarProps) {
