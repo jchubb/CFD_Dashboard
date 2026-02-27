@@ -20,6 +20,7 @@ import {
   Clock,
   Monitor,
   Home,
+  ClipboardList,
 } from "lucide-react"
 import { useState, useEffect } from "react"
 
@@ -44,6 +45,11 @@ const PAGE_META: Record<string, { title: string; description: string; icon: Reac
     title: "Operations Dashboard",
     description: "Manufacturing throughput and schedule monitoring",
     icon: LayoutDashboard,
+  },
+  "/monthly-inputs": {
+    title: "Monthly Inputs",
+    description: "Initial conditions, parameters, and part list configuration",
+    icon: ClipboardList,
   },
   "/scheduling": {
     title: "Scheduling Tool",
