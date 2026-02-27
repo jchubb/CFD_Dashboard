@@ -35,7 +35,7 @@ export function Sidebar({ activeTab, collapsed, onCollapsedChange }: SidebarProp
         {!collapsed && (
           <div className="flex items-center gap-2">
             <Activity className="h-6 w-6 text-sidebar-primary" />
-            <span className="text-sm font-semibold uppercase tracking-wider">OPS Control</span>
+            <span className="text-sm font-semibold uppercase tracking-wider">CFD Scheduling</span>
           </div>
         )}
         {collapsed && <Activity className="mx-auto h-6 w-6 text-sidebar-primary" />}
