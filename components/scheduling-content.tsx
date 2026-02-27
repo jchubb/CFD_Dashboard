@@ -1,17 +1,9 @@
 "use client"
 
-import React from "react"
-
-import { useRef } from "react"
-
 import { useState, useMemo } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import { Badge } from "@/components/ui/badge"
 import {
   Table,
@@ -46,20 +38,15 @@ import {
 import { 
   ChevronDown, 
   ChevronUp, 
-  Settings2, 
   Calendar,
   CalendarDays,
   CalendarRange,
-  Play,
-  RotateCcw,
   Info,
   TrendingUp,
   TrendingDown,
   Download,
   Plus,
-  Package,
   Zap,
-  AlertTriangle,
   Check,
   Trash2
 } from "lucide-react"
@@ -134,95 +121,6 @@ const partPrefixes: Record<string, string[]> = {
   "CFM56": ["CFM-HPT", "CFM-LPC", "CFM-FAN"],
 }
 
-// Double-click slider component
-function DoubleClickSlider({
-  id,
-  label,
-  value,
-  onChange,
-  min,
-  max,
-  step,
-  unit = "%",
-}: {
-  id: string
-  label: string
-  value: number
-  onChange: (value: number) => void
-  min: number
-  max: number
-  step: number
-  unit?: string
-}) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [inputValue, setInputValue] = useState(value.toString())
-  const inputRef = useRef<HTMLInputElement>(null)
-
-  const handleDoubleClick = () => {
-    setIsEditing(true)
-    setInputValue(value.toString())
-    setTimeout(() => inputRef.current?.focus(), 0)
-  }
-
-  const handleInputBlur = () => {
-    setIsEditing(false)
-    const numValue = parseFloat(inputValue)
-    if (!isNaN(numValue)) {
-      onChange(Math.min(max, Math.max(min, numValue)))
-    }
-  }
-
-  const handleInputKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      handleInputBlur()
-    } else if (e.key === "Escape") {
-      setIsEditing(false)
-      setInputValue(value.toString())
-    }
-  }
-
-  return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <Label htmlFor={id} className="text-sm">{label}</Label>
-        {isEditing ? (
-          <Input
-            ref={inputRef}
-            type="number"
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onBlur={handleInputBlur}
-            onKeyDown={handleInputKeyDown}
-            className="w-20 h-6 text-sm font-mono text-right px-2"
-            min={min}
-            max={max}
-            step={step}
-          />
-        ) : (
-          <span 
-            className="text-sm font-mono text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
-            onDoubleClick={handleDoubleClick}
-            title="Double-click to edit"
-          >
-            {value}{unit}
-          </span>
-        )}
-      </div>
-      <div onDoubleClick={handleDoubleClick} className="cursor-pointer">
-        <Slider
-          id={id}
-          min={min}
-          max={max}
-          step={step}
-          value={[value]}
-          onValueChange={(v) => onChange(v[0])}
-          className="w-full"
-        />
-      </div>
-    </div>
-  )
-}
-
 interface ScheduleItem {
   id: string
   programFamily: string
@@ -263,9 +161,6 @@ const partsCatalog: PartCatalogItem[] = [
 
 export function SchedulingContent() {
   const [viewType, setViewType] = useState<ViewType>("weekly")
-  const [isInputsOpen, setIsInputsOpen] = useState(true)
-  const [isPartListOpen, setIsPartListOpen] = useState(false)
-  const [conditions, setConditions] = useState<InitialConditions>(defaultConditions)
   const [appliedConditions, setAppliedConditions] = useState<InitialConditions>(defaultConditions)
   const [activeScenario, setActiveScenario] = useState<ScenarioType>("custom")
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
@@ -453,30 +348,15 @@ export function SchedulingContent() {
     }
   }, [appliedConditions, viewType, summaryMetrics])
 
-  const handleApplyConditions = () => {
-    setAppliedConditions({ ...conditions })
-    setActiveScenario("custom")
-  }
-
-  const handleResetConditions = () => {
-    setConditions(defaultConditions)
-    setAppliedConditions(defaultConditions)
-    setActiveScenario("custom")
-  }
-
   const handleSelectScenario = (scenario: ScenarioType) => {
     setActiveScenario(scenario)
     if (scenario === "bull") {
-      setConditions(bullCaseConditions)
       setAppliedConditions(bullCaseConditions)
     } else if (scenario === "bear") {
-      setConditions(bearCaseConditions)
       setAppliedConditions(bearCaseConditions)
     } else if (scenario === "base") {
-      setConditions(baseCaseConditions)
       setAppliedConditions(baseCaseConditions)
     } else {
-      setConditions(defaultConditions)
       setAppliedConditions(defaultConditions)
     }
   }
