@@ -4,9 +4,22 @@ import type React from "react"
 import { useState } from "react"
 import { usePathname } from "next/navigation"
 import { Sidebar, type NavTab } from "@/components/sidebar"
+import { GlobalHeader } from "@/components/global-header"
+import { cn } from "@/lib/utils"
+
+type ViewDensity = "compact" | "default" | "comfortable"
+
+const DENSITY_CLASSES: Record<ViewDensity, string> = {
+  compact: "density-compact",
+  default: "density-default",
+  comfortable: "density-comfortable",
+}
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [density, setDensity] = useState<ViewDensity>("default")
+  const [autoRefresh, setAutoRefresh] = useState(false)
+  const [refreshInterval, setRefreshInterval] = useState(30)
   const pathname = usePathname()
 
   const activeTab = (pathname.split("/")[1] as NavTab) || "dashboard"
@@ -18,7 +31,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         collapsed={sidebarCollapsed}
         onCollapsedChange={setSidebarCollapsed}
       />
-      <main className="flex-1 overflow-auto">{children}</main>
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <GlobalHeader
+          density={density}
+          onDensityChange={setDensity}
+          autoRefresh={autoRefresh}
+          onAutoRefreshChange={setAutoRefresh}
+          refreshInterval={refreshInterval}
+          onRefreshIntervalChange={setRefreshInterval}
+        />
+        <main className={cn("flex-1 overflow-auto", DENSITY_CLASSES[density])}>
+          {children}
+        </main>
+      </div>
     </div>
   )
 }

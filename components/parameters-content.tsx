@@ -249,31 +249,25 @@ export function ParametersContent() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Parameters Configuration</h1>
-          <p className="text-sm text-muted-foreground">Machine status, overrides, and part-family allocation across 4 plant sections</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Badge variant="outline" className="gap-1.5 font-mono text-xs border-emerald-300 text-emerald-700 bg-emerald-50">
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
-            {summary.online} Online
+      {/* Machine status summary badges */}
+      <div className="flex items-center gap-3">
+        <Badge variant="outline" className="gap-1.5 font-mono text-xs border-emerald-300 text-emerald-700 bg-emerald-50">
+          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+          {summary.online} Online
+        </Badge>
+        <Badge variant="outline" className="gap-1.5 font-mono text-xs border-red-300 text-red-700 bg-red-50">
+          <span className="inline-block w-2 h-2 rounded-full bg-red-500" />
+          {summary.offline} Offline
+        </Badge>
+        <Badge variant="outline" className="gap-1.5 font-mono text-xs border-amber-300 text-amber-700 bg-amber-50">
+          <span className="inline-block w-2 h-2 rounded-full bg-amber-500" />
+          {summary.maint} Maint
+        </Badge>
+        {summary.overrides > 0 && (
+          <Badge variant="outline" className="gap-1.5 font-mono text-xs border-blue-300 text-blue-700 bg-blue-50">
+            {summary.overrides} Override{summary.overrides > 1 ? "s" : ""}
           </Badge>
-          <Badge variant="outline" className="gap-1.5 font-mono text-xs border-red-300 text-red-700 bg-red-50">
-            <span className="inline-block w-2 h-2 rounded-full bg-red-500" />
-            {summary.offline} Offline
-          </Badge>
-          <Badge variant="outline" className="gap-1.5 font-mono text-xs border-amber-300 text-amber-700 bg-amber-50">
-            <span className="inline-block w-2 h-2 rounded-full bg-amber-500" />
-            {summary.maint} Maint
-          </Badge>
-          {summary.overrides > 0 && (
-            <Badge variant="outline" className="gap-1.5 font-mono text-xs border-blue-300 text-blue-700 bg-blue-50">
-              {summary.overrides} Override{summary.overrides > 1 ? "s" : ""}
-            </Badge>
-          )}
-        </div>
+        )}
       </div>
 
       {/* Part Family Legend */}

@@ -592,45 +592,38 @@ export function SchedulingContent() {
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
-      {/* Header with view toggles */}
+      {/* Scenario & View Controls */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Scheduling Tool</h1>
-          <p className="text-sm text-muted-foreground">Production schedule management and optimization</p>
-        </div>
-        <div className="flex items-center gap-3">
-          {/* Scenario Selection */}
-          <div className="flex items-center gap-1.5">
-            <span className="text-muted-foreground mr-1 tracking-normal leading-4">Scenario:</span>
-            <Button
-              variant={activeScenario === "base" ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleSelectScenario("base")}
-              className={`gap-1.5 h-8 ${activeScenario === "base" ? "bg-slate-600 hover:bg-slate-700" : "bg-transparent"}`}
-            >
-              Base Case
-            </Button>
-            <Button
-              variant={activeScenario === "bull" ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleSelectScenario("bull")}
-              className={`gap-1.5 h-8 ${activeScenario === "bull" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-transparent"}`}
-            >
-              <TrendingUp className="h-3.5 w-3.5" />
-              Bull Case
-            </Button>
-            <Button
-              variant={activeScenario === "bear" ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleSelectScenario("bear")}
-              className={`gap-1.5 h-8 ${activeScenario === "bear" ? "bg-red-600 hover:bg-red-700" : "bg-transparent"}`}
-            >
-              <TrendingDown className="h-3.5 w-3.5" />
-              Bear Case
-            </Button>
-          </div>
+        <div className="flex items-center gap-1.5">
+          <span className="text-sm text-muted-foreground mr-1">Scenario:</span>
+          <Button
+            variant={activeScenario === "base" ? "default" : "outline"}
+            size="sm"
+            onClick={() => handleSelectScenario("base")}
+            className={`gap-1.5 h-8 ${activeScenario === "base" ? "bg-slate-600 hover:bg-slate-700" : "bg-transparent"}`}
+          >
+            Base Case
+          </Button>
+          <Button
+            variant={activeScenario === "bull" ? "default" : "outline"}
+            size="sm"
+            onClick={() => handleSelectScenario("bull")}
+            className={`gap-1.5 h-8 ${activeScenario === "bull" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-transparent"}`}
+          >
+            <TrendingUp className="h-3.5 w-3.5" />
+            Bull Case
+          </Button>
+          <Button
+            variant={activeScenario === "bear" ? "default" : "outline"}
+            size="sm"
+            onClick={() => handleSelectScenario("bear")}
+            className={`gap-1.5 h-8 ${activeScenario === "bear" ? "bg-red-600 hover:bg-red-700" : "bg-transparent"}`}
+          >
+            <TrendingDown className="h-3.5 w-3.5" />
+            Bear Case
+          </Button>
 
-          <div className="h-6 w-px bg-border" />
+          <div className="h-6 w-px bg-border mx-2" />
 
           {/* View Toggle */}
           <div className="flex items-center bg-muted rounded-lg p-1">

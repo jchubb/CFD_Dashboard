@@ -137,3 +137,31 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* View density utility classes */
+.density-compact {
+  --density-gap: 0.75rem;
+  --density-padding: 1rem;
+}
+.density-compact .flex.flex-col {
+  gap: var(--density-gap);
+}
+.density-compact > .flex.flex-col {
+  padding: var(--density-padding);
+}
+
+.density-default {
+  --density-gap: 1.5rem;
+  --density-padding: 1.5rem;
+}
+
+.density-comfortable {
+  --density-gap: 2rem;
+  --density-padding: 2rem;
+}
+.density-comfortable .flex.flex-col {
+  gap: var(--density-gap);
+}
+.density-comfortable > .flex.flex-col {
+  padding: var(--density-padding);
+}

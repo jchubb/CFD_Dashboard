@@ -50,30 +50,22 @@ export function MonthlyPlanContent() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      {/* Page Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Monthly Plan</h1>
-          <p className="text-sm text-muted-foreground">
-            Import, view, and analyze monthly production targets and part mix distribution
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <label className="text-sm text-muted-foreground">Planning Period:</label>
-          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger className="w-[180px] h-9">
-              <CalendarRange className="h-4 w-4 mr-2 text-muted-foreground" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {availableMonths.map((month) => (
-                <SelectItem key={month} value={month}>
-                  {month}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+      {/* Planning Period Selector */}
+      <div className="flex items-center gap-3">
+        <label className="text-sm text-muted-foreground">Planning Period:</label>
+        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+          <SelectTrigger className="w-[180px] h-9">
+            <CalendarRange className="h-4 w-4 mr-2 text-muted-foreground" />
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {availableMonths.map((month) => (
+              <SelectItem key={month} value={month}>
+                {month}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Summary KPI Cards */}
