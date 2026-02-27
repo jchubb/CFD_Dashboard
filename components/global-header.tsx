@@ -19,6 +19,7 @@ import {
   RefreshCw,
   Clock,
   Monitor,
+  Home,
 } from "lucide-react"
 import { useState, useEffect } from "react"
 
@@ -34,6 +35,11 @@ interface GlobalHeaderProps {
 }
 
 const PAGE_META: Record<string, { title: string; description: string; icon: React.ElementType }> = {
+  "/overview": {
+    title: "Executive Overview",
+    description: "Plant-wide performance summary and alerts",
+    icon: Home,
+  },
   "/dashboard": {
     title: "Operations Dashboard",
     description: "Manufacturing throughput and schedule monitoring",
@@ -65,7 +71,7 @@ export function GlobalHeader({
   onRefreshIntervalChange,
 }: GlobalHeaderProps) {
   const pathname = usePathname()
-  const meta = PAGE_META[pathname] || PAGE_META["/dashboard"]
+  const meta = PAGE_META[pathname] || PAGE_META["/overview"]
   const Icon = meta.icon
   const [currentTime, setCurrentTime] = useState<string>("")
 
