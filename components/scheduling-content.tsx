@@ -42,8 +42,6 @@ import {
   CalendarDays,
   CalendarRange,
   Info,
-  TrendingUp,
-  TrendingDown,
   Download,
   Plus,
   Zap,
@@ -53,41 +51,6 @@ import {
 
 
 type ViewType = "daily" | "weekly" | "monthly"
-type ScenarioType = "custom" | "base" | "bull" | "bear"
-
-// Predefined scenario conditions
-const baseCaseConditions: InitialConditions = {
-  oee: 85,
-  targetOutput: 140,
-  availableHours: 16,
-  cycleTime: 45,
-  plannedDowntime: 2,
-  laborEfficiency: 92,
-  materialAvailability: 95,
-  qualityRate: 98,
-}
-
-const bullCaseConditions: InitialConditions = {
-  oee: 95,
-  targetOutput: 180,
-  availableHours: 20,
-  cycleTime: 35,
-  plannedDowntime: 1,
-  laborEfficiency: 98,
-  materialAvailability: 99,
-  qualityRate: 99.5,
-}
-
-const bearCaseConditions: InitialConditions = {
-  oee: 65,
-  targetOutput: 100,
-  availableHours: 12,
-  cycleTime: 60,
-  plannedDowntime: 4,
-  laborEfficiency: 75,
-  materialAvailability: 80,
-  qualityRate: 92,
-}
 
 interface InitialConditions {
   oee: number
@@ -162,7 +125,6 @@ const partsCatalog: PartCatalogItem[] = [
 export function SchedulingContent() {
   const [viewType, setViewType] = useState<ViewType>("weekly")
   const [appliedConditions, setAppliedConditions] = useState<InitialConditions>(defaultConditions)
-  const [activeScenario, setActiveScenario] = useState<ScenarioType>("custom")
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
   const [manuallyAddedItems, setManuallyAddedItems] = useState<ScheduleItem[]>([])
   const [selectedDay, setSelectedDay] = useState<number>(0) // For daily view, which day is selected
@@ -202,13 +164,13 @@ export function SchedulingContent() {
     const items: ScheduleItem[] = []
     let serialCounter = 1000 + Math.floor(Math.random() * 9000)
 
-    // Realistic priority distribution: F135 (military) and GTF (commercial) get more allocation
+    // Program family distribution
     const familyWeights = {
-      "F135": activeScenario === "bull" ? 0.30 : activeScenario === "bear" ? 0.20 : 0.25,
-      "GTF": activeScenario === "bull" ? 0.25 : activeScenario === "bear" ? 0.30 : 0.25,
+      "F135": 0.25,
+      "GTF": 0.25,
       "LEAP-1A": 0.20,
       "GEnx": 0.15,
-      "CFM56": activeScenario === "bear" ? 0.15 : 0.10, // Legacy engines more in bear case
+      "CFM56": 0.15,
     }
 
     const selectWeightedFamily = () => {
@@ -246,8 +208,8 @@ export function SchedulingContent() {
         const partBase = parts[Math.floor(Math.random() * parts.length)]
         const partSuffix = String(Math.floor(Math.random() * 900) + 100)
 
-        // More realistic quantities based on scenario
-        const baseQty = activeScenario === "bull" ? 6 : activeScenario === "bear" ? 3 : 4
+        // More realistic quantities
+        const baseQty = 4
         const quantity = Math.max(1, Math.round(baseQty * (0.5 + Math.random())))
 
         items.push({
@@ -266,7 +228,7 @@ export function SchedulingContent() {
     }
 
     return items
-  }, [viewType, appliedConditions, activeScenario])
+  }, [viewType, appliedConditions])
 
   // Combine generated and manually added items, filter for daily view
   const displayedScheduleItems = useMemo(() => {
@@ -472,39 +434,9 @@ export function SchedulingContent() {
 
   return (
     <div className="flex flex-col gap-4 p-6 h-full overflow-auto">
-      {/* Scenario & View Controls */}
+      {/* View Controls */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <span className="text-sm text-muted-foreground mr-1">Scenario:</span>
-          <Button
-            variant={activeScenario === "base" ? "default" : "outline"}
-            size="sm"
-            onClick={() => handleSelectScenario("base")}
-            className={`gap-1.5 h-8 ${activeScenario === "base" ? "bg-slate-600 hover:bg-slate-700" : "bg-transparent"}`}
-          >
-            Base Case
-          </Button>
-          <Button
-            variant={activeScenario === "bull" ? "default" : "outline"}
-            size="sm"
-            onClick={() => handleSelectScenario("bull")}
-            className={`gap-1.5 h-8 ${activeScenario === "bull" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-transparent"}`}
-          >
-            <TrendingUp className="h-3.5 w-3.5" />
-            Bull Case
-          </Button>
-          <Button
-            variant={activeScenario === "bear" ? "default" : "outline"}
-            size="sm"
-            onClick={() => handleSelectScenario("bear")}
-            className={`gap-1.5 h-8 ${activeScenario === "bear" ? "bg-red-600 hover:bg-red-700" : "bg-transparent"}`}
-          >
-            <TrendingDown className="h-3.5 w-3.5" />
-            Bear Case
-          </Button>
-
-          <div className="h-6 w-px bg-border mx-2" />
-
           {/* View Toggle */}
           <div className="flex items-center bg-muted rounded-lg p-1">
             <Button
@@ -553,18 +485,6 @@ export function SchedulingContent() {
               )}
             </div>
             <div className="flex items-center gap-3">
-              {activeScenario !== "custom" && (
-                <Badge 
-                  variant="outline" 
-                  className={`font-medium ${
-                    activeScenario === "bull" ? "border-emerald-300 text-emerald-700 bg-emerald-50" :
-                    activeScenario === "bear" ? "border-red-300 text-red-700 bg-red-50" :
-                    "border-slate-300 text-slate-700 bg-slate-50"
-                  }`}
-                >
-                  {activeScenario === "bull" ? "Bull Case" : activeScenario === "bear" ? "Bear Case" : "Base Case"}
-                </Badge>
-              )}
               <Badge variant="secondary" className="font-mono">
                 {displayedScheduleItems.length} items
               </Badge>
