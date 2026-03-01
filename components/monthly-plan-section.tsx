@@ -30,10 +30,15 @@ import {
   TableIcon,
   Search,
 } from "lucide-react"
-import { usePlanningPeriod } from "@/components/planning-period-context"
 
-export type { MonthlyPlanRow } from "@/components/planning-period-context"
-import type { MonthlyPlanRow } from "@/components/planning-period-context"
+export interface MonthlyPlanRow {
+  id: string
+  programFamily: string
+  partNumber: string
+  description: string
+  monthlyTarget: number
+  weeklyBreakdown: number[]
+}
 
 const FAMILY_COLORS: Record<string, string> = {
   F135: "#3b82f6",
@@ -74,10 +79,11 @@ CFM56,CFM-FAN-002,Fan Case,50,12,13,12,13`
 
 interface MonthlyPlanSectionProps {
   selectedMonth?: string
+  onDataChange?: (rows: MonthlyPlanRow[]) => void
 }
 
-export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPlanSectionProps) {
-  const { monthlyPlanRows: csvData, setMonthlyPlanRows: setCsvData } = usePlanningPeriod()
+export function MonthlyPlanSection({ selectedMonth = "January 2024", onDataChange }: MonthlyPlanSectionProps) {
+  const [csvData, setCsvData] = useState<MonthlyPlanRow[]>([])
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
   const [uploadMessage, setUploadMessage] = useState("")
   const [isDragging, setIsDragging] = useState(false)
@@ -134,6 +140,7 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
       if (rows.length === 0) throw new Error("No valid data rows found.")
 
       setCsvData(rows)
+      onDataChange?.(rows)
       setUploadStatus("success")
       setUploadMessage(`Imported ${rows.length} parts for ${selectedMonth}`)
     } catch (err) {
@@ -182,6 +189,7 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
 
   const handleClearData = useCallback(() => {
     setCsvData([])
+    onDataChange?.([])
     setUploadStatus("idle")
     setUploadMessage("")
     setSearchQuery("")

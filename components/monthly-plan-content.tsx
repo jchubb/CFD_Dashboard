@@ -1,13 +1,13 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MonthlyPlanSection } from "@/components/monthly-plan-section"
+import { MonthlyPlanSection, type MonthlyPlanRow } from "@/components/monthly-plan-section"
 import { DailyActualsSection } from "@/components/daily-actuals-section"
 import { DailyPlanSection } from "@/components/daily-plan-section"
 import { DailyLESection } from "@/components/daily-le-section"
-import { usePlanningPeriod } from "@/components/planning-period-context"
+import { usePlanningPeriod, availableMonths } from "@/components/planning-period-context"
 import {
   FileBarChart,
   CalendarRange,
@@ -17,19 +17,27 @@ import {
 } from "lucide-react"
 
 export function MonthlyPlanContent() {
-  const { selectedMonth, monthlyPlanRows } = usePlanningPeriod()
+  const { selectedMonth } = usePlanningPeriod()
+  const [monthlyPlanData, setMonthlyPlanData] = useState<MonthlyPlanRow[]>([])
 
-  // Summary cards derived directly from persisted context data
+  const handleMonthlyPlanDataChange = useCallback((rows: MonthlyPlanRow[]) => {
+    setMonthlyPlanData(rows)
+  }, [])
+
+  // Summary cards data based on loaded monthly plan
   const monthSummary = useMemo(() => {
-    const totalTarget = monthlyPlanRows.reduce((sum, row) => sum + row.monthlyTarget, 0)
-    const totalParts = monthlyPlanRows.length
-    const families = new Set(monthlyPlanRows.map(r => r.programFamily)).size
+    const totalTarget = monthlyPlanData.reduce((sum, row) => sum + row.monthlyTarget, 0)
+    const totalParts = monthlyPlanData.length
+    const families = new Set(monthlyPlanData.map(r => r.programFamily)).size
+    const completionRate = 0
+
     return {
       totalTarget: totalTarget > 0 ? totalTarget : null,
       totalParts: totalParts > 0 ? totalParts : null,
       families: families > 0 ? families : null,
+      completionRate,
     }
-  }, [monthlyPlanRows])
+  }, [monthlyPlanData])
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -85,23 +93,24 @@ export function MonthlyPlanContent() {
             <div>
               <p className="text-xs text-muted-foreground">Plan Status</p>
               <p className="text-xl font-semibold font-mono">
-                {monthSummary.totalTarget !== null ? (
-                  <Badge variant="outline" className="text-xs border-emerald-300 text-emerald-700 bg-emerald-50">
-                    Loaded
-                  </Badge>
+                {monthSummary.completionRate > 0 ? (
+                  <>{monthSummary.completionRate}%</>
                 ) : (
                   <Badge variant="outline" className="text-xs border-amber-300 text-amber-700 bg-amber-50">
                     Awaiting Data
                   </Badge>
                 )}
               </p>
+              {monthSummary.completionRate > 0 && (
+                <p className="text-xs text-muted-foreground">completion</p>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Monthly Plan Section - CSV Upload, Table, and Histogram */}
-      <MonthlyPlanSection selectedMonth={selectedMonth} />
+      <MonthlyPlanSection selectedMonth={selectedMonth} onDataChange={handleMonthlyPlanDataChange} />
 
       {/* Daily Plan Section */}
       <DailyPlanSection selectedMonth={selectedMonth} />
