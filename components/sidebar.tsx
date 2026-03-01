@@ -4,9 +4,9 @@ import type React from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { LayoutDashboard, Settings2, FileBarChart, ChevronLeft, ChevronRight, Activity, Home } from "lucide-react"
+import { LayoutDashboard, Calendar, Settings2, FileBarChart, ChevronLeft, ChevronRight, Activity, Home, ClipboardList } from "lucide-react"
 
-export type NavTab = "overview" | "dashboard" | "parameters" | "monthly-plan"
+export type NavTab = "overview" | "dashboard" | "scheduling" | "parameters" | "monthly-plan" | "monthly-inputs"
 
 interface SidebarProps {
   activeTab: NavTab
@@ -15,10 +15,12 @@ interface SidebarProps {
 }
 
 const navItems: { id: NavTab; label: string; icon: React.ElementType; href: string }[] = [
-  { id: "overview",     label: "Overview",                  icon: Home,            href: "/overview" },
-  { id: "monthly-plan", label: "Data Ingestion",            icon: FileBarChart,    href: "/monthly-plan" },
-  { id: "parameters",   label: "Parameters Setup",          icon: Settings2,       href: "/parameters" },
-  { id: "dashboard",    label: "Future State - Dashboard",  icon: LayoutDashboard, href: "/dashboard" },
+  { id: "overview",        label: "Overview",                  icon: Home,            href: "/overview" },
+  { id: "monthly-plan",   label: "Data Ingestion",            icon: FileBarChart,    href: "/monthly-plan" },
+  { id: "monthly-inputs", label: "Monthly Inputs",            icon: ClipboardList,   href: "/monthly-inputs" },
+  { id: "scheduling",     label: "Scheduling Tool",           icon: Calendar,        href: "/scheduling" },
+  { id: "parameters",     label: "Parameters Setup",          icon: Settings2,       href: "/parameters" },
+  { id: "dashboard",      label: "Future State - Dashboard",  icon: LayoutDashboard, href: "/dashboard" },
 ]
 
 export function Sidebar({ activeTab, collapsed, onCollapsedChange }: SidebarProps) {
