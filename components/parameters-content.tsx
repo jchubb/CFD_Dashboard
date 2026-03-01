@@ -334,17 +334,20 @@ export function ParametersContent() {
                       <div className="text-xs border-t pt-2 space-y-1">
                         <p className="font-medium text-muted-foreground">Required CSV Schema:</p>
                         <div className="bg-muted/50 rounded p-2 font-mono text-[11px] space-y-0.5">
-                          <p className="text-muted-foreground">BT_id,assigned_family</p>
+                          <p className="text-muted-foreground">BT_id,assigned_family,status</p>
                           <p>S1-A1,F135</p>
                           <p>S1-A2,GTF</p>
                           <p>S2-B3,LEAP-1A</p>
                           <p className="text-muted-foreground">...</p>
                         </div>
+                        <p className="text-muted-foreground">
+                          Machine IDs: <span className="font-mono">S[1-4]-[A|B][1-4]</span>
+                        </p>
                         <p className="text-muted-foreground pt-1">
                           Valid families: <span className="font-mono">F135, GTF, LEAP-1A, GEnx, CFM56</span>
                         </p>
-                        <p className="text-muted-foreground">
-                          Machine IDs: <span className="font-mono">S[1-4]-[A|B][1-4]</span>
+                        <p>
+                          Statuses: 0 (offline), 1 (online), 2 (mainenance)
                         </p>
                       </div>
                     </div>
@@ -486,10 +489,10 @@ function MachineRow({
 
   return (
     <div className={`flex items-center gap-3 rounded-lg border p-2.5 transition-colors ${effectiveStatus === "online"
-        ? "border-emerald-200 bg-emerald-50/40"
-        : effectiveStatus === "maintenance"
-          ? "border-amber-200 bg-amber-50/40"
-          : "border-red-200 bg-red-50/40"
+      ? "border-emerald-200 bg-emerald-50/40"
+      : effectiveStatus === "maintenance"
+        ? "border-amber-200 bg-amber-50/40"
+        : "border-red-200 bg-red-50/40"
       }`}>
       {/* Family color indicator */}
       <TooltipProvider>
