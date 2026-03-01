@@ -35,9 +35,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { 
-  ChevronDown, 
-  ChevronUp, 
+import {
+  ChevronDown,
+  ChevronUp,
   Calendar,
   CalendarDays,
   CalendarRange,
@@ -102,24 +102,24 @@ interface PartCatalogItem {
   partNumber: string
   description: string
   standardCycleTime: number
-  priority: "high" | "medium" | "low"
+  // priority: "high" | "medium" | "low"
   monthlyTarget: number
   currentScheduled: number
 }
 
 const partsCatalog: PartCatalogItem[] = [
-  { id: "p1", programFamily: "F135", partNumber: "F135-HPC-001", description: "High Pressure Compressor Blade", standardCycleTime: 45, priority: "high", monthlyTarget: 120, currentScheduled: 85 },
-  { id: "p2", programFamily: "F135", partNumber: "F135-LPT-002", description: "Low Pressure Turbine Disk", standardCycleTime: 60, priority: "high", monthlyTarget: 80, currentScheduled: 62 },
-  { id: "p3", programFamily: "F135", partNumber: "F135-FAN-003", description: "Fan Blade Assembly", standardCycleTime: 35, priority: "medium", monthlyTarget: 100, currentScheduled: 78 },
-  { id: "p4", programFamily: "GTF", partNumber: "GTF-GB-001", description: "Gearbox Housing", standardCycleTime: 55, priority: "high", monthlyTarget: 90, currentScheduled: 65 },
-  { id: "p5", programFamily: "GTF", partNumber: "GTF-LPC-002", description: "Low Pressure Compressor Stator", standardCycleTime: 40, priority: "medium", monthlyTarget: 110, currentScheduled: 88 },
-  { id: "p6", programFamily: "GTF", partNumber: "GTF-HPT-003", description: "High Pressure Turbine Blade", standardCycleTime: 50, priority: "high", monthlyTarget: 95, currentScheduled: 71 },
-  { id: "p7", programFamily: "LEAP-1A", partNumber: "LEAP-CMB-001", description: "Combustor Liner", standardCycleTime: 65, priority: "medium", monthlyTarget: 75, currentScheduled: 58 },
-  { id: "p8", programFamily: "LEAP-1A", partNumber: "LEAP-HPT-002", description: "HPT Nozzle Guide Vane", standardCycleTime: 48, priority: "high", monthlyTarget: 85, currentScheduled: 64 },
-  { id: "p9", programFamily: "GEnx", partNumber: "GENX-LPT-001", description: "LPT Blade", standardCycleTime: 42, priority: "medium", monthlyTarget: 70, currentScheduled: 52 },
-  { id: "p10", programFamily: "GEnx", partNumber: "GENX-HPC-002", description: "HPC Rotor", standardCycleTime: 70, priority: "low", monthlyTarget: 60, currentScheduled: 45 },
-  { id: "p11", programFamily: "CFM56", partNumber: "CFM-HPT-001", description: "HPT Shroud", standardCycleTime: 38, priority: "low", monthlyTarget: 65, currentScheduled: 55 },
-  { id: "p12", programFamily: "CFM56", partNumber: "CFM-FAN-002", description: "Fan Case", standardCycleTime: 55, priority: "low", monthlyTarget: 50, currentScheduled: 42 },
+  { id: "p1", programFamily: "F135", partNumber: "F135-HPC-001", description: "High Pressure Compressor Blade", standardCycleTime: 45, monthlyTarget: 120, currentScheduled: 85 },
+  { id: "p2", programFamily: "F135", partNumber: "F135-LPT-002", description: "Low Pressure Turbine Disk", standardCycleTime: 60, monthlyTarget: 80, currentScheduled: 62 },
+  { id: "p3", programFamily: "F135", partNumber: "F135-FAN-003", description: "Fan Blade Assembly", standardCycleTime: 35, monthlyTarget: 100, currentScheduled: 78 },
+  { id: "p4", programFamily: "GTF", partNumber: "GTF-GB-001", description: "Gearbox Housing", standardCycleTime: 55, monthlyTarget: 90, currentScheduled: 65 },
+  { id: "p5", programFamily: "GTF", partNumber: "GTF-LPC-002", description: "Low Pressure Compressor Stator", standardCycleTime: 40, monthlyTarget: 110, currentScheduled: 88 },
+  { id: "p6", programFamily: "GTF", partNumber: "GTF-HPT-003", description: "High Pressure Turbine Blade", standardCycleTime: 50, monthlyTarget: 95, currentScheduled: 71 },
+  { id: "p7", programFamily: "LEAP-1A", partNumber: "LEAP-CMB-001", description: "Combustor Liner", standardCycleTime: 65, monthlyTarget: 75, currentScheduled: 58 },
+  { id: "p8", programFamily: "LEAP-1A", partNumber: "LEAP-HPT-002", description: "HPT Nozzle Guide Vane", standardCycleTime: 48, monthlyTarget: 85, currentScheduled: 64 },
+  { id: "p9", programFamily: "GEnx", partNumber: "GENX-LPT-001", description: "LPT Blade", standardCycleTime: 42, monthlyTarget: 70, currentScheduled: 52 },
+  { id: "p10", programFamily: "GEnx", partNumber: "GENX-HPC-002", description: "HPC Rotor", standardCycleTime: 70, monthlyTarget: 60, currentScheduled: 45 },
+  { id: "p11", programFamily: "CFM56", partNumber: "CFM-HPT-001", description: "HPT Shroud", standardCycleTime: 38, monthlyTarget: 65, currentScheduled: 55 },
+  { id: "p12", programFamily: "CFM56", partNumber: "CFM-FAN-002", description: "Fan Case", standardCycleTime: 55, monthlyTarget: 50, currentScheduled: 42 },
 ]
 
 export function SchedulingContent() {
@@ -138,7 +138,7 @@ export function SchedulingContent() {
   const filteredPartsCatalog = useMemo(() => {
     if (!partSearchQuery.trim()) return partsCatalog
     const query = partSearchQuery.toLowerCase()
-    return partsCatalog.filter(part => 
+    return partsCatalog.filter(part =>
       part.partNumber.toLowerCase().includes(query) ||
       part.programFamily.toLowerCase().includes(query) ||
       part.description.toLowerCase().includes(query)
@@ -146,9 +146,9 @@ export function SchedulingContent() {
   }, [partSearchQuery])
 
   const scheduleItems = useMemo(() => {
-    const effectiveCapacity = (appliedConditions.availableHours - appliedConditions.plannedDowntime) * 
-      60 / appliedConditions.cycleTime * 
-      (appliedConditions.oee / 100) * 
+    const effectiveCapacity = (appliedConditions.availableHours - appliedConditions.plannedDowntime) *
+      60 / appliedConditions.cycleTime *
+      (appliedConditions.oee / 100) *
       (appliedConditions.laborEfficiency / 100) *
       (appliedConditions.materialAvailability / 100) *
       (appliedConditions.qualityRate / 100)
@@ -157,7 +157,7 @@ export function SchedulingContent() {
     const baseItems = viewType === "daily" ? 8 : viewType === "weekly" ? 25 : 60
     const capacityMultiplier = effectiveCapacity / 14 // Normalize around base capacity
     const itemsPerPeriod = Math.max(3, Math.round(baseItems * capacityMultiplier))
-    
+
     const periods = viewType === "daily" ? 7 : viewType === "weekly" ? 4 : 3
     const startDate = new Date(2024, 0, 8) // Start from Jan 8, 2024
 
@@ -194,7 +194,7 @@ export function SchedulingContent() {
       }
 
       // Vary item count by period with realistic patterns
-      const periodVariation = viewType === "daily" 
+      const periodVariation = viewType === "daily"
         ? (p === 5 || p === 6 ? 0.6 : 1.0) // Weekend reduction for daily
         : viewType === "weekly"
           ? (p === 0 ? 0.9 : p === 3 ? 1.1 : 1.0) // Ramp up pattern for weekly
@@ -233,7 +233,7 @@ export function SchedulingContent() {
   // Combine generated and manually added items, filter for daily view
   const displayedScheduleItems = useMemo(() => {
     const allItems = [...scheduleItems, ...manuallyAddedItems]
-    
+
     if (viewType === "daily") {
       // For daily view, show only selected day's items
       const startDate = new Date(2024, 0, 8)
@@ -246,7 +246,7 @@ export function SchedulingContent() {
       })
       return allItems.filter(item => item.scheduledDate === targetDateStr)
     }
-    
+
     return allItems
   }, [scheduleItems, manuallyAddedItems, viewType, selectedDay])
 
@@ -274,7 +274,7 @@ export function SchedulingContent() {
     }))
     const totalDays = viewType === "daily" ? 7 : viewType === "weekly" ? 28 : 90
     const avgPerDay = (totalQuantity / totalDays).toFixed(1)
-    
+
     return {
       totalQuantity,
       uniqueParts,
@@ -288,8 +288,8 @@ export function SchedulingContent() {
   const summaryExplanation = useMemo(() => {
     const effectiveHours = appliedConditions.availableHours - appliedConditions.plannedDowntime
     const theoreticalCapacity = Math.round(
-      effectiveHours * 60 / appliedConditions.cycleTime * 
-      (appliedConditions.oee / 100) * 
+      effectiveHours * 60 / appliedConditions.cycleTime *
+      (appliedConditions.oee / 100) *
       (appliedConditions.laborEfficiency / 100) *
       (appliedConditions.materialAvailability / 100) *
       (appliedConditions.qualityRate / 100)
@@ -332,12 +332,12 @@ export function SchedulingContent() {
       item.serialCode,
       item.scheduledDate
     ])
-    
+
     const csvContent = [
       headers.join(","),
       ...rows.map(row => row.join(","))
     ].join("\n")
-    
+
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" })
     const link = document.createElement("a")
     link.href = URL.createObjectURL(blob)
@@ -562,7 +562,7 @@ export function SchedulingContent() {
             <div className="bg-muted/50 rounded-lg p-3">
               <p className="text-xs text-muted-foreground">{viewType === "daily" ? "Today" : "Avg/Day"}</p>
               <p className="text-lg font-semibold font-mono">
-                {viewType === "daily" 
+                {viewType === "daily"
                   ? displayedScheduleItems.reduce((sum, item) => sum + item.quantity, 0)
                   : summaryMetrics.avgPerDay
                 }
@@ -574,13 +574,12 @@ export function SchedulingContent() {
             </div>
             <div className="bg-muted/50 rounded-lg p-3">
               <p className="text-xs text-muted-foreground">Capacity Util.</p>
-              <p className={`text-lg font-semibold font-mono ${
-                viewType === "daily"
+              <p className={`text-lg font-semibold font-mono ${viewType === "daily"
                   ? displayedScheduleItems.reduce((sum, item) => sum + item.quantity, 0) > rolloverInfo.dailyCapacity
                     ? "text-red-600"
                     : "text-emerald-600"
                   : "text-emerald-600"
-              }`}>
+                }`}>
                 {viewType === "daily"
                   ? Math.round((displayedScheduleItems.reduce((sum, item) => sum + item.quantity, 0) / rolloverInfo.dailyCapacity) * 100)
                   : Math.min(100, Math.round((summaryMetrics.totalQuantity / (appliedConditions.targetOutput * (viewType === "weekly" ? 28 : 90))) * 100))
@@ -618,8 +617,8 @@ export function SchedulingContent() {
                     </TableRow>
                   ) : (
                     displayedScheduleItems.map((item) => (
-                      <TableRow 
-                        key={item.id} 
+                      <TableRow
+                        key={item.id}
                         className={`hover:bg-muted/30 ${selectedItems.has(item.id) ? "bg-blue-50" : ""} ${item.isManuallyAdded ? "bg-emerald-50/50" : ""}`}
                       >
                         <TableCell>
@@ -629,15 +628,14 @@ export function SchedulingContent() {
                           />
                         </TableCell>
                         <TableCell>
-                          <Badge 
-                            variant="outline" 
-                            className={`font-medium ${
-                              item.programFamily === "F135" ? "border-blue-300 text-blue-700 bg-blue-50" :
-                              item.programFamily === "GTF" ? "border-purple-300 text-purple-700 bg-purple-50" :
-                              item.programFamily === "LEAP-1A" ? "border-emerald-300 text-emerald-700 bg-emerald-50" :
-                              item.programFamily === "GEnx" ? "border-amber-300 text-amber-700 bg-amber-50" :
-                              "border-gray-300 text-gray-700 bg-gray-50"
-                            }`}
+                          <Badge
+                            variant="outline"
+                            className={`font-medium ${item.programFamily === "F135" ? "border-blue-300 text-blue-700 bg-blue-50" :
+                                item.programFamily === "GTF" ? "border-purple-300 text-purple-700 bg-purple-50" :
+                                  item.programFamily === "LEAP-1A" ? "border-emerald-300 text-emerald-700 bg-emerald-50" :
+                                    item.programFamily === "GEnx" ? "border-amber-300 text-amber-700 bg-amber-50" :
+                                      "border-gray-300 text-gray-700 bg-gray-50"
+                              }`}
                           >
                             {item.programFamily}
                           </Badge>
@@ -668,21 +666,19 @@ export function SchedulingContent() {
       </Card>
 
       {/* Executive Summary - Enhanced Visual Card */}
-      <Card className={`border-2 ${
-        activeScenario === "bull" ? "border-emerald-200 bg-emerald-50/30" :
-        activeScenario === "bear" ? "border-red-200 bg-red-50/30" :
-        activeScenario === "base" ? "border-slate-200 bg-slate-50/30" :
-        "border-border"
-      }`}>
+      <Card className={`border-2 ${activeScenario === "bull" ? "border-emerald-200 bg-emerald-50/30" :
+          activeScenario === "bear" ? "border-red-200 bg-red-50/30" :
+            activeScenario === "base" ? "border-slate-200 bg-slate-50/30" :
+              "border-border"
+        }`}>
         <CardHeader className="py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${
-                activeScenario === "bull" ? "bg-emerald-100" :
-                activeScenario === "bear" ? "bg-red-100" :
-                activeScenario === "base" ? "bg-slate-100" :
-                "bg-muted"
-              }`}>
+              <div className={`p-2 rounded-lg ${activeScenario === "bull" ? "bg-emerald-100" :
+                  activeScenario === "bear" ? "bg-red-100" :
+                    activeScenario === "base" ? "bg-slate-100" :
+                      "bg-muted"
+                }`}>
                 {activeScenario === "bull" ? (
                   <TrendingUp className="h-5 w-5 text-emerald-600" />
                 ) : activeScenario === "bear" ? (
@@ -695,20 +691,19 @@ export function SchedulingContent() {
                 <CardTitle className="text-base font-semibold">Executive Summary</CardTitle>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   {activeScenario === "bull" ? "Optimistic scenario  |  High throughput projections" :
-                   activeScenario === "bear" ? "Conservative scenario  |  Risk-adjusted projections" :
-                   activeScenario === "base" ? "Baseline scenario  |  Standard operating conditions" :
-                   "Custom configuration  |  User-defined parameters"}
+                    activeScenario === "bear" ? "Conservative scenario  |  Risk-adjusted projections" :
+                      activeScenario === "base" ? "Baseline scenario  |  Standard operating conditions" :
+                        "Custom configuration  |  User-defined parameters"}
                 </p>
               </div>
             </div>
             {activeScenario !== "custom" && (
-              <Badge 
-                variant="outline" 
-                className={`text-xs font-semibold px-3 py-1 ${
-                  activeScenario === "bull" ? "border-emerald-400 text-emerald-700 bg-emerald-100" :
-                  activeScenario === "bear" ? "border-red-400 text-red-700 bg-red-100" :
-                  "border-slate-400 text-slate-700 bg-slate-100"
-                }`}
+              <Badge
+                variant="outline"
+                className={`text-xs font-semibold px-3 py-1 ${activeScenario === "bull" ? "border-emerald-400 text-emerald-700 bg-emerald-100" :
+                    activeScenario === "bear" ? "border-red-400 text-red-700 bg-red-100" :
+                      "border-slate-400 text-slate-700 bg-slate-100"
+                  }`}
               >
                 {activeScenario === "bull" ? "BULL" : activeScenario === "bear" ? "BEAR" : "BASE"}
               </Badge>
@@ -717,12 +712,11 @@ export function SchedulingContent() {
         </CardHeader>
         <CardContent className="pt-0 pb-5">
           {/* Key Metrics Highlight */}
-          <div className={`mb-4 p-4 rounded-xl ${
-            activeScenario === "bull" ? "bg-emerald-100/50 border border-emerald-200" :
-            activeScenario === "bear" ? "bg-red-100/50 border border-red-200" :
-            activeScenario === "base" ? "bg-slate-100/50 border border-slate-200" :
-            "bg-muted/50 border border-border"
-          }`}>
+          <div className={`mb-4 p-4 rounded-xl ${activeScenario === "bull" ? "bg-emerald-100/50 border border-emerald-200" :
+              activeScenario === "bear" ? "bg-red-100/50 border border-red-200" :
+                activeScenario === "base" ? "bg-slate-100/50 border border-slate-200" :
+                  "bg-muted/50 border border-border"
+            }`}>
             <div className="grid grid-cols-4 gap-4 text-center">
               <div>
                 <p className="text-2xl font-bold font-mono text-foreground">{summaryMetrics.totalQuantity}</p>
@@ -737,11 +731,10 @@ export function SchedulingContent() {
                 <p className="text-xs text-muted-foreground font-medium">Daily Capacity</p>
               </div>
               <div>
-                <p className={`text-2xl font-bold font-mono ${
-                  Number(summaryMetrics.avgPerDay) >= summaryExplanation.theoreticalCapacity * 0.8 ? "text-emerald-600" :
-                  Number(summaryMetrics.avgPerDay) >= summaryExplanation.theoreticalCapacity * 0.6 ? "text-amber-600" :
-                  "text-red-600"
-                }`}>
+                <p className={`text-2xl font-bold font-mono ${Number(summaryMetrics.avgPerDay) >= summaryExplanation.theoreticalCapacity * 0.8 ? "text-emerald-600" :
+                    Number(summaryMetrics.avgPerDay) >= summaryExplanation.theoreticalCapacity * 0.6 ? "text-amber-600" :
+                      "text-red-600"
+                  }`}>
                   {Math.round((Number(summaryMetrics.avgPerDay) / summaryExplanation.theoreticalCapacity) * 100)}%
                 </p>
                 <p className="text-xs text-muted-foreground font-medium">Utilization</p>
@@ -751,17 +744,15 @@ export function SchedulingContent() {
 
           {/* Scenario Description */}
           {activeScenario !== "custom" && (
-            <div className={`mb-4 p-3 rounded-lg border-l-4 ${
-              activeScenario === "bull" ? "border-l-emerald-500 bg-emerald-50" :
-              activeScenario === "bear" ? "border-l-red-500 bg-red-50" :
-              "border-l-slate-500 bg-slate-50"
-            }`}>
-              <p className={`text-sm ${
-                activeScenario === "bull" ? "text-emerald-800" :
-                activeScenario === "bear" ? "text-red-800" :
-                "text-slate-800"
+            <div className={`mb-4 p-3 rounded-lg border-l-4 ${activeScenario === "bull" ? "border-l-emerald-500 bg-emerald-50" :
+                activeScenario === "bear" ? "border-l-red-500 bg-red-50" :
+                  "border-l-slate-500 bg-slate-50"
               }`}>
-                {activeScenario === "bull" 
+              <p className={`text-sm ${activeScenario === "bull" ? "text-emerald-800" :
+                  activeScenario === "bear" ? "text-red-800" :
+                    "text-slate-800"
+                }`}>
+                {activeScenario === "bull"
                   ? "This projection assumes optimal conditions: 95% OEE, 20h operating window, 35min cycle time, and minimal downtime. Requires full staffing, uninterrupted material supply, and peak equipment performance."
                   : activeScenario === "bear"
                     ? "Conservative estimate accounting for potential disruptions: 65% OEE, 12h operating window, 60min cycle time, and 4h planned downtime. Factors in supply chain risks, equipment constraints, and reduced labor availability."
@@ -793,7 +784,7 @@ export function SchedulingContent() {
               </h4>
               <p className="text-sm text-muted-foreground">
                 Operating at <span className="font-mono font-semibold text-foreground">{appliedConditions.oee}% OEE</span> with{" "}
-                <span className="font-mono font-semibold text-foreground">{summaryExplanation.effectiveHours}h</span> effective production time 
+                <span className="font-mono font-semibold text-foreground">{summaryExplanation.effectiveHours}h</span> effective production time
                 and <span className="font-mono font-semibold text-foreground">{appliedConditions.cycleTime}min</span> cycle time.
               </p>
             </div>
@@ -804,7 +795,7 @@ export function SchedulingContent() {
                 Program Distribution
               </h4>
               <p className="text-sm text-muted-foreground">
-                Priority allocation to <span className="font-semibold text-foreground">{summaryExplanation.topFamilies}</span> families, 
+                Priority allocation to <span className="font-semibold text-foreground">{summaryExplanation.topFamilies}</span> families,
                 targeting <span className="font-mono font-semibold text-foreground">{appliedConditions.qualityRate}%</span> quality rate.
               </p>
             </div>
@@ -824,7 +815,7 @@ export function SchedulingContent() {
               Select a part and choose when to schedule it. The system can automatically find the optimal placement based on demand targets.
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             {/* Part Selection with Search */}
             <div className="space-y-2">
@@ -854,15 +845,14 @@ export function SchedulingContent() {
                         return (
                           <SelectItem key={part.id} value={part.id}>
                             <div className="flex items-center gap-2">
-                              <Badge 
-                                variant="outline" 
-                                className={`text-xs ${
-                                  part.programFamily === "F135" ? "border-blue-300 text-blue-700 bg-blue-50" :
-                                  part.programFamily === "GTF" ? "border-purple-300 text-purple-700 bg-purple-50" :
-                                  part.programFamily === "LEAP-1A" ? "border-emerald-300 text-emerald-700 bg-emerald-50" :
-                                  part.programFamily === "GEnx" ? "border-amber-300 text-amber-700 bg-amber-50" :
-                                  "border-gray-300 text-gray-700 bg-gray-50"
-                                }`}
+                              <Badge
+                                variant="outline"
+                                className={`text-xs ${part.programFamily === "F135" ? "border-blue-300 text-blue-700 bg-blue-50" :
+                                    part.programFamily === "GTF" ? "border-purple-300 text-purple-700 bg-purple-50" :
+                                      part.programFamily === "LEAP-1A" ? "border-emerald-300 text-emerald-700 bg-emerald-50" :
+                                        part.programFamily === "GEnx" ? "border-amber-300 text-amber-700 bg-amber-50" :
+                                          "border-gray-300 text-gray-700 bg-gray-50"
+                                  }`}
                               >
                                 {part.programFamily}
                               </Badge>
@@ -898,13 +888,12 @@ export function SchedulingContent() {
                       <div className="grid grid-cols-3 gap-2 text-xs">
                         <div>
                           <span className="text-muted-foreground">Priority: </span>
-                          <Badge 
-                            variant="outline" 
-                            className={`text-xs ${
-                              part.priority === "high" ? "border-red-300 text-red-700 bg-red-50" :
-                              part.priority === "medium" ? "border-amber-300 text-amber-700 bg-amber-50" :
-                              "border-gray-300 text-gray-600 bg-gray-50"
-                            }`}
+                          <Badge
+                            variant="outline"
+                            className={`text-xs ${part.priority === "high" ? "border-red-300 text-red-700 bg-red-50" :
+                                part.priority === "medium" ? "border-amber-300 text-amber-700 bg-amber-50" :
+                                  "border-gray-300 text-gray-600 bg-gray-50"
+                              }`}
                           >
                             {part.priority}
                           </Badge>
