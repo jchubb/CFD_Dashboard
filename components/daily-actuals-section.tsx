@@ -25,10 +25,10 @@ import {
 export interface DailyActualsRow {
   id: string
   partNumber: string
-  dailyQty: number[]
+  dailyQty: (number | null)[]
 }
 
-// Generate sample CSV with 31 days
+// Generate sample CSV with 31 days; days 16-31 are empty to represent incomplete actuals
 const buildSampleCSV = () => {
   const header = ["Part Number", ...Array.from({ length: 31 }, (_, i) => `Day ${i + 1}`)].join(",")
   const parts = [
@@ -46,7 +46,9 @@ const buildSampleCSV = () => {
     "CFM-FAN-002",
   ]
   const rows = parts.map((pn) => {
-    const dailies = Array.from({ length: 31 }, () => Math.floor(Math.random() * 5 + 1))
+    const dailies = Array.from({ length: 31 }, (_, i) =>
+      i < 15 ? Math.floor(Math.random() * 5 + 1) : ""
+    )
     return [pn, ...dailies].join(",")
   })
   return [header, ...rows].join("\n")
@@ -89,10 +91,12 @@ export function DailyActualsSection({ selectedMonth = "January 2024" }: DailyAct
       const rows: DailyActualsRow[] = []
       for (let i = 1; i < lines.length; i++) {
         const cols = lines[i].split(",").map(c => c.trim())
-        if (cols.length < 2) continue
         const partNumber = cols[partIdx]
         if (!partNumber) continue
-        const dailyQty = dayIndices.map(di => parseInt(cols[di]) || 0)
+        const dailyQty = dayIndices.map(di => {
+          const raw = cols[di]
+          return raw === "" || raw === undefined ? null : (parseInt(raw) || 0)
+        })
         rows.push({ id: `da-${i}-${Date.now()}`, partNumber, dailyQty })
       }
 
@@ -155,8 +159,7 @@ export function DailyActualsSection({ selectedMonth = "January 2024" }: DailyAct
 
   const dayTotals = useMemo(() => {
     return Array.from({ length: dayCount }, (_, di) =>
-      filteredData.reduce((sum, row) => sum + (row.dailyQty[di] ?? 0), 0)
-    )
+      filteredData.reduce((sum, row) => sum + (row.dailyQty[di] ?? 0), 0)    )
   }, [filteredData, dayCount])
 
   return (
@@ -310,12 +313,12 @@ export function DailyActualsSection({ selectedMonth = "January 2024" }: DailyAct
                               {row.partNumber}
                             </TableCell>
                             {row.dailyQty.map((qty, di) => (
-                              <TableCell key={di} className="font-mono text-xs text-right tabular-nums">
-                                {qty}
+                              <TableCell key={di} className={`font-mono text-xs text-right tabular-nums ${qty === null ? "text-muted-foreground/30" : ""}`}>
+                                {qty === null ? "—" : qty}
                               </TableCell>
                             ))}
                             <TableCell className="font-mono text-xs text-right tabular-nums font-semibold">
-                              {row.dailyQty.reduce((s, q) => s + q, 0)}
+                              {row.dailyQty.reduce((s, q) => s + (q ?? 0), 0)}
                             </TableCell>
                           </TableRow>
                         ))}
