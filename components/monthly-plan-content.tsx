@@ -101,11 +101,11 @@ export function MonthlyPlanContent() {
       {/* Main Monthly Plan Section - CSV Upload, Table, and Histogram */}
       <MonthlyPlanSection selectedMonth={selectedMonth} />
 
-      {/* Daily Actuals Section */}
-      <DailyActualsSection selectedMonth={selectedMonth} />
-
       {/* Daily Plan Section */}
       <DailyPlanSection selectedMonth={selectedMonth} />
+
+      {/* Daily Actuals Section */}
+      <DailyActualsSection selectedMonth={selectedMonth} />
 
       {/* Footer Guidance */}
       <div className="flex items-center justify-between px-1">
