@@ -40,18 +40,18 @@ const MONTHLY_TARGETS: Record<string, number> = {
   "F135-HPC-001": 120,
   "F135-LPT-002": 80,
   "F135-FAN-003": 100,
-  "GTF-GB-001":   90,
-  "GTF-LPC-002":  110,
-  "GTF-HPT-003":  95,
+  "GTF-GB-001": 90,
+  "GTF-LPC-002": 110,
+  "GTF-HPT-003": 95,
   "LEAP-CMB-001": 75,
   "LEAP-HPT-002": 85,
   "GENX-LPT-001": 70,
   "GENX-HPC-002": 60,
-  "CFM-HPT-001":  65,
-  "CFM-FAN-002":  50,
+  "CFM-HPT-001": 65,
+  "CFM-FAN-002": 50,
 }
 
-const WORK_DAYS = 22
+const WORK_DAYS = 30
 
 // Build sample CSV where each part's daily values sum exactly to its monthly target
 const buildSampleCSV = () => {
@@ -204,11 +204,10 @@ export function DailyPlanSection({ selectedMonth = "January 2024" }: DailyPlanSe
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onClick={() => fileInputRef.current?.click()}
-              className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-all ${
-                isDragging
+              className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-all ${isDragging
                   ? "border-blue-400 bg-blue-50"
                   : "border-border hover:border-muted-foreground/40 hover:bg-muted/30"
-              }`}
+                }`}
             >
               <input
                 ref={fileInputRef}
