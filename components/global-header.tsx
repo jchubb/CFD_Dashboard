@@ -81,21 +81,19 @@ export function GlobalHeader({
   const pathname = usePathname()
   const meta = PAGE_META[pathname] || PAGE_META["/overview"]
   const Icon = meta.icon
-  const [currentTime, setCurrentTime] = useState<string>("")
+  const [elapsed, setElapsed] = useState<string>("00:00:00")
   const [mounted, setMounted] = useState(false)
   const { selectedMonth, setSelectedMonth } = usePlanningPeriod()
 
   useEffect(() => {
     setMounted(true)
+    const refreshedAt = Date.now()
     const update = () => {
-      setCurrentTime(
-        new Date().toLocaleTimeString("en-US", {
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        })
-      )
+      const secs = Math.floor((Date.now() - refreshedAt) / 1000)
+      const h = String(Math.floor(secs / 3600)).padStart(2, "0")
+      const m = String(Math.floor((secs % 3600) / 60)).padStart(2, "0")
+      const s = String(secs % 60).padStart(2, "0")
+      setElapsed(`${h}:${m}:${s}`)
     }
     update()
     const interval = setInterval(update, 1000)
@@ -130,10 +128,10 @@ export function GlobalHeader({
 
         <Separator orientation="vertical" className="h-5" />
 
-        {/* Clock */}
+        {/* Elapsed since load */}
         <div className="flex items-center gap-1.5 text-muted-foreground">
           <Clock className="h-3.5 w-3.5" />
-          <span className="font-mono text-[11px] tabular-nums w-[60px]">{currentTime}</span>
+          <span className="font-mono text-[11px] tabular-nums w-[60px]">{elapsed}</span>
         </div>
 
         <Separator orientation="vertical" className="h-5" />
