@@ -376,7 +376,7 @@ export function ParametersContent() {
       </Card>
 
       {/* Sections grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5">
         {[1, 2, 3, 4].map(sectionId => {
           const sectionName = SECTION_NAMES[sectionId - 1]
           const mList = sectionMachines(sectionId)
