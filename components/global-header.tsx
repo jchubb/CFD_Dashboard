@@ -12,6 +12,12 @@ import {
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
+import {
   LayoutDashboard,
   Calendar,
   Settings2,
@@ -129,10 +135,19 @@ export function GlobalHeader({
         <Separator orientation="vertical" className="h-5" />
 
         {/* Elapsed since load */}
-        <div className="flex items-center gap-1.5 text-muted-foreground">
-          <Clock className="h-3.5 w-3.5" />
-          <span className="font-mono text-[11px] tabular-nums w-[60px]">{elapsed}</span>
-        </div>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-1.5 text-muted-foreground cursor-default">
+                <Clock className="h-3.5 w-3.5" />
+                <span className="font-mono text-[11px] tabular-nums w-[60px]">{elapsed}</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">
+              <p className="text-xs">Time since simulation last updated</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         <Separator orientation="vertical" className="h-5" />
 
