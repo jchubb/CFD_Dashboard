@@ -286,10 +286,13 @@ export function DailyActualsSection({ selectedMonth = "January 2024" }: DailyAct
                         Part Number
                       </TableHead>
                       {Array.from({ length: dayCount }, (_, i) => (
-                        <TableHead key={i} className="font-semibold text-xs text-right min-w-[52px]">
+                        <TableHead className="font-semibold text-xs text-right min-w-[52px]">
                           Day {i + 1}
                         </TableHead>
                       ))}
+                      <TableHead className="font-semibold text-xs text-right min-w-[64px] bg-muted/90">
+                        Total
+                      </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -311,6 +314,9 @@ export function DailyActualsSection({ selectedMonth = "January 2024" }: DailyAct
                                 {qty}
                               </TableCell>
                             ))}
+                            <TableCell className="font-mono text-xs text-right tabular-nums font-semibold">
+                              {row.dailyQty.reduce((s, q) => s + q, 0)}
+                            </TableCell>
                           </TableRow>
                         ))}
                         {/* Totals Row */}
@@ -321,6 +327,9 @@ export function DailyActualsSection({ selectedMonth = "January 2024" }: DailyAct
                               {total}
                             </TableCell>
                           ))}
+                          <TableCell className="font-mono text-xs text-right tabular-nums font-bold">
+                            {dayTotals.reduce((s, t) => s + t, 0)}
+                          </TableCell>
                         </TableRow>
                       </>
                     )}
