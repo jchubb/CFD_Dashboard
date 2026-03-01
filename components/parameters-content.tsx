@@ -407,7 +407,7 @@ export function ParametersContent() {
                   {/* Group A */}
                   <div className="space-y-2">
                     <div className="flex items-center gap-1.5 mb-3">
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Group A</span>
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Oven</span>
                       <span className="flex-1 h-px bg-border" />
                     </div>
                     {groupA.map(machine => (
@@ -425,7 +425,7 @@ export function ParametersContent() {
                   {/* Group B */}
                   <div className="space-y-2 border-l border-dashed border-border pl-4">
                     <div className="flex items-center gap-1.5 mb-3">
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Group B</span>
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quench</span>
                       <span className="flex-1 h-px bg-border" />
                     </div>
                     {groupB.map(machine => (
