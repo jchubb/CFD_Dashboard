@@ -112,6 +112,9 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
   const [uploadMessage, setUploadMessage] = useState("")
   const [isDragging, setIsDragging] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [editingRowId, setEditingRowId] = useState<string | null>(null)
+  const [editingValue, setEditingValue] = useState<string>("")
+  const editInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const parseCSV = useCallback((text: string) => {
@@ -188,6 +191,32 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
     setUploadMessage("")
     setSearchQuery("")
   }, [])
+
+  const handleDoubleClickLE = useCallback((row: DailyLERow) => {
+    const leIdx = (row.dailyQty.length ?? 1) - 1
+    setEditingRowId(row.id)
+    setEditingValue(String(row.dailyQty[leIdx]))
+    setTimeout(() => editInputRef.current?.select(), 0)
+  }, [])
+
+  const commitEdit = useCallback((rowId: string) => {
+    const parsed = parseInt(editingValue)
+    if (!isNaN(parsed)) {
+      setCsvData(prev => prev.map(r => {
+        if (r.id !== rowId) return r
+        const updated = [...r.dailyQty]
+        updated[updated.length - 1] = parsed
+        return { ...r, dailyQty: updated }
+      }))
+    }
+    setEditingRowId(null)
+    setEditingValue("")
+  }, [editingValue])
+
+  const handleEditKeyDown = useCallback((e: React.KeyboardEvent, rowId: string) => {
+    if (e.key === "Enter") commitEdit(rowId)
+    if (e.key === "Escape") { setEditingRowId(null); setEditingValue("") }
+  }, [commitEdit])
 
   const dayCount = csvData[0]?.dailyQty.length ?? 0
 
@@ -364,17 +393,30 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
                             <TableCell className="font-mono text-xs sticky left-0 bg-background z-10">
                               {row.partNumber}
                             </TableCell>
-                            {row.dailyQty.map((qty, di) => (
-                              <TableCell
-                                key={di}
-                                className={`font-mono text-xs text-right tabular-nums ${di === dayCount - 1
-                                  ? "bg-amber-50 font-semibold text-amber-800"
-                                  : ""
-                                  }`}
-                              >
-                                {qty}
-                              </TableCell>
-                            ))}
+                            {row.dailyQty.map((qty, di) => {
+                              const isLE = di === dayCount - 1
+                              const isEditing = isLE && editingRowId === row.id
+                              return (
+                                <TableCell
+                                  key={di}
+                                  className={`font-mono text-xs text-right tabular-nums ${isLE ? "bg-amber-50 font-semibold text-amber-800" : ""}`}
+                                  onDoubleClick={isLE ? () => handleDoubleClickLE(row) : undefined}
+                                  title={isLE ? "Double-click to edit" : undefined}
+                                >
+                                  {isEditing ? (
+                                    <input
+                                      ref={editInputRef}
+                                      type="number"
+                                      value={editingValue}
+                                      onChange={e => setEditingValue(e.target.value)}
+                                      onBlur={() => commitEdit(row.id)}
+                                      onKeyDown={e => handleEditKeyDown(e, row.id)}
+                                      className="w-14 h-6 text-xs font-mono text-right bg-white border border-amber-400 rounded px-1 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                    />
+                                  ) : qty}
+                                </TableCell>
+                              )
+                            })}
                             <TableCell className="font-mono text-xs text-right tabular-nums font-semibold">
                               {row.dailyQty.reduce((s, q) => s + q, 0)}
                             </TableCell>
