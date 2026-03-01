@@ -1,9 +1,9 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState, useCallback } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { MonthlyPlanSection } from "@/components/monthly-plan-section"
+import { MonthlyPlanSection, type MonthlyPlanRow } from "@/components/monthly-plan-section"
 import { DailyActualsSection } from "@/components/daily-actuals-section"
 import { DailyPlanSection } from "@/components/daily-plan-section"
 import { DailyLESection } from "@/components/daily-le-section"
@@ -18,22 +18,26 @@ import {
 
 export function MonthlyPlanContent() {
   const { selectedMonth } = usePlanningPeriod()
+  const [monthlyPlanData, setMonthlyPlanData] = useState<MonthlyPlanRow[]>([])
 
-  // Summary cards data based on selected month (simulated)
+  const handleMonthlyPlanDataChange = useCallback((rows: MonthlyPlanRow[]) => {
+    setMonthlyPlanData(rows)
+  }, [])
+
+  // Summary cards data based on loaded monthly plan
   const monthSummary = useMemo(() => {
-    const monthIndex = availableMonths.indexOf(selectedMonth)
-    const baseTarget = 950 + monthIndex * 30
-    const baseParts = 12 + Math.floor(monthIndex * 0.5)
-    const baseFamilies = 5
-    const baseCompletion = 0
+    const totalTarget = monthlyPlanData.reduce((sum, row) => sum + row.monthlyTarget, 0)
+    const totalParts = monthlyPlanData.length
+    const families = new Set(monthlyPlanData.map(r => r.programFamily)).size
+    const completionRate = 0
 
     return {
-      totalTarget: baseTarget,
-      totalParts: baseParts,
-      families: baseFamilies,
-      completionRate: baseCompletion,
+      totalTarget: totalTarget > 0 ? totalTarget : null,
+      totalParts,
+      families: families > 0 ? families : 5,
+      completionRate,
     }
-  }, [selectedMonth])
+  }, [monthlyPlanData])
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -46,7 +50,9 @@ export function MonthlyPlanContent() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Monthly Target</p>
-              <p className="text-xl font-semibold font-mono">{monthSummary.totalTarget}</p>
+              <p className="text-xl font-semibold font-mono">
+                {monthSummary.totalTarget !== null ? monthSummary.totalTarget : "—"}
+              </p>
               <p className="text-xs text-muted-foreground">total units</p>
             </div>
           </CardContent>
@@ -100,7 +106,7 @@ export function MonthlyPlanContent() {
       </div>
 
       {/* Main Monthly Plan Section - CSV Upload, Table, and Histogram */}
-      <MonthlyPlanSection selectedMonth={selectedMonth} />
+      <MonthlyPlanSection selectedMonth={selectedMonth} onDataChange={handleMonthlyPlanDataChange} />
 
       {/* Daily Plan Section */}
       <DailyPlanSection selectedMonth={selectedMonth} />
