@@ -28,7 +28,7 @@ export interface DailyActualsRow {
   dailyQty: (number | null)[]
 }
 
-// Generate sample CSV with 31 days; days 16-31 are empty to represent incomplete actuals
+// Generate sample CSV with 31 days; days 11-31 are empty to represent incomplete actuals
 const buildSampleCSV = () => {
   const header = ["Part Number", ...Array.from({ length: 31 }, (_, i) => `Day ${i + 1}`)].join(",")
   const parts = [
@@ -47,7 +47,7 @@ const buildSampleCSV = () => {
   ]
   const rows = parts.map((pn) => {
     const dailies = Array.from({ length: 31 }, (_, i) =>
-      i < 15 ? Math.floor(Math.random() * 5 + 1) : ""
+      i < 10 ? Math.floor(Math.random() * 5 + 1) : ""
     )
     return [pn, ...dailies].join(",")
   })
