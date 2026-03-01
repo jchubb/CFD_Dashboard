@@ -102,7 +102,7 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
       const partIdx = headers.findIndex(h => h.includes("part number") || h.includes("part"))
       const descIdx = headers.findIndex(h => h.includes("description") || h.includes("desc"))
       const targetIdx = headers.findIndex(h => h.includes("target") || h.includes("monthly"))
-      const priorityIdx = headers.findIndex(h => h.includes("priority"))
+      // const priorityIdx = headers.findIndex(h => h.includes("priority"))
 
       const weekIndices: number[] = []
       headers.forEach((h, i) => {
