@@ -346,8 +346,8 @@ export function ParametersContent() {
                         <p className="text-muted-foreground pt-1">
                           Valid families: <span className="font-mono">F135, GTF, LEAP-1A, GEnx, CFM56</span>
                         </p>
-                        <p>
-                          Statuses: 0 (offline), 1 (online), 2 (mainenance)
+                        <p className="text-muted-foreground pt-1">
+                          Statuses: <span className="font-mono"> 0 (offline), 1 (online), 2 (mainenance)</span>
                         </p>
                       </div>
                     </div>
