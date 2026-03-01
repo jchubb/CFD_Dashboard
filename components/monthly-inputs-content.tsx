@@ -100,24 +100,23 @@ interface PartCatalogItem {
   partNumber: string
   description: string
   standardCycleTime: number
-  priority: "high" | "medium" | "low"
   monthlyTarget: number
   currentScheduled: number
 }
 
 const partsCatalog: PartCatalogItem[] = [
-  { id: "p1", programFamily: "F135", partNumber: "F135-HPC-001", description: "High Pressure Compressor Blade", standardCycleTime: 45, priority: "high", monthlyTarget: 120, currentScheduled: 85 },
-  { id: "p2", programFamily: "F135", partNumber: "F135-LPT-002", description: "Low Pressure Turbine Disk", standardCycleTime: 60, priority: "high", monthlyTarget: 80, currentScheduled: 62 },
-  { id: "p3", programFamily: "F135", partNumber: "F135-FAN-003", description: "Fan Blade Assembly", standardCycleTime: 35, priority: "medium", monthlyTarget: 100, currentScheduled: 78 },
-  { id: "p4", programFamily: "GTF", partNumber: "GTF-GB-001", description: "Gearbox Housing", standardCycleTime: 55, priority: "high", monthlyTarget: 90, currentScheduled: 65 },
-  { id: "p5", programFamily: "GTF", partNumber: "GTF-LPC-002", description: "Low Pressure Compressor Stator", standardCycleTime: 40, priority: "medium", monthlyTarget: 110, currentScheduled: 88 },
-  { id: "p6", programFamily: "GTF", partNumber: "GTF-HPT-003", description: "High Pressure Turbine Blade", standardCycleTime: 50, priority: "high", monthlyTarget: 95, currentScheduled: 71 },
-  { id: "p7", programFamily: "LEAP-1A", partNumber: "LEAP-CMB-001", description: "Combustor Liner", standardCycleTime: 65, priority: "medium", monthlyTarget: 75, currentScheduled: 58 },
-  { id: "p8", programFamily: "LEAP-1A", partNumber: "LEAP-HPT-002", description: "HPT Nozzle Guide Vane", standardCycleTime: 48, priority: "high", monthlyTarget: 85, currentScheduled: 64 },
-  { id: "p9", programFamily: "GEnx", partNumber: "GENX-LPT-001", description: "LPT Blade", standardCycleTime: 42, priority: "medium", monthlyTarget: 70, currentScheduled: 52 },
-  { id: "p10", programFamily: "GEnx", partNumber: "GENX-HPC-002", description: "HPC Rotor", standardCycleTime: 70, priority: "low", monthlyTarget: 60, currentScheduled: 45 },
-  { id: "p11", programFamily: "CFM56", partNumber: "CFM-HPT-001", description: "HPT Shroud", standardCycleTime: 38, priority: "low", monthlyTarget: 65, currentScheduled: 55 },
-  { id: "p12", programFamily: "CFM56", partNumber: "CFM-FAN-002", description: "Fan Case", standardCycleTime: 55, priority: "low", monthlyTarget: 50, currentScheduled: 42 },
+  { id: "p1",  programFamily: "F135",   partNumber: "F135-HPC-001",  description: "High Pressure Compressor Blade",    standardCycleTime: 45, monthlyTarget: 120, currentScheduled: 85 },
+  { id: "p2",  programFamily: "F135",   partNumber: "F135-LPT-002",  description: "Low Pressure Turbine Disk",          standardCycleTime: 60, monthlyTarget: 80,  currentScheduled: 62 },
+  { id: "p3",  programFamily: "F135",   partNumber: "F135-FAN-003",  description: "Fan Blade Assembly",                 standardCycleTime: 35, monthlyTarget: 100, currentScheduled: 78 },
+  { id: "p4",  programFamily: "GTF",    partNumber: "GTF-GB-001",    description: "Gearbox Housing",                    standardCycleTime: 55, monthlyTarget: 90,  currentScheduled: 65 },
+  { id: "p5",  programFamily: "GTF",    partNumber: "GTF-LPC-002",   description: "Low Pressure Compressor Stator",     standardCycleTime: 40, monthlyTarget: 110, currentScheduled: 88 },
+  { id: "p6",  programFamily: "GTF",    partNumber: "GTF-HPT-003",   description: "High Pressure Turbine Blade",        standardCycleTime: 50, monthlyTarget: 95,  currentScheduled: 71 },
+  { id: "p7",  programFamily: "LEAP-1A",partNumber: "LEAP-CMB-001",  description: "Combustor Liner",                    standardCycleTime: 65, monthlyTarget: 75,  currentScheduled: 58 },
+  { id: "p8",  programFamily: "LEAP-1A",partNumber: "LEAP-HPT-002",  description: "HPT Nozzle Guide Vane",              standardCycleTime: 48, monthlyTarget: 85,  currentScheduled: 64 },
+  { id: "p9",  programFamily: "GEnx",   partNumber: "GENX-LPT-001",  description: "LPT Blade",                          standardCycleTime: 42, monthlyTarget: 70,  currentScheduled: 52 },
+  { id: "p10", programFamily: "GEnx",   partNumber: "GENX-HPC-002",  description: "HPC Rotor",                          standardCycleTime: 70, monthlyTarget: 60,  currentScheduled: 45 },
+  { id: "p11", programFamily: "CFM56",  partNumber: "CFM-HPT-001",   description: "HPT Shroud",                         standardCycleTime: 38, monthlyTarget: 65,  currentScheduled: 55 },
+  { id: "p12", programFamily: "CFM56",  partNumber: "CFM-FAN-002",   description: "Fan Case",                           standardCycleTime: 55, monthlyTarget: 50,  currentScheduled: 42 },
 ]
 
 // ------------------------------------------------------------------
@@ -461,8 +460,7 @@ export function MonthlyInputsContent() {
                     <TableHead className="font-semibold text-xs w-[100px]">Family</TableHead>
                     <TableHead className="font-semibold text-xs">Part Number</TableHead>
                     <TableHead className="font-semibold text-xs">Description</TableHead>
-                    <TableHead className="font-semibold text-xs text-center w-[80px]">Priority</TableHead>
-                    <TableHead className="font-semibold text-xs text-right w-[100px]">Monthly Target</TableHead>
+                            <TableHead className="font-semibold text-xs text-right w-[100px]">Monthly Target</TableHead>
                     <TableHead className="font-semibold text-xs text-right w-[100px]">Scheduled</TableHead>
                     <TableHead className="font-semibold text-xs text-right w-[80px]">VP</TableHead>
                   </TableRow>
@@ -489,18 +487,6 @@ export function MonthlyInputsContent() {
                         </TableCell>
                         <TableCell className="font-mono text-xs">{part.partNumber}</TableCell>
                         <TableCell className="text-xs text-muted-foreground">{part.description}</TableCell>
-                        <TableCell className="text-center">
-                          <Badge
-                            variant="outline"
-                            className={`text-xs ${
-                              part.priority === "high" ? "border-red-300 text-red-700 bg-red-50" :
-                              part.priority === "medium" ? "border-amber-300 text-amber-700 bg-amber-50" :
-                              "border-gray-300 text-gray-600 bg-gray-50"
-                            }`}
-                          >
-                            {part.priority}
-                          </Badge>
-                        </TableCell>
                         <TableCell className="font-mono text-xs text-right">{part.monthlyTarget}</TableCell>
                         <TableCell className="font-mono text-xs text-right">{part.currentScheduled}</TableCell>
                         <TableCell className={`font-mono text-xs text-right font-semibold ${
