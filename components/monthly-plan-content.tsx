@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { MonthlyPlanSection } from "@/components/monthly-plan-section"
 import { DailyActualsSection } from "@/components/daily-actuals-section"
 import { DailyPlanSection } from "@/components/daily-plan-section"
+import { DailyLESection } from "@/components/daily-le-section"
 import { usePlanningPeriod, availableMonths } from "@/components/planning-period-context"
 import {
   FileBarChart,
@@ -106,6 +107,9 @@ export function MonthlyPlanContent() {
 
       {/* Daily Actuals Section */}
       <DailyActualsSection selectedMonth={selectedMonth} />
+
+      {/* Daily LE Section */}
+      <DailyLESection selectedMonth={selectedMonth} />
 
       {/* Footer Guidance */}
       <div className="flex items-center justify-between px-1">
