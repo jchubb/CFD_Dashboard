@@ -389,16 +389,12 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
                           <TableHead className="font-semibold text-xs">Part Number</TableHead>
                           <TableHead className="font-semibold text-xs">Description</TableHead>
                           <TableHead className="font-semibold text-xs text-right w-[100px]">Monthly Target</TableHead>
-                          <TableHead className="font-semibold text-xs text-right w-[70px]">Wk 1</TableHead>
-                          <TableHead className="font-semibold text-xs text-right w-[70px]">Wk 2</TableHead>
-                          <TableHead className="font-semibold text-xs text-right w-[70px]">Wk 3</TableHead>
-                          <TableHead className="font-semibold text-xs text-right w-[70px]">Wk 4</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {filteredData.length === 0 ? (
                           <TableRow>
-                            <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                            <TableCell colSpan={4} className="text-center py-8 text-muted-foreground">
                               No parts match your search.
                             </TableCell>
                           </TableRow>
@@ -413,9 +409,6 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
                               <TableCell className="font-mono text-xs">{row.partNumber}</TableCell>
                               <TableCell className="text-xs text-muted-foreground">{row.description}</TableCell>
                               <TableCell className="font-mono text-xs text-right font-semibold">{row.monthlyTarget}</TableCell>
-                              {row.weeklyBreakdown.map((wk, i) => (
-                                <TableCell key={i} className="font-mono text-xs text-right text-muted-foreground">{wk}</TableCell>
-                              ))}
                             </TableRow>
                           ))
                         )}
@@ -426,11 +419,6 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
                             <TableCell className="font-mono text-xs text-right">
                               {filteredData.reduce((s, r) => s + r.monthlyTarget, 0)}
                             </TableCell>
-                            {[0, 1, 2, 3].map(i => (
-                              <TableCell key={i} className="font-mono text-xs text-right">
-                                {filteredData.reduce((s, r) => s + (r.weeklyBreakdown[i] || 0), 0)}
-                              </TableCell>
-                            ))}
                           </TableRow>
                         )}
                       </TableBody>
