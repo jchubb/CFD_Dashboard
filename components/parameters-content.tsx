@@ -34,11 +34,11 @@ import {
 
 // Part family color definitions (consistent with scheduling-content.tsx)
 const FAMILY_COLORS: Record<string, { label: string; bg: string; border: string; text: string; dot: string }> = {
-  F135:     { label: "F135",     bg: "bg-blue-50",    border: "border-blue-300",    text: "text-blue-700",    dot: "bg-blue-500" },
-  GTF:      { label: "GTF",      bg: "bg-purple-50",  border: "border-purple-300",  text: "text-purple-700",  dot: "bg-purple-500" },
-  "LEAP-1A":{ label: "LEAP-1A",  bg: "bg-emerald-50", border: "border-emerald-300", text: "text-emerald-700", dot: "bg-emerald-500" },
-  GEnx:     { label: "GEnx",     bg: "bg-amber-50",   border: "border-amber-300",   text: "text-amber-700",   dot: "bg-amber-500" },
-  CFM56:    { label: "CFM56",    bg: "bg-gray-50",    border: "border-gray-300",    text: "text-gray-700",    dot: "bg-gray-400" },
+  F135: { label: "F135", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700", dot: "bg-blue-500" },
+  GTF: { label: "GTF", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700", dot: "bg-purple-500" },
+  "LEAP-1A": { label: "LEAP-1A", bg: "bg-emerald-50", border: "border-emerald-300", text: "text-emerald-700", dot: "bg-emerald-500" },
+  GEnx: { label: "GEnx", bg: "bg-amber-50", border: "border-amber-300", text: "text-amber-700", dot: "bg-amber-500" },
+  CFM56: { label: "CFM56", bg: "bg-gray-50", border: "border-gray-300", text: "text-gray-700", dot: "bg-gray-400" },
 }
 
 type MachineStatus = "online" | "offline" | "maintenance"
@@ -60,18 +60,18 @@ interface Machine {
 // ------------------------------------------------------------------
 function generateMockMachines(): Machine[] {
   const sections = [
-    { id: 1, name: "Compressor", families: ["F135","F135","GTF","GTF","LEAP-1A","LEAP-1A","GEnx","CFM56"] },
-    { id: 2, name: "Turbine",    families: ["F135","GTF","GTF","LEAP-1A","LEAP-1A","GEnx","GEnx","CFM56"] },
-    { id: 3, name: "Combustor",  families: ["F135","F135","GTF","LEAP-1A","GEnx","GEnx","CFM56","CFM56"] },
-    { id: 4, name: "Fan & Cases",families: ["F135","GTF","GTF","GTF","LEAP-1A","GEnx","CFM56","CFM56"] },
+    { id: 1, name: "Line 1", families: ["F135", "F135", "GTF", "GTF", "LEAP-1A", "LEAP-1A", "GEnx", "CFM56"] },
+    { id: 2, name: "Line 2", families: ["F135", "GTF", "GTF", "LEAP-1A", "LEAP-1A", "GEnx", "GEnx", "CFM56"] },
+    { id: 3, name: "Line 3", families: ["F135", "F135", "GTF", "LEAP-1A", "GEnx", "GEnx", "CFM56", "CFM56"] },
+    { id: 4, name: "Line 4", families: ["F135", "GTF", "GTF", "GTF", "LEAP-1A", "GEnx", "CFM56", "CFM56"] },
   ]
 
   // Simulated real-time statuses (some offline / maintenance for realism)
   const statusPatterns: MachineStatus[][] = [
-    ["online","online","online","online","online","offline","online","maintenance"],
-    ["online","online","maintenance","online","online","online","online","online"],
-    ["online","online","online","offline","online","online","online","online"],
-    ["online","offline","online","online","online","online","maintenance","online"],
+    ["online", "online", "online", "online", "online", "offline", "online", "maintenance"],
+    ["online", "online", "maintenance", "online", "online", "online", "online", "online"],
+    ["online", "online", "online", "offline", "online", "online", "online", "online"],
+    ["online", "offline", "online", "online", "online", "online", "maintenance", "online"],
   ]
 
   const machines: Machine[] = []
@@ -101,7 +101,7 @@ function generateMockMachines(): Machine[] {
   return machines
 }
 
-const SECTION_NAMES = ["Compressor", "Turbine", "Combustor", "Fan & Cases"]
+const SECTION_NAMES = ["Line 1", "Line 2", "Line 3", "Line 4"]
 
 // ------------------------------------------------------------------
 // Component
@@ -334,7 +334,7 @@ export function ParametersContent() {
                       <div className="text-xs border-t pt-2 space-y-1">
                         <p className="font-medium text-muted-foreground">Required CSV Schema:</p>
                         <div className="bg-muted/50 rounded p-2 font-mono text-[11px] space-y-0.5">
-                          <p className="text-muted-foreground">machine_id,assigned_family</p>
+                          <p className="text-muted-foreground">BT_id,assigned_family</p>
                           <p>S1-A1,F135</p>
                           <p>S1-A2,GTF</p>
                           <p>S2-B3,LEAP-1A</p>
@@ -478,20 +478,19 @@ function MachineRow({
 }) {
   const fc = FAMILY_COLORS[machine.assignedFamily] ?? FAMILY_COLORS.CFM56
   const isOverridden = machine.overrideEnabled !== null
-  const statusIcon = effectiveStatus === "online" 
-    ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> 
-    : effectiveStatus === "maintenance" 
-      ? <Wrench className="h-3.5 w-3.5 text-amber-600" /> 
+  const statusIcon = effectiveStatus === "online"
+    ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+    : effectiveStatus === "maintenance"
+      ? <Wrench className="h-3.5 w-3.5 text-amber-600" />
       : <XCircle className="h-3.5 w-3.5 text-red-500" />
 
   return (
-    <div className={`flex items-center gap-3 rounded-lg border p-2.5 transition-colors ${
-      effectiveStatus === "online"
+    <div className={`flex items-center gap-3 rounded-lg border p-2.5 transition-colors ${effectiveStatus === "online"
         ? "border-emerald-200 bg-emerald-50/40"
         : effectiveStatus === "maintenance"
           ? "border-amber-200 bg-amber-50/40"
           : "border-red-200 bg-red-50/40"
-    }`}>
+      }`}>
       {/* Family color indicator */}
       <TooltipProvider>
         <Tooltip>
