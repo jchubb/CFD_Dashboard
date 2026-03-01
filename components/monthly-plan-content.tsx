@@ -4,6 +4,7 @@ import { useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MonthlyPlanSection } from "@/components/monthly-plan-section"
+import { DailyActualsSection } from "@/components/daily-actuals-section"
 import { usePlanningPeriod, availableMonths } from "@/components/planning-period-context"
 import {
   FileBarChart,
@@ -98,6 +99,9 @@ export function MonthlyPlanContent() {
 
       {/* Main Monthly Plan Section - CSV Upload, Table, and Histogram */}
       <MonthlyPlanSection selectedMonth={selectedMonth} />
+
+      {/* Daily Actuals Section */}
+      <DailyActualsSection selectedMonth={selectedMonth} />
 
       {/* Footer Guidance */}
       <div className="flex items-center justify-between px-1">
