@@ -33,8 +33,8 @@ export function MonthlyPlanContent() {
 
     return {
       totalTarget: totalTarget > 0 ? totalTarget : null,
-      totalParts,
-      families: families > 0 ? families : 5,
+      totalParts: totalParts > 0 ? totalParts : null,
+      families: families > 0 ? families : null,
       completionRate,
     }
   }, [monthlyPlanData])
@@ -64,7 +64,9 @@ export function MonthlyPlanContent() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Unique Parts</p>
-              <p className="text-xl font-semibold font-mono">{monthSummary.totalParts}</p>
+              <p className="text-xl font-semibold font-mono">
+                {monthSummary.totalParts !== null ? monthSummary.totalParts : "—"}
+              </p>
               <p className="text-xs text-muted-foreground">in plan</p>
             </div>
           </CardContent>
@@ -76,7 +78,9 @@ export function MonthlyPlanContent() {
             </div>
             <div>
               <p className="text-xs text-muted-foreground">Program Families</p>
-              <p className="text-xl font-semibold font-mono">{monthSummary.families}</p>
+              <p className="text-xl font-semibold font-mono">
+                {monthSummary.families !== null ? monthSummary.families : "—"}
+              </p>
               <p className="text-xs text-muted-foreground">active</p>
             </div>
           </CardContent>
