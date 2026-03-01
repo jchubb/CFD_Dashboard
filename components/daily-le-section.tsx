@@ -33,18 +33,18 @@ const MONTHLY_TARGETS: Record<string, number> = {
   "F135-HPC-001": 120,
   "F135-LPT-002": 80,
   "F135-FAN-003": 100,
-  "GTF-GB-001":   90,
-  "GTF-LPC-002":  110,
-  "GTF-HPT-003":  95,
+  "GTF-GB-001": 90,
+  "GTF-LPC-002": 110,
+  "GTF-HPT-003": 95,
   "LEAP-CMB-001": 75,
   "LEAP-HPT-002": 85,
   "GENX-LPT-001": 70,
   "GENX-HPC-002": 60,
-  "CFM-HPT-001":  65,
-  "CFM-FAN-002":  50,
+  "CFM-HPT-001": 65,
+  "CFM-FAN-002": 50,
 }
 
-const WORK_DAYS = 22
+const WORK_DAYS = 30
 
 // Distribute a total integer across n days as evenly as possible (no fractions)
 function distributeEvenly(total: number, days: number): number[] {
@@ -59,15 +59,15 @@ const SAMPLE_ACTUALS_DAYS1_10: Record<string, number[]> = {
   "F135-HPC-001": [4, 3, 5, 2, 4, 3, 4, 3, 2, 2],
   "F135-LPT-002": [3, 2, 4, 2, 3, 2, 3, 2, 2, 3],
   "F135-FAN-003": [3, 4, 3, 3, 4, 2, 3, 3, 2, 3],
-  "GTF-GB-001":   [3, 3, 4, 2, 3, 2, 4, 2, 2, 3],
-  "GTF-LPC-002":  [4, 3, 5, 3, 4, 3, 4, 3, 3, 3],
-  "GTF-HPT-003":  [3, 3, 4, 3, 3, 3, 4, 3, 2, 3],
+  "GTF-GB-001": [3, 3, 4, 2, 3, 2, 4, 2, 2, 3],
+  "GTF-LPC-002": [4, 3, 5, 3, 4, 3, 4, 3, 3, 3],
+  "GTF-HPT-003": [3, 3, 4, 3, 3, 3, 4, 3, 2, 3],
   "LEAP-CMB-001": [2, 3, 3, 2, 3, 2, 3, 2, 2, 2],
   "LEAP-HPT-002": [3, 3, 4, 2, 3, 2, 3, 3, 2, 3],
   "GENX-LPT-001": [2, 3, 3, 2, 2, 2, 3, 2, 2, 2],
   "GENX-HPC-002": [2, 2, 3, 2, 2, 2, 2, 2, 2, 2],
-  "CFM-HPT-001":  [2, 2, 3, 2, 2, 2, 3, 2, 2, 2],
-  "CFM-FAN-002":  [2, 1, 2, 2, 2, 1, 2, 1, 1, 2],
+  "CFM-HPT-001": [2, 2, 3, 2, 2, 2, 3, 2, 2, 2],
+  "CFM-FAN-002": [2, 1, 2, 2, 2, 1, 2, 1, 1, 2],
 }
 
 /**
@@ -87,7 +87,7 @@ const buildSampleCSV = () => {
   const header = ["Part Number", ...Array.from({ length: LE_DAYS }, (_, i) => `Day ${i + 1}`)].join(",")
 
   const rows = Object.entries(MONTHLY_TARGETS).map(([pn, target]) => {
-    const planAll = distributeEvenly(target, WORK_DAYS)          // 22 values
+    const planAll = distributeEvenly(target, WORK_DAYS)          // 30 values
     const planDays1_10 = planAll.slice(0, 10).reduce((s, v) => s + v, 0)
     const actualDays1_10 = (SAMPLE_ACTUALS_DAYS1_10[pn] ?? Array(10).fill(3))
       .reduce((s: number, v: number) => s + v, 0)
@@ -241,11 +241,10 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onClick={() => fileInputRef.current?.click()}
-              className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-all ${
-                isDragging
-                  ? "border-blue-400 bg-blue-50"
-                  : "border-border hover:border-muted-foreground/40 hover:bg-muted/30"
-              }`}
+              className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-all ${isDragging
+                ? "border-blue-400 bg-blue-50"
+                : "border-border hover:border-muted-foreground/40 hover:bg-muted/30"
+                }`}
             >
               <input
                 ref={fileInputRef}
@@ -337,9 +336,8 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
                       {Array.from({ length: dayCount }, (_, i) => (
                         <TableHead
                           key={i}
-                          className={`font-semibold text-xs text-right min-w-[52px] ${
-                            i === dayCount - 1 ? "bg-amber-50 text-amber-700" : ""
-                          }`}
+                          className={`font-semibold text-xs text-right min-w-[52px] ${i === dayCount - 1 ? "bg-amber-50 text-amber-700" : ""
+                            }`}
                         >
                           Day {i + 1}
                           {i === dayCount - 1 && (
@@ -369,11 +367,10 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
                             {row.dailyQty.map((qty, di) => (
                               <TableCell
                                 key={di}
-                                className={`font-mono text-xs text-right tabular-nums ${
-                                  di === dayCount - 1
-                                    ? "bg-amber-50 font-semibold text-amber-800"
-                                    : ""
-                                }`}
+                                className={`font-mono text-xs text-right tabular-nums ${di === dayCount - 1
+                                  ? "bg-amber-50 font-semibold text-amber-800"
+                                  : ""
+                                  }`}
                               >
                                 {qty}
                               </TableCell>
@@ -389,9 +386,8 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
                           {dayTotals.map((total, di) => (
                             <TableCell
                               key={di}
-                              className={`font-mono text-xs text-right tabular-nums ${
-                                di === dayCount - 1 ? "bg-amber-50 text-amber-800 font-semibold" : ""
-                              }`}
+                              className={`font-mono text-xs text-right tabular-nums ${di === dayCount - 1 ? "bg-amber-50 text-amber-800 font-semibold" : ""
+                                }`}
                             >
                               {total}
                             </TableCell>
