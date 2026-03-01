@@ -35,15 +35,6 @@ function distributeEvenly(total: number, days: number): number[] {
   return Array.from({ length: days }, (_, i) => base + (i < remainder ? 1 : 0))
 }
 
-// Parse "Month YYYY" string and return the number of days in that month
-function getDaysInMonth(monthStr: string): number {
-  const parts = monthStr.split(" ")
-  const monthName = parts[0]
-  const year = parseInt(parts[1]) || 2024
-  const monthIndex = new Date(`${monthName} 1, ${year}`).getMonth()
-  return new Date(year, monthIndex + 1, 0).getDate()
-}
-
 // Monthly targets matching the monthly-plan-section sample data
 const MONTHLY_TARGETS: Record<string, number> = {
   "F135-HPC-001": 120,
@@ -60,30 +51,31 @@ const MONTHLY_TARGETS: Record<string, number> = {
   "CFM-FAN-002":  50,
 }
 
+const WORK_DAYS = 22
+
 // Build sample CSV where each part's daily values sum exactly to its monthly target
-const buildSampleCSV = (days: number) => {
-  const header = ["Part Number", ...Array.from({ length: days }, (_, i) => `Day ${i + 1}`)].join(",")
+const buildSampleCSV = () => {
+  const header = ["Part Number", ...Array.from({ length: WORK_DAYS }, (_, i) => `Day ${i + 1}`)].join(",")
   const rows = Object.entries(MONTHLY_TARGETS).map(([pn, target]) => {
-    const dailies = distributeEvenly(target, days)
+    const dailies = distributeEvenly(target, WORK_DAYS)
     return [pn, ...dailies].join(",")
   })
   return [header, ...rows].join("\n")
 }
+
+const sampleCSV = buildSampleCSV()
 
 interface DailyPlanSectionProps {
   selectedMonth?: string
 }
 
 export function DailyPlanSection({ selectedMonth = "January 2024" }: DailyPlanSectionProps) {
-  const daysInMonth = getDaysInMonth(selectedMonth)
   const [csvData, setCsvData] = useState<DailyPlanRow[]>([])
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
   const [uploadMessage, setUploadMessage] = useState("")
   const [isDragging, setIsDragging] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const fileInputRef = useRef<HTMLInputElement>(null)
-
-  const handleLoadSample = useCallback(() => parseCSV(buildSampleCSV(daysInMonth)), [parseCSV, daysInMonth])
 
   const parseCSV = useCallback((text: string) => {
     try {
@@ -152,6 +144,7 @@ export function DailyPlanSection({ selectedMonth = "January 2024" }: DailyPlanSe
   }, [])
 
   const handleDragLeave = useCallback(() => setIsDragging(false), [])
+  const handleLoadSample = useCallback(() => parseCSV(sampleCSV), [parseCSV])
   const handleClearData = useCallback(() => {
     setCsvData([])
     setUploadStatus("idle")
@@ -266,10 +259,10 @@ export function DailyPlanSection({ selectedMonth = "January 2024" }: DailyPlanSe
             <div className="p-3 rounded-lg border border-border bg-card">
               <p className="text-xs font-medium text-foreground mb-2">Expected CSV Format:</p>
               <div className="font-mono text-xs text-muted-foreground bg-muted/50 p-2 rounded overflow-x-auto">
-                <p>Part Number,Day 1,Day 2,...,Day {daysInMonth}</p>
-                <p>F135-HPC-001,4,4,4,...,4</p>
+                <p>Part Number,Day 1,Day 2,Day 3,...,Day 22</p>
+                <p>F135-HPC-001,6,5,6,5,...,5</p>
                 <p className="text-muted-foreground/60 mt-1">
-                  * {daysInMonth} days expected for {selectedMonth}. Each part&apos;s daily values should sum to its monthly target.
+                  * Each part's daily values must sum to its monthly target
                 </p>
               </div>
             </div>
