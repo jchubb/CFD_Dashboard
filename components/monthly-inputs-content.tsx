@@ -106,7 +106,7 @@ interface PartCatalogItem {
 }
 
 const partsCatalog: PartCatalogItem[] = [
-  { id: "p1", programFamily: "F135", partNumber: "9S54111549G1S", description: "High Pressure Compressor Blade", standardCycleTime: 45, priority: "high", monthlyTarget: 120, currentScheduled: 85 },
+  { id: "p1", programFamily: "F135", partNumber: "F135-HPC-001", description: "High Pressure Compressor Blade", standardCycleTime: 45, priority: "high", monthlyTarget: 120, currentScheduled: 85 },
   { id: "p2", programFamily: "F135", partNumber: "F135-LPT-002", description: "Low Pressure Turbine Disk", standardCycleTime: 60, priority: "high", monthlyTarget: 80, currentScheduled: 62 },
   { id: "p3", programFamily: "F135", partNumber: "F135-FAN-003", description: "Fan Blade Assembly", standardCycleTime: 35, priority: "medium", monthlyTarget: 100, currentScheduled: 78 },
   { id: "p4", programFamily: "GTF", partNumber: "GTF-GB-001", description: "Gearbox Housing", standardCycleTime: 55, priority: "high", monthlyTarget: 90, currentScheduled: 65 },
@@ -254,8 +254,8 @@ export function MonthlyInputsContent() {
     const effectiveHoursPerDay = appliedConditions.availableHours - appliedConditions.plannedDowntime
     const unitsPerDay = Math.floor(
       (effectiveHoursPerDay * 60) /
-      appliedConditions.cycleTime *
-      (appliedConditions.oee / 100),
+        appliedConditions.cycleTime *
+        (appliedConditions.oee / 100),
     )
     const weeklyCapacity = unitsPerDay * 5
     const monthlyCapacity = unitsPerDay * 22
@@ -272,11 +272,11 @@ export function MonthlyInputsContent() {
   const effectiveHours = appliedConditions.availableHours - appliedConditions.plannedDowntime
   const theoreticalDailyCapacity = Math.round(
     (effectiveHours * 60) /
-    appliedConditions.cycleTime *
-    (appliedConditions.oee / 100) *
-    (appliedConditions.laborEfficiency / 100) *
-    (appliedConditions.materialAvailability / 100) *
-    (appliedConditions.qualityRate / 100),
+      appliedConditions.cycleTime *
+      (appliedConditions.oee / 100) *
+      (appliedConditions.laborEfficiency / 100) *
+      (appliedConditions.materialAvailability / 100) *
+      (appliedConditions.qualityRate / 100),
   )
 
   return (
@@ -313,18 +313,20 @@ export function MonthlyInputsContent() {
       </div>
 
       {/* Capacity Summary Card */}
-      <Card className={`border-2 ${activeScenario === "bull" ? "border-emerald-200 bg-emerald-50/30" :
+      <Card className={`border-2 ${
+        activeScenario === "bull" ? "border-emerald-200 bg-emerald-50/30" :
         activeScenario === "bear" ? "border-red-200 bg-red-50/30" :
-          activeScenario === "base" ? "border-slate-200 bg-slate-50/30" :
-            "border-border"
-        }`}>
+        activeScenario === "base" ? "border-slate-200 bg-slate-50/30" :
+        "border-border"
+      }`}>
         <CardHeader className="py-4">
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg ${activeScenario === "bull" ? "bg-emerald-100" :
+            <div className={`p-2 rounded-lg ${
+              activeScenario === "bull" ? "bg-emerald-100" :
               activeScenario === "bear" ? "bg-red-100" :
-                activeScenario === "base" ? "bg-slate-100" :
-                  "bg-muted"
-              }`}>
+              activeScenario === "base" ? "bg-slate-100" :
+              "bg-muted"
+            }`}>
               {activeScenario === "bull" ? (
                 <TrendingUp className="h-5 w-5 text-emerald-600" />
               ) : activeScenario === "bear" ? (
@@ -474,12 +476,13 @@ export function MonthlyInputsContent() {
                         <TableCell>
                           <Badge
                             variant="outline"
-                            className={`font-medium text-xs ${part.programFamily === "F135" ? "border-blue-300 text-blue-700 bg-blue-50" :
+                            className={`font-medium text-xs ${
+                              part.programFamily === "F135" ? "border-blue-300 text-blue-700 bg-blue-50" :
                               part.programFamily === "GTF" ? "border-purple-300 text-purple-700 bg-purple-50" :
-                                part.programFamily === "LEAP-1A" ? "border-emerald-300 text-emerald-700 bg-emerald-50" :
-                                  part.programFamily === "GEnx" ? "border-amber-300 text-amber-700 bg-amber-50" :
-                                    "border-gray-300 text-gray-700 bg-gray-50"
-                              }`}
+                              part.programFamily === "LEAP-1A" ? "border-emerald-300 text-emerald-700 bg-emerald-50" :
+                              part.programFamily === "GEnx" ? "border-amber-300 text-amber-700 bg-amber-50" :
+                              "border-gray-300 text-gray-700 bg-gray-50"
+                            }`}
                           >
                             {part.programFamily}
                           </Badge>
@@ -489,20 +492,22 @@ export function MonthlyInputsContent() {
                         <TableCell className="text-center">
                           <Badge
                             variant="outline"
-                            className={`text-xs ${part.priority === "high" ? "border-red-300 text-red-700 bg-red-50" :
+                            className={`text-xs ${
+                              part.priority === "high" ? "border-red-300 text-red-700 bg-red-50" :
                               part.priority === "medium" ? "border-amber-300 text-amber-700 bg-amber-50" :
-                                "border-gray-300 text-gray-600 bg-gray-50"
-                              }`}
+                              "border-gray-300 text-gray-600 bg-gray-50"
+                            }`}
                           >
                             {part.priority}
                           </Badge>
                         </TableCell>
                         <TableCell className="font-mono text-xs text-right">{part.monthlyTarget}</TableCell>
                         <TableCell className="font-mono text-xs text-right">{part.currentScheduled}</TableCell>
-                        <TableCell className={`font-mono text-xs text-right font-semibold ${gap > part.monthlyTarget * 0.3 ? "text-red-600" :
+                        <TableCell className={`font-mono text-xs text-right font-semibold ${
+                          gap > part.monthlyTarget * 0.3 ? "text-red-600" :
                           gap > part.monthlyTarget * 0.15 ? "text-amber-600" :
-                            "text-emerald-600"
-                          }`}>
+                          "text-emerald-600"
+                        }`}>
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>

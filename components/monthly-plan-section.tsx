@@ -102,7 +102,7 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
       const partIdx = headers.findIndex(h => h.includes("part number") || h.includes("part"))
       const descIdx = headers.findIndex(h => h.includes("description") || h.includes("desc"))
       const targetIdx = headers.findIndex(h => h.includes("target") || h.includes("monthly"))
-      // const priorityIdx = headers.findIndex(h => h.includes("priority"))
+      const priorityIdx = headers.findIndex(h => h.includes("priority"))
 
       const weekIndices: number[] = []
       headers.forEach((h, i) => {
@@ -122,11 +122,11 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
         const weeklyBreakdown = weekIndices.length > 0
           ? weekIndices.map(wi => parseInt(cols[wi]) || 0)
           : [
-            Math.ceil(target * 0.25),
-            Math.ceil(target * 0.25),
-            Math.ceil(target * 0.25),
-            target - Math.ceil(target * 0.25) * 3,
-          ]
+              Math.ceil(target * 0.25),
+              Math.ceil(target * 0.25),
+              Math.ceil(target * 0.25),
+              target - Math.ceil(target * 0.25) * 3,
+            ]
 
         rows.push({
           id: `csv-${i}-${Date.now()}`,
@@ -300,10 +300,11 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onClick={() => fileInputRef.current?.click()}
-              className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-all ${isDragging
-                ? "border-blue-400 bg-blue-50"
-                : "border-border hover:border-muted-foreground/40 hover:bg-muted/30"
-                }`}
+              className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-all ${
+                isDragging
+                  ? "border-blue-400 bg-blue-50"
+                  : "border-border hover:border-muted-foreground/40 hover:bg-muted/30"
+              }`}
             >
               <input
                 ref={fileInputRef}
@@ -352,8 +353,8 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
             <div className="p-3 rounded-lg border border-border bg-card">
               <p className="text-xs font-medium text-foreground mb-2">Expected CSV Format:</p>
               <div className="font-mono text-xs text-muted-foreground bg-muted/50 p-2 rounded overflow-x-auto">
-                <p>Part Number,Monthly Target</p>
-                <p>9S54110895G1S,54</p>
+                <p>Program Family,Part Number,Description,Monthly Target,Week 1,Week 2,Week 3,Week 4,Priority</p>
+                <p>F135,F135-HPC-001,HPC Blade,120,30,30,30,30,high</p>
               </div>
             </div>
           </div>
@@ -418,10 +419,11 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
                               <TableCell className="text-center">
                                 <Badge
                                   variant="outline"
-                                  className={`text-xs ${row.priority === "high" ? "border-red-300 text-red-700 bg-red-50" :
+                                  className={`text-xs ${
+                                    row.priority === "high" ? "border-red-300 text-red-700 bg-red-50" :
                                     row.priority === "medium" ? "border-amber-300 text-amber-700 bg-amber-50" :
-                                      "border-gray-300 text-gray-600 bg-gray-50"
-                                    }`}
+                                    "border-gray-300 text-gray-600 bg-gray-50"
+                                  }`}
                                 >
                                   {row.priority}
                                 </Badge>
