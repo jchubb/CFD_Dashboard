@@ -535,11 +535,6 @@ function MachineRow({
               ))}
             </SelectContent>
           </Select>
-          {effectiveStatus === "online" && (
-            <span className="text-[10px] text-muted-foreground font-mono">
-              {machine.utilization}% util | {machine.hoursToday}h
-            </span>
-          )}
           {effectiveStatus === "maintenance" && (
             <span className="text-[10px] text-amber-600 font-medium">Scheduled maintenance</span>
           )}
