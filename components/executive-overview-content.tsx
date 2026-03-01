@@ -15,7 +15,6 @@ import {
   CheckCircle2,
   Activity,
   LayoutDashboard,
-  Calendar,
   Settings2,
   FileBarChart,
   ArrowRight,
@@ -99,19 +98,6 @@ const SECTIONS = [
     ],
   },
   {
-    id: "scheduling",
-    name: "Scheduling Tool",
-    icon: Calendar,
-    href: "/scheduling",
-    color: "text-chart-1",
-    bgColor: "bg-chart-1/10",
-    metrics: [
-      { label: "Active Scenario", value: "Base Case" },
-      { label: "Current View", value: "Weekly" },
-      { label: "Forecast", value: "Enabled", positive: true },
-    ],
-  },
-  {
     id: "parameters",
     name: "Parameters Setup",
     icon: Settings2,
@@ -167,12 +153,6 @@ const RECENT_ACTIVITY = [
   },
   {
     time: "09:30",
-    message: "Bull case scenario updated with new parameters",
-    severity: "default" as const,
-    icon: Info,
-  },
-  {
-    time: "08:15",
     message: "Shift A handoff completed — 42 units produced",
     severity: "success" as const,
     icon: CheckCircle2,

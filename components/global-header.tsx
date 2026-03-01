@@ -19,14 +19,12 @@ import {
 } from "@/components/ui/tooltip"
 import {
   LayoutDashboard,
-  Calendar,
   Settings2,
   FileBarChart,
   RefreshCw,
   Clock,
   Monitor,
   Home,
-  ClipboardList,
   CalendarRange,
 } from "lucide-react"
 import { useState, useEffect } from "react"
@@ -53,16 +51,6 @@ const PAGE_META: Record<string, { title: string; description: string; icon: Reac
     title: "Operations Dashboard",
     description: "Manufacturing throughput and schedule monitoring",
     icon: LayoutDashboard,
-  },
-  "/monthly-inputs": {
-    title: "Monthly Inputs",
-    description: "Initial conditions, parameters, and part list configuration",
-    icon: ClipboardList,
-  },
-  "/scheduling": {
-    title: "Scheduling Tool",
-    description: "Scenario-based production schedule generation",
-    icon: Calendar,
   },
   "/parameters": {
     title: "Parameters Configuration",
