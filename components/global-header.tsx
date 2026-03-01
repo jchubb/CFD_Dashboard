@@ -177,46 +177,60 @@ export function GlobalHeader({
         {/* View density */}
         <div className="flex items-center gap-1.5">
           <Monitor className="h-3.5 w-3.5 text-muted-foreground" />
-          <Select value={density} onValueChange={(v) => onDensityChange(v as ViewDensity)}>
-            <SelectTrigger className="h-7 w-[110px] text-[11px] bg-transparent border-border">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="compact" className="text-xs">Compact</SelectItem>
-              <SelectItem value="default" className="text-xs">Default</SelectItem>
-              <SelectItem value="comfortable" className="text-xs">Comfortable</SelectItem>
-            </SelectContent>
-          </Select>
+          {mounted ? (
+            <Select value={density} onValueChange={(v) => onDensityChange(v as ViewDensity)}>
+              <SelectTrigger className="h-7 w-[110px] text-[11px] bg-transparent border-border">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="compact" className="text-xs">Compact</SelectItem>
+                <SelectItem value="default" className="text-xs">Default</SelectItem>
+                <SelectItem value="comfortable" className="text-xs">Comfortable</SelectItem>
+              </SelectContent>
+            </Select>
+          ) : (
+            <div className="h-7 w-[110px] rounded-md border border-input bg-transparent px-2 flex items-center text-[11px] text-muted-foreground capitalize">
+              {density}
+            </div>
+          )}
         </div>
 
         <Separator orientation="vertical" className="h-5" />
 
         {/* Auto-refresh controls */}
         <div className="flex items-center gap-1.5">
-          <Button
-            variant={autoRefresh ? "default" : "outline"}
-            size="sm"
-            className="h-7 gap-1.5 text-[11px] px-2.5"
-            onClick={() => onAutoRefreshChange(!autoRefresh)}
-          >
-            <RefreshCw className={`h-3 w-3 ${autoRefresh ? "animate-spin" : ""}`} />
-            {autoRefresh ? "Auto" : "Refresh"}
-          </Button>
-          {autoRefresh && (
-            <Select
-              value={refreshInterval.toString()}
-              onValueChange={(v) => onRefreshIntervalChange(parseInt(v))}
-            >
-              <SelectTrigger className="h-7 w-[70px] text-[11px] bg-transparent border-border">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="5" className="text-xs">5s</SelectItem>
-                <SelectItem value="10" className="text-xs">10s</SelectItem>
-                <SelectItem value="30" className="text-xs">30s</SelectItem>
-                <SelectItem value="60" className="text-xs">60s</SelectItem>
-              </SelectContent>
-            </Select>
+          {mounted ? (
+            <>
+              <Button
+                variant={autoRefresh ? "default" : "outline"}
+                size="sm"
+                className="h-7 gap-1.5 text-[11px] px-2.5"
+                onClick={() => onAutoRefreshChange(!autoRefresh)}
+              >
+                <RefreshCw className={`h-3 w-3 ${autoRefresh ? "animate-spin" : ""}`} />
+                {autoRefresh ? "Auto" : "Refresh"}
+              </Button>
+              {autoRefresh && (
+                <Select
+                  value={refreshInterval.toString()}
+                  onValueChange={(v) => onRefreshIntervalChange(parseInt(v))}
+                >
+                  <SelectTrigger className="h-7 w-[70px] text-[11px] bg-transparent border-border">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="5" className="text-xs">5s</SelectItem>
+                    <SelectItem value="10" className="text-xs">10s</SelectItem>
+                    <SelectItem value="30" className="text-xs">30s</SelectItem>
+                    <SelectItem value="60" className="text-xs">60s</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
+            </>
+          ) : (
+            <div className="h-7 w-[70px] rounded-md border border-input bg-transparent px-2 flex items-center text-[11px] text-muted-foreground">
+              Refresh
+            </div>
           )}
         </div>
       </div>
