@@ -52,7 +52,7 @@ interface Machine {
   overrideEnabled: boolean | null  // null = follow real-time, true/false = manual
   assignedFamily: string
   utilization: number              // 0-100
-  hoursToday: number
+  hoursToday: number // unused in UI
 }
 
 // ------------------------------------------------------------------
