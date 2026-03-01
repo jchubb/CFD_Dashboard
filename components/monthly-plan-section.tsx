@@ -38,7 +38,6 @@ export interface MonthlyPlanRow {
   description: string
   monthlyTarget: number
   weeklyBreakdown: number[]
-  priority: string
 }
 
 const FAMILY_COLORS: Record<string, string> = {
@@ -64,19 +63,19 @@ function getFamilyBadgeClass(family: string) {
   }
 }
 
-const sampleCSV = `Program Family,Part Number,Description,Monthly Target,Week 1,Week 2,Week 3,Week 4,Priority
-F135,F135-HPC-001,High Pressure Compressor Blade,120,30,30,30,30,high
-F135,F135-LPT-002,Low Pressure Turbine Disk,80,20,20,20,20,high
-F135,F135-FAN-003,Fan Blade Assembly,100,25,25,25,25,medium
-GTF,GTF-GB-001,Gearbox Housing,90,22,23,22,23,high
-GTF,GTF-LPC-002,Low Pressure Compressor Stator,110,28,27,28,27,medium
-GTF,GTF-HPT-003,High Pressure Turbine Blade,95,24,24,23,24,high
-LEAP-1A,LEAP-CMB-001,Combustor Liner,75,19,19,18,19,medium
-LEAP-1A,LEAP-HPT-002,HPT Nozzle Guide Vane,85,21,22,21,21,high
-GEnx,GENX-LPT-001,LPT Blade,70,18,17,18,17,medium
-GEnx,GENX-HPC-002,HPC Rotor,60,15,15,15,15,low
-CFM56,CFM-HPT-001,HPT Shroud,65,16,17,16,16,low
-CFM56,CFM-FAN-002,Fan Case,50,12,13,12,13,low`
+const sampleCSV = `Program Family,Part Number,Description,Monthly Target,Week 1,Week 2,Week 3,Week 4
+F135,F135-HPC-001,High Pressure Compressor Blade,120,30,30,30,30
+F135,F135-LPT-002,Low Pressure Turbine Disk,80,20,20,20,20
+F135,F135-FAN-003,Fan Blade Assembly,100,25,25,25,25
+GTF,GTF-GB-001,Gearbox Housing,90,22,23,22,23
+GTF,GTF-LPC-002,Low Pressure Compressor Stator,110,28,27,28,27
+GTF,GTF-HPT-003,High Pressure Turbine Blade,95,24,24,23,24
+LEAP-1A,LEAP-CMB-001,Combustor Liner,75,19,19,18,19
+LEAP-1A,LEAP-HPT-002,HPT Nozzle Guide Vane,85,21,22,21,21
+GEnx,GENX-LPT-001,LPT Blade,70,18,17,18,17
+GEnx,GENX-HPC-002,HPC Rotor,60,15,15,15,15
+CFM56,CFM-HPT-001,HPT Shroud,65,16,17,16,16
+CFM56,CFM-FAN-002,Fan Case,50,12,13,12,13`
 
 interface MonthlyPlanSectionProps {
   selectedMonth?: string
@@ -102,7 +101,6 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
       const partIdx = headers.findIndex(h => h.includes("part number") || h.includes("part"))
       const descIdx = headers.findIndex(h => h.includes("description") || h.includes("desc"))
       const targetIdx = headers.findIndex(h => h.includes("target") || h.includes("monthly"))
-      const priorityIdx = headers.findIndex(h => h.includes("priority"))
 
       const weekIndices: number[] = []
       headers.forEach((h, i) => {
@@ -135,7 +133,6 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
           description: descIdx !== -1 ? cols[descIdx] || "" : "",
           monthlyTarget: target,
           weeklyBreakdown,
-          priority: priorityIdx !== -1 ? (cols[priorityIdx] || "medium").toLowerCase() : "medium",
         })
       }
 
@@ -353,8 +350,8 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
             <div className="p-3 rounded-lg border border-border bg-card">
               <p className="text-xs font-medium text-foreground mb-2">Expected CSV Format:</p>
               <div className="font-mono text-xs text-muted-foreground bg-muted/50 p-2 rounded overflow-x-auto">
-                <p>Program Family,Part Number,Description,Monthly Target,Week 1,Week 2,Week 3,Week 4,Priority</p>
-                <p>F135,F135-HPC-001,HPC Blade,120,30,30,30,30,high</p>
+                <p>Program Family,Part Number,Description,Monthly Target,Week 1,Week 2,Week 3,Week 4</p>
+                <p>F135,F135-HPC-001,HPC Blade,120,30,30,30,30</p>
               </div>
             </div>
           </div>
@@ -391,7 +388,6 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
                           <TableHead className="font-semibold text-xs w-[100px]">Family</TableHead>
                           <TableHead className="font-semibold text-xs">Part Number</TableHead>
                           <TableHead className="font-semibold text-xs">Description</TableHead>
-                          <TableHead className="font-semibold text-xs text-center w-[80px]">Priority</TableHead>
                           <TableHead className="font-semibold text-xs text-right w-[100px]">Monthly Target</TableHead>
                           <TableHead className="font-semibold text-xs text-right w-[70px]">Wk 1</TableHead>
                           <TableHead className="font-semibold text-xs text-right w-[70px]">Wk 2</TableHead>
@@ -416,18 +412,6 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
                               </TableCell>
                               <TableCell className="font-mono text-xs">{row.partNumber}</TableCell>
                               <TableCell className="text-xs text-muted-foreground">{row.description}</TableCell>
-                              <TableCell className="text-center">
-                                <Badge
-                                  variant="outline"
-                                  className={`text-xs ${
-                                    row.priority === "high" ? "border-red-300 text-red-700 bg-red-50" :
-                                    row.priority === "medium" ? "border-amber-300 text-amber-700 bg-amber-50" :
-                                    "border-gray-300 text-gray-600 bg-gray-50"
-                                  }`}
-                                >
-                                  {row.priority}
-                                </Badge>
-                              </TableCell>
                               <TableCell className="font-mono text-xs text-right font-semibold">{row.monthlyTarget}</TableCell>
                               {row.weeklyBreakdown.map((wk, i) => (
                                 <TableCell key={i} className="font-mono text-xs text-right text-muted-foreground">{wk}</TableCell>
@@ -438,7 +422,7 @@ export function MonthlyPlanSection({ selectedMonth = "January 2024" }: MonthlyPl
                         {/* Totals Row */}
                         {filteredData.length > 0 && (
                           <TableRow className="bg-muted/50 font-semibold">
-                            <TableCell colSpan={4} className="text-xs text-right">Totals:</TableCell>
+                            <TableCell colSpan={3} className="text-xs text-right">Totals:</TableCell>
                             <TableCell className="font-mono text-xs text-right">
                               {filteredData.reduce((s, r) => s + r.monthlyTarget, 0)}
                             </TableCell>
