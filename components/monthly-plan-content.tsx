@@ -1,17 +1,10 @@
 "use client"
 
-import { useState, useMemo, useEffect } from "react"
+import { useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { MonthlyPlanSection } from "@/components/monthly-plan-section"
+import { usePlanningPeriod, availableMonths } from "@/components/planning-period-context"
 import {
   FileBarChart,
   CalendarRange,
@@ -20,20 +13,8 @@ import {
   Target,
 } from "lucide-react"
 
-const availableMonths = [
-  "January 2024",
-  "February 2024",
-  "March 2024",
-  "April 2024",
-  "May 2024",
-  "June 2024",
-]
-
 export function MonthlyPlanContent() {
-  const [selectedMonth, setSelectedMonth] = useState("January 2024")
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => { setMounted(true) }, [])
+  const { selectedMonth } = usePlanningPeriod()
 
   // Summary cards data based on selected month (simulated)
   const monthSummary = useMemo(() => {
@@ -53,31 +34,6 @@ export function MonthlyPlanContent() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      {/* Planning Period Selector */}
-      <div className="flex items-center gap-3">
-        <label className="text-sm text-muted-foreground">Planning Period:</label>
-        {mounted ? (
-          <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-            <SelectTrigger className="w-[180px] h-9">
-              <CalendarRange className="h-4 w-4 mr-2 text-muted-foreground" />
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {availableMonths.map((month) => (
-                <SelectItem key={month} value={month}>
-                  {month}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        ) : (
-          <div className="w-[180px] h-9 rounded-md border border-input bg-background px-3 flex items-center gap-2 text-sm text-muted-foreground">
-            <CalendarRange className="h-4 w-4" />
-            <span>{selectedMonth}</span>
-          </div>
-        )}
-      </div>
-
       {/* Summary KPI Cards */}
       <div className="grid grid-cols-4 gap-4">
         <Card className="border border-border">

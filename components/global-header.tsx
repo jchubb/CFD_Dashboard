@@ -21,8 +21,10 @@ import {
   Monitor,
   Home,
   ClipboardList,
+  CalendarRange,
 } from "lucide-react"
 import { useState, useEffect } from "react"
+import { usePlanningPeriod, availableMonths } from "@/components/planning-period-context"
 
 type ViewDensity = "compact" | "default" | "comfortable"
 
@@ -80,8 +82,11 @@ export function GlobalHeader({
   const meta = PAGE_META[pathname] || PAGE_META["/overview"]
   const Icon = meta.icon
   const [currentTime, setCurrentTime] = useState<string>("")
+  const [mounted, setMounted] = useState(false)
+  const { selectedMonth, setSelectedMonth } = usePlanningPeriod()
 
   useEffect(() => {
+    setMounted(true)
     const update = () => {
       setCurrentTime(
         new Date().toLocaleTimeString("en-US", {
@@ -129,6 +134,29 @@ export function GlobalHeader({
         <div className="flex items-center gap-1.5 text-muted-foreground">
           <Clock className="h-3.5 w-3.5" />
           <span className="font-mono text-[11px] tabular-nums w-[60px]">{currentTime}</span>
+        </div>
+
+        <Separator orientation="vertical" className="h-5" />
+
+        {/* Planning Period */}
+        <div className="flex items-center gap-1.5">
+          <CalendarRange className="h-3.5 w-3.5 text-muted-foreground" />
+          {mounted ? (
+            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
+              <SelectTrigger className="h-7 w-[150px] text-[11px] bg-transparent border-border">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {availableMonths.map((month) => (
+                  <SelectItem key={month} value={month} className="text-xs">{month}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <div className="h-7 w-[150px] rounded-md border border-input bg-transparent px-2 flex items-center text-[11px] text-muted-foreground">
+              {selectedMonth}
+            </div>
+          )}
         </div>
 
         <Separator orientation="vertical" className="h-5" />
