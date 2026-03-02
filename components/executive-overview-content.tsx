@@ -283,7 +283,7 @@ export function ExecutiveOverviewContent() {
           const Icon = section.icon
           return (
             <Card key={section.id} className="border-2 border-border bg-card group">
-              <CardContent className="flex flex-col gap-4 pt-5">
+              <CardContent className="flex flex-col gap-2 px-4 py-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className={cn("flex items-center justify-center h-9 w-9 rounded-md", section.bgColor)}>
