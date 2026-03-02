@@ -3,11 +3,8 @@
 import { createContext, useContext, useState } from "react"
 
 export const availableMonths = [
-  "July 2025",
-  "August 2025",
-  "September 2025",
   "October 2025",
-  "November2025",
+  "November 2025",
   "December 2025",
   "January 2026",
   "February 2026",
@@ -15,6 +12,8 @@ export const availableMonths = [
   "April 2026",
   "May 2026",
   "June 2026",
+  "July 2026",
+  "August 2026"
 ]
 
 // Shared type for monthly plan rows
