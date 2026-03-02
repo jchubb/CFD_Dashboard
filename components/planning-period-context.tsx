@@ -42,15 +42,6 @@ export interface DailyLERow {
   dailyQty: number[]
 }
 
-// Optimizer values stored from the Configure Optimizer Values dialog
-export interface OptimizerValues {
-  targetUtilization: number | null   // e.g. 60 (machines per shift)
-  shiftHours: number | null          // e.g. 8
-  shiftsPerDay: number | null        // e.g. 2
-  bufferPercent: number | null       // e.g. 10
-  notes: string
-}
-
 interface PlanningPeriodContextValue {
   selectedMonth: string
   setSelectedMonth: (month: string) => void
@@ -62,16 +53,6 @@ interface PlanningPeriodContextValue {
   setDailyPlanRows: (rows: DailyPlanRow[]) => void
   dailyLERows: DailyLERow[]
   setDailyLERows: (rows: DailyLERow[]) => void
-  optimizerValues: OptimizerValues
-  setOptimizerValues: (values: OptimizerValues) => void
-}
-
-const DEFAULT_OPTIMIZER: OptimizerValues = {
-  targetUtilization: null,
-  shiftHours: null,
-  shiftsPerDay: null,
-  bufferPercent: null,
-  notes: "",
 }
 
 const PlanningPeriodContext = createContext<PlanningPeriodContextValue>({
@@ -85,8 +66,6 @@ const PlanningPeriodContext = createContext<PlanningPeriodContextValue>({
   setDailyPlanRows: () => {},
   dailyLERows: [],
   setDailyLERows: () => {},
-  optimizerValues: DEFAULT_OPTIMIZER,
-  setOptimizerValues: () => {},
 })
 
 export function PlanningPeriodProvider({ children }: { children: React.ReactNode }) {
@@ -95,9 +74,8 @@ export function PlanningPeriodProvider({ children }: { children: React.ReactNode
   const [dailyActualsRows, setDailyActualsRows] = useState<DailyActualsRow[]>([])
   const [dailyPlanRows, setDailyPlanRows] = useState<DailyPlanRow[]>([])
   const [dailyLERows, setDailyLERows] = useState<DailyLERow[]>([])
-  const [optimizerValues, setOptimizerValues] = useState<OptimizerValues>(DEFAULT_OPTIMIZER)
   return (
-    <PlanningPeriodContext.Provider value={{ selectedMonth, setSelectedMonth, monthlyPlanRows, setMonthlyPlanRows, dailyActualsRows, setDailyActualsRows, dailyPlanRows, setDailyPlanRows, dailyLERows, setDailyLERows, optimizerValues, setOptimizerValues }}>
+    <PlanningPeriodContext.Provider value={{ selectedMonth, setSelectedMonth, monthlyPlanRows, setMonthlyPlanRows, dailyActualsRows, setDailyActualsRows, dailyPlanRows, setDailyPlanRows, dailyLERows, setDailyLERows }}>
       {children}
     </PlanningPeriodContext.Provider>
   )
