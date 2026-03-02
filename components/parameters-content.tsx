@@ -274,7 +274,7 @@ export function ParametersContent() {
       <Card className="border border-border">
         <CardHeader className="py-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Part Family Color Legend</CardTitle>
+            <CardTitle className="text-xs font-medium uppercase tracking-wide text-muted-foreground">HT Asset Overview</CardTitle>
             <div className="flex items-center gap-2">
               {/* Optimize Allocation Button */}
               <TooltipProvider>
@@ -395,11 +395,10 @@ export function ParametersContent() {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div
-                                  className={`flex items-center justify-center rounded px-1 py-1.5 border text-[10px] font-mono font-semibold leading-none select-none transition-colors ${
-                                    isDown
+                                  className={`flex items-center justify-center rounded px-1 py-1.5 border text-[10px] font-mono font-semibold leading-none select-none transition-colors ${isDown
                                       ? "bg-transparent border-border/30 text-muted-foreground/30"
                                       : `${fc.bg} ${fc.border} ${fc.text}`
-                                  }`}
+                                    }`}
                                 >
                                   {m.name}
                                 </div>
