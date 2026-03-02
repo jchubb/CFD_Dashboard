@@ -364,7 +364,8 @@ export function ParametersContent() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pb-3 pt-0">
+        <CardContent className="pb-4 pt-0 flex flex-col gap-4">
+          {/* Color key */}
           <div className="flex flex-wrap items-center gap-4">
             {Object.values(FAMILY_COLORS).map(fc => (
               <div key={fc.label} className="flex items-center gap-2">
@@ -374,6 +375,65 @@ export function ParametersContent() {
                 </Badge>
               </div>
             ))}
+          </div>
+
+          {/* Machine map: 4 sections × 2 columns each = 8 columns total */}
+          <div className="grid grid-cols-4 gap-x-6 gap-y-0 border-t border-border pt-4">
+            {[1, 2, 3, 4].map(sectionId => {
+              const mList = machines.filter(m => m.sectionId === sectionId)
+              const groupA = mList.filter(m => m.group === "A")
+              const groupB = mList.filter(m => m.group === "B")
+              return (
+                <div key={sectionId} className="flex flex-col gap-2">
+                  {/* Section title */}
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+                    Line {sectionId}
+                  </p>
+                  {/* Two columns: Oven (A) + Quench (B) */}
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {/* Column headers */}
+                    <p className="text-[10px] text-muted-foreground/70 text-center">Oven</p>
+                    <p className="text-[10px] text-muted-foreground/70 text-center">Quench</p>
+                    {/* Machine chips interleaved row by row */}
+                    {groupA.map((ma, i) => {
+                      const mb = groupB[i]
+                      const renderChip = (m: Machine) => {
+                        const fc = FAMILY_COLORS[m.assignedFamily] ?? FAMILY_COLORS.CFM56
+                        const eff = getEffectiveStatus(m)
+                        const isDown = eff !== "online"
+                        return (
+                          <TooltipProvider key={m.id}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className={`flex items-center justify-center rounded px-1 py-1.5 border text-[10px] font-mono font-semibold leading-none select-none transition-colors ${
+                                    isDown
+                                      ? "bg-muted/60 border-muted-foreground/20 text-muted-foreground/40"
+                                      : `${fc.bg} ${fc.border} ${fc.text}`
+                                  }`}
+                                >
+                                  {m.name}
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="bg-white border border-border shadow-lg text-foreground">
+                                <p className="text-xs font-semibold">{m.id}</p>
+                                <p className="text-[11px] text-muted-foreground">{m.assignedFamily} · {eff}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )
+                      }
+                      return (
+                        <>
+                          {renderChip(ma)}
+                          {mb && renderChip(mb)}
+                        </>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </CardContent>
       </Card>
