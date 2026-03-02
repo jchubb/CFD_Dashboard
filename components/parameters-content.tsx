@@ -408,7 +408,7 @@ export function ParametersContent() {
                                 <div
                                   className={`flex items-center justify-center rounded px-1 py-1.5 border text-[10px] font-mono font-semibold leading-none select-none transition-colors ${
                                     isDown
-                                      ? "bg-muted/60 border-muted-foreground/20 text-muted-foreground/40"
+                                      ? "bg-transparent border-border/30 text-muted-foreground/30"
                                       : `${fc.bg} ${fc.border} ${fc.text}`
                                   }`}
                                 >
