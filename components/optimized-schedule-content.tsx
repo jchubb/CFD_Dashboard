@@ -18,35 +18,37 @@ import { CalendarClock, Download, Search, Info } from "lucide-react"
 // ---------------------------------------------------------------------------
 // Hardcoded Next Day Schedule — replace with API/CSV data when available
 // ---------------------------------------------------------------------------
-const NEXT_DAY_SCHEDULE = [
-  { partNumber: "PN-10045",  programFamily: "F135",   description: "Fan Blade Assembly",          quantity: 12, machine: "MCH-01", shift: "Day",   priority: "High" },
-  { partNumber: "PN-20187",  programFamily: "GTF",    description: "Compressor Disk Stage 3",     quantity: 8,  machine: "MCH-02", shift: "Day",   priority: "High" },
-  { partNumber: "PN-30291",  programFamily: "LEAP-1A",description: "Low Pressure Turbine Vane",  quantity: 24, machine: "MCH-03", shift: "Day",   priority: "Normal" },
-  { partNumber: "PN-40334",  programFamily: "GEnx",   description: "High Pressure Turbine Disk", quantity: 6,  machine: "MCH-01", shift: "Night", priority: "Normal" },
-  { partNumber: "PN-10112",  programFamily: "F135",   description: "Stator Vane Cluster",         quantity: 18, machine: "MCH-04", shift: "Day",   priority: "High" },
-  { partNumber: "PN-20204",  programFamily: "GTF",    description: "Combustor Liner Panel",       quantity: 10, machine: "MCH-02", shift: "Night", priority: "Normal" },
-  { partNumber: "PN-30378",  programFamily: "LEAP-1A","description": "Turbine Blade Tip Seal",    quantity: 30, machine: "MCH-05", shift: "Day",   priority: "Low" },
-  { partNumber: "PN-40412",  programFamily: "GEnx",   description: "Accessory Gearbox Cover",    quantity: 4,  machine: "MCH-03", shift: "Night", priority: "High" },
-  { partNumber: "PN-10223",  programFamily: "F135",   description: "Variable Exhaust Nozzle",     quantity: 9,  machine: "MCH-05", shift: "Day",   priority: "Normal" },
-  { partNumber: "PN-50019",  programFamily: "CF6",    description: "Bearing Housing Assembly",    quantity: 15, machine: "MCH-04", shift: "Night", priority: "Low" },
-  { partNumber: "PN-50067",  programFamily: "CF6",    description: "Oil Pump Drive Gear",         quantity: 7,  machine: "MCH-01", shift: "Night", priority: "Normal" },
-  { partNumber: "PN-20315",  programFamily: "GTF",    description: "Fan Exit Guide Vane",         quantity: 20, machine: "MCH-06", shift: "Day",   priority: "Normal" },
-  { partNumber: "PN-30455",  programFamily: "LEAP-1A","description": "Bleed Air Manifold",        quantity: 5,  machine: "MCH-06", shift: "Night", priority: "High" },
-  { partNumber: "PN-40501",  programFamily: "GEnx",   description: "Thrust Reverser Bracket",    quantity: 11, machine: "MCH-02", shift: "Day",   priority: "Low" },
+type Source = "Plan" | "Rollover" | "Manual"
+
+const NEXT_DAY_SCHEDULE: { partNumber: string; programFamily: string; description: string; quantity: number; source: Source }[] = [
+  { partNumber: "PN-10045",  programFamily: "F135",    description: "Fan Blade Assembly",          quantity: 12, source: "Plan" },
+  { partNumber: "PN-20187",  programFamily: "GTF",     description: "Compressor Disk Stage 3",     quantity: 8,  source: "Plan" },
+  { partNumber: "PN-30291",  programFamily: "LEAP-1A", description: "Low Pressure Turbine Vane",   quantity: 24, source: "Rollover" },
+  { partNumber: "PN-40334",  programFamily: "GEnx",    description: "High Pressure Turbine Disk",  quantity: 6,  source: "Plan" },
+  { partNumber: "PN-10112",  programFamily: "F135",    description: "Stator Vane Cluster",          quantity: 18, source: "Manual" },
+  { partNumber: "PN-20204",  programFamily: "GTF",     description: "Combustor Liner Panel",        quantity: 10, source: "Plan" },
+  { partNumber: "PN-30378",  programFamily: "LEAP-1A", description: "Turbine Blade Tip Seal",       quantity: 30, source: "Rollover" },
+  { partNumber: "PN-40412",  programFamily: "GEnx",    description: "Accessory Gearbox Cover",     quantity: 4,  source: "Manual" },
+  { partNumber: "PN-10223",  programFamily: "F135",    description: "Variable Exhaust Nozzle",      quantity: 9,  source: "Plan" },
+  { partNumber: "PN-50019",  programFamily: "CF6",     description: "Bearing Housing Assembly",     quantity: 15, source: "Rollover" },
+  { partNumber: "PN-50067",  programFamily: "CF6",     description: "Oil Pump Drive Gear",          quantity: 7,  source: "Plan" },
+  { partNumber: "PN-20315",  programFamily: "GTF",     description: "Fan Exit Guide Vane",          quantity: 20, source: "Plan" },
+  { partNumber: "PN-30455",  programFamily: "LEAP-1A", description: "Bleed Air Manifold",           quantity: 5,  source: "Manual" },
+  { partNumber: "PN-40501",  programFamily: "GEnx",    description: "Thrust Reverser Bracket",     quantity: 11, source: "Rollover" },
 ]
 
 const PROGRAM_COLORS: Record<string, string> = {
-  "F135":   "border-blue-300 text-blue-700 bg-blue-50",
-  "GTF":    "border-purple-300 text-purple-700 bg-purple-50",
-  "LEAP-1A":"border-emerald-300 text-emerald-700 bg-emerald-50",
-  "GEnx":   "border-amber-300 text-amber-700 bg-amber-50",
-  "CF6":    "border-rose-300 text-rose-700 bg-rose-50",
+  "F135":    "border-blue-300 text-blue-700 bg-blue-50",
+  "GTF":     "border-purple-300 text-purple-700 bg-purple-50",
+  "LEAP-1A": "border-emerald-300 text-emerald-700 bg-emerald-50",
+  "GEnx":    "border-amber-300 text-amber-700 bg-amber-50",
+  "CF6":     "border-rose-300 text-rose-700 bg-rose-50",
 }
 
-const PRIORITY_COLORS: Record<string, string> = {
-  "High":   "border-red-200 text-red-700 bg-red-50",
-  "Normal": "border-gray-200 text-gray-600 bg-gray-50",
-  "Low":    "border-slate-200 text-slate-500 bg-slate-50",
+const SOURCE_COLORS: Record<Source, string> = {
+  "Plan":     "border-gray-200 text-gray-600 bg-gray-50",
+  "Rollover": "border-yellow-300 text-yellow-700 bg-yellow-50",
+  "Manual":   "border-red-300 text-red-700 bg-red-50",
 }
 
 export function OptimizedScheduleContent() {
@@ -61,14 +63,13 @@ export function OptimizedScheduleContent() {
   const filtered = NEXT_DAY_SCHEDULE.filter(row =>
     row.partNumber.toLowerCase().includes(search.toLowerCase()) ||
     row.programFamily.toLowerCase().includes(search.toLowerCase()) ||
-    row.description.toLowerCase().includes(search.toLowerCase()) ||
-    row.machine.toLowerCase().includes(search.toLowerCase())
+    row.description.toLowerCase().includes(search.toLowerCase())
   )
 
   const totalUnits = filtered.reduce((s, r) => s + r.quantity, 0)
   const uniqueParts = new Set(filtered.map(r => r.partNumber)).size
-  const uniqueMachines = new Set(filtered.map(r => r.machine)).size
-  const highPriority = filtered.filter(r => r.priority === "High").length
+  const uniquePrograms = new Set(filtered.map(r => r.programFamily)).size
+  const manualCount = filtered.filter(r => r.source === "Manual").length
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -114,10 +115,10 @@ export function OptimizedScheduleContent() {
           {/* Summary strip */}
           <div className="grid grid-cols-4 gap-3">
             {[
-              { label: "Total Units",     value: totalUnits },
-              { label: "Unique Parts",    value: uniqueParts },
-              { label: "Machines",        value: uniqueMachines },
-              { label: "High Priority",   value: highPriority },
+              { label: "Total Units",    value: totalUnits },
+              { label: "Unique Parts",   value: uniqueParts },
+              { label: "Programs",       value: uniquePrograms },
+              { label: "Manual Entries", value: manualCount },
             ].map(({ label, value }) => (
               <div key={label} className="bg-muted/50 rounded-lg px-4 py-3">
                 <p className="text-[11px] text-muted-foreground">{label}</p>
@@ -130,7 +131,7 @@ export function OptimizedScheduleContent() {
           <div className="relative w-64">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
             <Input
-              placeholder="Search parts, machines..."
+              placeholder="Search parts or programs..."
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="h-8 pl-8 text-xs"
@@ -146,9 +147,7 @@ export function OptimizedScheduleContent() {
                   <TableHead className="text-xs font-semibold w-[100px]">Program</TableHead>
                   <TableHead className="text-xs font-semibold">Description</TableHead>
                   <TableHead className="text-xs font-semibold text-right w-[80px]">Quantity</TableHead>
-                  <TableHead className="text-xs font-semibold w-[90px]">Machine</TableHead>
-                  <TableHead className="text-xs font-semibold w-[80px]">Shift</TableHead>
-                  <TableHead className="text-xs font-semibold w-[90px]">Priority</TableHead>
+                  <TableHead className="text-xs font-semibold w-[90px]">Source</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -162,18 +161,16 @@ export function OptimizedScheduleContent() {
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">{row.description}</TableCell>
                     <TableCell className="font-mono text-xs text-right font-medium">{row.quantity}</TableCell>
-                    <TableCell className="font-mono text-xs">{row.machine}</TableCell>
-                    <TableCell className="text-xs">{row.shift}</TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={`text-xs ${PRIORITY_COLORS[row.priority] ?? ""}`}>
-                        {row.priority}
+                      <Badge variant="outline" className={`text-xs ${SOURCE_COLORS[row.source]}`}>
+                        {row.source}
                       </Badge>
                     </TableCell>
                   </TableRow>
                 ))}
                 {filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={7} className="text-center text-xs text-muted-foreground py-8">
+                    <TableCell colSpan={5} className="text-center text-xs text-muted-foreground py-8">
                       No results match your search.
                     </TableCell>
                   </TableRow>
