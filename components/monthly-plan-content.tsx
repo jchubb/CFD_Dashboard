@@ -23,7 +23,7 @@ function getDaysInMonth(monthStr: string): number {
 }
 
 export function MonthlyPlanContent() {
-  const { selectedMonth, monthlyPlanRows, dailyLERows, dailyActualsRows } = usePlanningPeriod()
+  const { selectedMonth, monthlyPlanRows, dailyLERows, dailyActualsRows, dailyPlanRows } = usePlanningPeriod()
 
   // Monthly plan summary
   const monthSummary = useMemo(() => {
@@ -120,9 +120,37 @@ export function MonthlyPlanContent() {
             <div className="min-w-0">
               <p className="text-[11px] text-muted-foreground leading-none">Plan Status</p>
               <div className="mt-0.5">
-                <Badge variant="outline" className={`text-[11px] ${monthSummary.totalTarget !== null ? "border-emerald-300 text-emerald-700 bg-emerald-50" : "border-amber-300 text-amber-700 bg-amber-50"}`}>
-                  {monthSummary.totalTarget !== null ? "Loaded" : "Awaiting Data"}
-                </Badge>
+                {(() => {
+                  const allLoaded =
+                    monthSummary.totalTarget !== null &&
+                    dailyPlanRows.length > 0 &&
+                    dailyActualsRows.length > 0 &&
+                    dailyLERows.length > 0
+                  const anyLoaded =
+                    monthSummary.totalTarget !== null ||
+                    dailyPlanRows.length > 0 ||
+                    dailyActualsRows.length > 0 ||
+                    dailyLERows.length > 0
+                  if (allLoaded) {
+                    return (
+                      <Badge variant="outline" className="text-[11px] border-emerald-300 text-emerald-700 bg-emerald-50">
+                        Loaded
+                      </Badge>
+                    )
+                  } else if (anyLoaded) {
+                    return (
+                      <Badge variant="outline" className="text-[11px] border-blue-300 text-blue-700 bg-blue-50">
+                        Partial
+                      </Badge>
+                    )
+                  } else {
+                    return (
+                      <Badge variant="outline" className="text-[11px] border-amber-300 text-amber-700 bg-amber-50">
+                        Awaiting Data
+                      </Badge>
+                    )
+                  }
+                })()}
               </div>
             </div>
           </div>
