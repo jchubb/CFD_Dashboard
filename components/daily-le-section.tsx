@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useMemo, useRef, useCallback } from "react"
+import { usePlanningPeriod, type DailyActualsRow } from "@/components/planning-period-context"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -75,22 +76,37 @@ const SAMPLE_ACTUALS_DAYS1_10: Record<string, number[]> = {
  *
  * For each part:
  *   planDays1_10  = sum of daily plan values for days 1–10
- *   actualDays1_10 = sum of sample actuals for days 1–10
+ *   actualDays1_10 = sum of actuals for days 1–10 (from uploaded data or fallback sample)
  *   variance       = planDays1_10 - actualDays1_10  (positive = behind plan)
  *   day11LE        = day11Plan + variance
- *   days 12+       = remaining daily plan values (unchanged)
  *
  * The resulting LE row has 11 columns (Day 1 … Day 11).
  */
-const buildSampleCSV = () => {
+function buildSampleCSV(actualsData: DailyActualsRow[]): string {
   const LE_DAYS = 11
   const header = ["Part Number", ...Array.from({ length: LE_DAYS }, (_, i) => `Day ${i + 1}`)].join(",")
+
+  // Build a lookup from actuals data if available
+  const actualsLookup: Record<string, (number | null)[]> = {}
+  actualsData.forEach(row => {
+    actualsLookup[row.partNumber] = row.dailyQty
+  })
 
   const rows = Object.entries(MONTHLY_TARGETS).map(([pn, target]) => {
     const planAll = distributeEvenly(target, WORK_DAYS)          // 30 values
     const planDays1_10 = planAll.slice(0, 10).reduce((s, v) => s + v, 0)
-    const actualDays1_10 = (SAMPLE_ACTUALS_DAYS1_10[pn] ?? Array(10).fill(3))
-      .reduce((s: number, v: number) => s + v, 0)
+    
+    // Use uploaded actuals if available, otherwise fall back to sample
+    let actualDays1_10: number
+    if (actualsLookup[pn] && actualsLookup[pn].length >= 10) {
+      // Sum only non-null values from days 1-10
+      actualDays1_10 = actualsLookup[pn].slice(0, 10).reduce((s: number, v) => s + (v ?? 0), 0)
+    } else {
+      // Fallback to deterministic sample actuals
+      actualDays1_10 = (SAMPLE_ACTUALS_DAYS1_10[pn] ?? Array(10).fill(3))
+        .reduce((s: number, v: number) => s + v, 0)
+    }
+    
     const variance = planDays1_10 - actualDays1_10               // positive = behind plan
     const day11LE = planAll[10] + variance                       // catch-up on day 11
     const leDailies = [...planAll.slice(0, 10), day11LE]         // days 1-10 plan + day 11 LE
@@ -100,13 +116,12 @@ const buildSampleCSV = () => {
   return [header, ...rows].join("\n")
 }
 
-const sampleCSV = buildSampleCSV()
-
 interface DailyLESectionProps {
   selectedMonth?: string
 }
 
 export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectionProps) {
+  const { dailyActualsRows } = usePlanningPeriod()
   const [csvData, setCsvData] = useState<DailyLERow[]>([])
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
   const [uploadMessage, setUploadMessage] = useState("")
@@ -184,7 +199,10 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
   }, [])
 
   const handleDragLeave = useCallback(() => setIsDragging(false), [])
-  const handleLoadSample = useCallback(() => parseCSV(sampleCSV), [parseCSV])
+  const handleLoadSample = useCallback(() => {
+    const csv = buildSampleCSV(dailyActualsRows)
+    parseCSV(csv)
+  }, [parseCSV, dailyActualsRows])
   const handleClearData = useCallback(() => {
     setCsvData([])
     setUploadStatus("idle")
@@ -311,12 +329,14 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
               <div>
                 <p className="text-sm font-medium text-foreground">No data yet?</p>
                 <p className="text-xs text-muted-foreground">
-                  Load sample LE — Day 11 = Day 11 Plan + (Plan Days 1–10 − Actuals Days 1–10)
+                  {dailyActualsRows.length > 0
+                    ? "Generate LE using your uploaded actuals data"
+                    : "Load sample LE — Day 11 = Day 11 Plan + (Plan Days 1–10 − Actuals Days 1–10)"}
                 </p>
               </div>
               <Button variant="outline" size="sm" onClick={handleLoadSample} className="gap-1.5 bg-transparent">
                 <FileSpreadsheet className="h-3.5 w-3.5" />
-                Load Sample Data
+                {dailyActualsRows.length > 0 ? "Generate from Actuals" : "Load Sample Data"}
               </Button>
             </div>
 

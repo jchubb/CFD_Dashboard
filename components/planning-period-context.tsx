@@ -21,11 +21,20 @@ export interface MonthlyPlanRow {
   weeklyBreakdown: number[]
 }
 
+// Shared type for daily actuals rows
+export interface DailyActualsRow {
+  id: string
+  partNumber: string
+  dailyQty: (number | null)[]
+}
+
 interface PlanningPeriodContextValue {
   selectedMonth: string
   setSelectedMonth: (month: string) => void
   monthlyPlanRows: MonthlyPlanRow[]
   setMonthlyPlanRows: (rows: MonthlyPlanRow[]) => void
+  dailyActualsRows: DailyActualsRow[]
+  setDailyActualsRows: (rows: DailyActualsRow[]) => void
 }
 
 const PlanningPeriodContext = createContext<PlanningPeriodContextValue>({
@@ -33,13 +42,16 @@ const PlanningPeriodContext = createContext<PlanningPeriodContextValue>({
   setSelectedMonth: () => {},
   monthlyPlanRows: [],
   setMonthlyPlanRows: () => {},
+  dailyActualsRows: [],
+  setDailyActualsRows: () => {},
 })
 
 export function PlanningPeriodProvider({ children }: { children: React.ReactNode }) {
   const [selectedMonth, setSelectedMonth] = useState(availableMonths[0])
   const [monthlyPlanRows, setMonthlyPlanRows] = useState<MonthlyPlanRow[]>([])
+  const [dailyActualsRows, setDailyActualsRows] = useState<DailyActualsRow[]>([])
   return (
-    <PlanningPeriodContext.Provider value={{ selectedMonth, setSelectedMonth, monthlyPlanRows, setMonthlyPlanRows }}>
+    <PlanningPeriodContext.Provider value={{ selectedMonth, setSelectedMonth, monthlyPlanRows, setMonthlyPlanRows, dailyActualsRows, setDailyActualsRows }}>
       {children}
     </PlanningPeriodContext.Provider>
   )
