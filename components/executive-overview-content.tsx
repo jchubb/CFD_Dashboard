@@ -108,7 +108,7 @@ const SECTIONS_TOP = [
     metrics: [
       { label: "36 Hour Schedule", value: "145 units" },
       { label: "HT Cell Utilization", value: "95%", positive: true },
-      { label: "Avg Remaining Daily Demand", value: "78 units" },
+      { label: "Monthly Plan", value: "On Track", positive: true },
     ],
   },
 ]
