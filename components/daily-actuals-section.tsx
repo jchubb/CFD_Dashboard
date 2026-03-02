@@ -198,12 +198,18 @@ export function DailyActualsSection({ selectedMonth = "January 2024" }: DailyAct
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onClick={() => fileInputRef.current?.click()}
-              className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-all ${
+              className={`group relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-all ${
                 isDragging
                   ? "border-blue-400 bg-blue-50"
                   : "border-border hover:border-muted-foreground/40 hover:bg-muted/30"
               }`}
             >
+              {/* ATO hover notice */}
+              <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-background/90 opacity-0 group-hover:opacity-100 transition-opacity duration-150 px-6">
+                <p className="text-center text-xs font-medium text-amber-700">
+                  File upload not approved by ATO — please place files in network folder: C:/file location/
+                </p>
+              </div>
               <input
                 ref={fileInputRef}
                 type="file"
