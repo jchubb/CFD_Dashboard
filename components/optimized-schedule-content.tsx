@@ -68,7 +68,7 @@ export function OptimizedScheduleContent() {
 
   const totalUnits = filtered.reduce((s, r) => s + r.quantity, 0)
   const uniqueParts = new Set(filtered.map(r => r.partNumber)).size
-  const uniquePrograms = new Set(filtered.map(r => r.programFamily)).size
+  const rolloverCount = filtered.filter(r => r.source === "Rollover").length
   const manualCount = filtered.filter(r => r.source === "Manual").length
 
   return (
@@ -117,7 +117,7 @@ export function OptimizedScheduleContent() {
             {[
               { label: "Total Units",    value: totalUnits },
               { label: "Unique Parts",   value: uniqueParts },
-              { label: "Programs",       value: uniquePrograms },
+              { label: "Rollover",       value: rolloverCount },
               { label: "Manual Entries", value: manualCount },
             ].map(({ label, value }) => (
               <div key={label} className="bg-muted/50 rounded-lg px-4 py-3">
