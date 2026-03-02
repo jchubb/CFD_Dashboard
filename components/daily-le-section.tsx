@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useMemo, useRef, useCallback } from "react"
-import { usePlanningPeriod, type DailyActualsRow } from "@/components/planning-period-context"
+import { usePlanningPeriod, type DailyActualsRow, type DailyPlanRow } from "@/components/planning-period-context"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -72,47 +72,91 @@ const SAMPLE_ACTUALS_DAYS1_10: Record<string, number[]> = {
 }
 
 /**
- * Build sample LE CSV.
+ * Build LE CSV from uploaded daily plan and daily actuals data.
  *
  * For each part:
- *   planDays1_10  = sum of daily plan values for days 1–10
- *   actualDays1_10 = sum of actuals for days 1–10 (from uploaded data or fallback sample)
- *   variance       = planDays1_10 - actualDays1_10  (positive = behind plan)
- *   day11LE        = day11Plan + variance
+ *   - Find how many days have actuals (count non-null values)
+ *   - Sum plan values for those days
+ *   - Sum actual values for those days
+ *   - variance = planSum - actualsSum (positive = behind plan)
+ *   - LE day = next day's plan + variance (catch-up)
  *
- * The resulting LE row has 11 columns (Day 1 … Day 11).
+ * Falls back to hardcoded sample data if no uploads exist.
  */
-function buildSampleCSV(actualsData: DailyActualsRow[]): string {
-  const LE_DAYS = 11
-  const header = ["Part Number", ...Array.from({ length: LE_DAYS }, (_, i) => `Day ${i + 1}`)].join(",")
-
-  // Build a lookup from actuals data if available
+function buildLECSV(planData: DailyPlanRow[], actualsData: DailyActualsRow[]): string {
+  // If no plan data, use hardcoded fallback
+  if (planData.length === 0) {
+    const LE_DAYS = 11
+    const header = ["Part Number", ...Array.from({ length: LE_DAYS }, (_, i) => `Day ${i + 1}`)].join(",")
+    
+    const rows = Object.entries(MONTHLY_TARGETS).map(([pn, target]) => {
+      const planAll = distributeEvenly(target, WORK_DAYS)
+      const planDays1_10 = planAll.slice(0, 10).reduce((s, v) => s + v, 0)
+      
+      let actualDays1_10: number
+      const actualsRow = actualsData.find(r => r.partNumber === pn)
+      if (actualsRow && actualsRow.dailyQty.length >= 10) {
+        actualDays1_10 = actualsRow.dailyQty.slice(0, 10).reduce((s: number, v) => s + (v ?? 0), 0)
+      } else {
+        actualDays1_10 = (SAMPLE_ACTUALS_DAYS1_10[pn] ?? Array(10).fill(3))
+          .reduce((s: number, v: number) => s + v, 0)
+      }
+      
+      const variance = planDays1_10 - actualDays1_10
+      const day11LE = planAll[10] + variance
+      const leDailies = [...planAll.slice(0, 10), day11LE]
+      return [pn, ...leDailies].join(",")
+    })
+    
+    return [header, ...rows].join("\n")
+  }
+  
+  // Build lookups from uploaded data
+  const planLookup: Record<string, number[]> = {}
+  planData.forEach(row => {
+    planLookup[row.partNumber] = row.dailyQty
+  })
+  
   const actualsLookup: Record<string, (number | null)[]> = {}
   actualsData.forEach(row => {
     actualsLookup[row.partNumber] = row.dailyQty
   })
-
-  const rows = Object.entries(MONTHLY_TARGETS).map(([pn, target]) => {
-    const planAll = distributeEvenly(target, WORK_DAYS)          // 30 values
-    const planDays1_10 = planAll.slice(0, 10).reduce((s, v) => s + v, 0)
+  
+  // Determine LE day count: actuals days filled + 1 (the LE day)
+  // Find the last day with actual data across all parts
+  let lastActualDay = 0
+  actualsData.forEach(row => {
+    row.dailyQty.forEach((v, i) => {
+      if (v !== null && i + 1 > lastActualDay) lastActualDay = i + 1
+    })
+  })
+  const leDayIndex = lastActualDay  // 0-indexed, this is the LE day
+  const leDays = lastActualDay + 1  // total columns including LE day
+  
+  const header = ["Part Number", ...Array.from({ length: leDays }, (_, i) => `Day ${i + 1}`)].join(",")
+  
+  const rows = planData.map(planRow => {
+    const pn = planRow.partNumber
+    const planQty = planLookup[pn] || []
+    const actualsQty = actualsLookup[pn] || []
     
-    // Use uploaded actuals if available, otherwise fall back to sample
-    let actualDays1_10: number
-    if (actualsLookup[pn] && actualsLookup[pn].length >= 10) {
-      // Sum only non-null values from days 1-10
-      actualDays1_10 = actualsLookup[pn].slice(0, 10).reduce((s: number, v) => s + (v ?? 0), 0)
-    } else {
-      // Fallback to deterministic sample actuals
-      actualDays1_10 = (SAMPLE_ACTUALS_DAYS1_10[pn] ?? Array(10).fill(3))
-        .reduce((s: number, v: number) => s + v, 0)
+    // Sum plan and actuals for days with actual data (days 0 to lastActualDay-1)
+    let planSum = 0
+    let actualsSum = 0
+    for (let i = 0; i < lastActualDay; i++) {
+      planSum += planQty[i] ?? 0
+      actualsSum += actualsQty[i] ?? 0
     }
     
-    const variance = planDays1_10 - actualDays1_10               // positive = behind plan
-    const day11LE = planAll[10] + variance                       // catch-up on day 11
-    const leDailies = [...planAll.slice(0, 10), day11LE]         // days 1-10 plan + day 11 LE
+    const variance = planSum - actualsSum  // positive = behind plan
+    const leDayPlan = planQty[leDayIndex] ?? 0
+    const leDayValue = leDayPlan + variance  // catch-up
+    
+    // Build LE row: actuals days plan values + LE day value
+    const leDailies = planQty.slice(0, lastActualDay).concat([leDayValue])
     return [pn, ...leDailies].join(",")
   })
-
+  
   return [header, ...rows].join("\n")
 }
 
@@ -121,7 +165,7 @@ interface DailyLESectionProps {
 }
 
 export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectionProps) {
-  const { dailyActualsRows } = usePlanningPeriod()
+  const { dailyActualsRows, dailyPlanRows } = usePlanningPeriod()
   const [csvData, setCsvData] = useState<DailyLERow[]>([])
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
   const [uploadMessage, setUploadMessage] = useState("")
@@ -200,9 +244,9 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
 
   const handleDragLeave = useCallback(() => setIsDragging(false), [])
   const handleLoadSample = useCallback(() => {
-    const csv = buildSampleCSV(dailyActualsRows)
+    const csv = buildLECSV(dailyPlanRows, dailyActualsRows)
     parseCSV(csv)
-  }, [parseCSV, dailyActualsRows])
+  }, [parseCSV, dailyPlanRows, dailyActualsRows])
   const handleClearData = useCallback(() => {
     setCsvData([])
     setUploadStatus("idle")
@@ -327,16 +371,20 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
             {/* Sample Data */}
             <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 border border-border">
               <div>
-                <p className="text-sm font-medium text-foreground">No data yet?</p>
+                <p className="text-sm font-medium text-foreground">
+                  {dailyPlanRows.length > 0 && dailyActualsRows.length > 0
+                    ? "Generate LE from uploaded data"
+                    : "No data yet?"}
+                </p>
                 <p className="text-xs text-muted-foreground">
-                  {dailyActualsRows.length > 0
-                    ? "Generate LE using your uploaded actuals data"
-                    : "Load sample LE — Day 11 = Day 11 Plan + (Plan Days 1–10 − Actuals Days 1–10)"}
+                  {dailyPlanRows.length > 0 && dailyActualsRows.length > 0
+                    ? "Calculate LE using your uploaded Daily Plan and Daily Actuals"
+                    : "Load sample LE — uses hardcoded plan/actuals data"}
                 </p>
               </div>
               <Button variant="outline" size="sm" onClick={handleLoadSample} className="gap-1.5 bg-transparent">
                 <FileSpreadsheet className="h-3.5 w-3.5" />
-                {dailyActualsRows.length > 0 ? "Generate from Actuals" : "Load Sample Data"}
+                {dailyPlanRows.length > 0 && dailyActualsRows.length > 0 ? "Generate LE" : "Load Sample Data"}
               </Button>
             </div>
 

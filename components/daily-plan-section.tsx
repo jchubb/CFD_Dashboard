@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useMemo, useRef, useCallback } from "react"
+import { usePlanningPeriod, type DailyPlanRow } from "@/components/planning-period-context"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,11 +23,8 @@ import {
   Search,
 } from "lucide-react"
 
-export interface DailyPlanRow {
-  id: string
-  partNumber: string
-  dailyQty: number[]
-}
+// Re-export type from context
+export type { DailyPlanRow } from "@/components/planning-period-context"
 
 // Distribute a total integer across n days as evenly as possible (no fractions)
 function distributeEvenly(total: number, days: number): number[] {
@@ -70,7 +68,7 @@ interface DailyPlanSectionProps {
 }
 
 export function DailyPlanSection({ selectedMonth = "January 2024" }: DailyPlanSectionProps) {
-  const [csvData, setCsvData] = useState<DailyPlanRow[]>([])
+  const { dailyPlanRows: csvData, setDailyPlanRows: setCsvData } = usePlanningPeriod()
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
   const [uploadMessage, setUploadMessage] = useState("")
   const [isDragging, setIsDragging] = useState(false)
