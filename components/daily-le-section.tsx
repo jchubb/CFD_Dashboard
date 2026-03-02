@@ -22,11 +22,9 @@ import {
   Search,
 } from "lucide-react"
 
-export interface DailyLERow {
-  id: string
-  partNumber: string
-  dailyQty: number[]
-}
+import { usePlanningPeriod, type DailyLERow } from "@/components/planning-period-context"
+
+export type { DailyLERow }
 
 // Must match MONTHLY_TARGETS in daily-plan-section.tsx
 const MONTHLY_TARGETS: Record<string, number> = {
@@ -107,7 +105,7 @@ interface DailyLESectionProps {
 }
 
 export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectionProps) {
-  const [csvData, setCsvData] = useState<DailyLERow[]>([])
+  const { dailyLERows: csvData, setDailyLERows: setCsvData } = usePlanningPeriod()
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
   const [uploadMessage, setUploadMessage] = useState("")
   const [isDragging, setIsDragging] = useState(false)
