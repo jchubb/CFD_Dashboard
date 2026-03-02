@@ -43,9 +43,9 @@ export function MonthlyPlanContent() {
     }, 0)
   }, [dailyLERows])
 
-  // Avg daily units remaining = (totalTarget - totalActualsToDate) / remainingDays
+  // Avg daily units remaining = (totalTarget - totalActualsToDate - dailyLETotal) / (remainingDays - 1)
   const avgDailyUnitsRemaining = useMemo(() => {
-    if (!monthSummary.totalTarget || dailyActualsRows.length === 0) return null
+    if (!monthSummary.totalTarget || dailyActualsRows.length === 0 || dailyLETotal === null) return null
 
     // Sum all non-null actuals across all parts
     const totalActuals = dailyActualsRows.reduce((sum, row) => {
@@ -61,12 +61,13 @@ export function MonthlyPlanContent() {
     })
 
     const totalDays = getDaysInMonth(selectedMonth)
-    const remainingDays = totalDays - lastActualDay
+    // -1 because the LE day is already accounted for in dailyLETotal
+    const remainingDays = totalDays - lastActualDay - 1
     if (remainingDays <= 0) return 0
 
-    const unitsRemaining = monthSummary.totalTarget - totalActuals
+    const unitsRemaining = monthSummary.totalTarget - totalActuals - dailyLETotal
     return Math.round((unitsRemaining / remainingDays) * 10) / 10
-  }, [monthSummary.totalTarget, dailyActualsRows, selectedMonth])
+  }, [monthSummary.totalTarget, dailyActualsRows, dailyLETotal, selectedMonth])
 
   return (
     <div className="flex flex-col gap-6 p-6">
