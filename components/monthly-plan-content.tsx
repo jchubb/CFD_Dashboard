@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MonthlyPlanSection } from "@/components/monthly-plan-section"
+import { AvailableWipSection } from "@/components/available-wip-section"
 import { DailyActualsSection } from "@/components/daily-actuals-section"
 import { DailyPlanSection } from "@/components/daily-plan-section"
 import { DailyLESection } from "@/components/daily-le-section"
@@ -178,6 +179,8 @@ export function MonthlyPlanContent() {
 
       {/* Scrollable content */}
       <div className="flex flex-col gap-6 px-6 pb-6">
+      <AvailableWipSection selectedMonth={selectedMonth} />
+
       <MonthlyPlanSection selectedMonth={selectedMonth} />
 
       {/* Daily Plan Section */}
