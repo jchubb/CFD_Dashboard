@@ -1,6 +1,7 @@
 "use client"
 
 import { useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { MonthlyPlanSection } from "@/components/monthly-plan-section"
@@ -25,6 +26,7 @@ function getDaysInMonth(monthStr: string): number {
 }
 
 export function MonthlyPlanContent() {
+  const router = useRouter()
   const { selectedMonth, monthlyPlanRows, dailyLERows, dailyActualsRows, dailyPlanRows } = usePlanningPeriod()
 
   // Monthly plan summary
@@ -143,7 +145,7 @@ export function MonthlyPlanContent() {
                           size="sm"
                           variant="outline"
                           className="h-6 px-2 text-[11px] gap-1 border-primary/40 text-primary hover:bg-primary/5"
-                          onClick={() => {/* API call to be wired up */}}
+                          onClick={() => router.push("/optimized-schedule")}
                         >
                           <LineChart className="h-3 w-3" />
                           Generate Forecast
