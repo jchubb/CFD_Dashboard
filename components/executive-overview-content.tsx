@@ -48,7 +48,7 @@ const EXEC_KPIS = [
   {
     title: "Schedule Adherence",
     value: "87.3%",
-    subtitle: "+2.1% vs target",
+    trend: { value: "+2.1% vs target", direction: "up" as const },
     variant: "success" as const,
     icon: <CheckCircle2 className="h-4 w-4 text-success" />,
   },
@@ -63,7 +63,8 @@ const EXEC_KPIS = [
   {
     title: "Active Alerts",
     value: "3",
-    subtitle: "1 critical, 2 warning",
+    subtitle: "require attention",
+    trend: { value: "1 critical, 2 warning", direction: "neutral" as const },
     variant: "warning" as const,
     icon: <AlertTriangle className="h-4 w-4 text-warning" />,
   },
