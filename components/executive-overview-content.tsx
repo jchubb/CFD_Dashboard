@@ -37,7 +37,7 @@ import {
 // -- Executive KPI data --
 const EXEC_KPIS = [
   {
-    title: "Monthly Output To-Date",
+    title: "Output To-Date",
     value: "523",
     subtitle: "/ 950 units",
     progress: 55,
