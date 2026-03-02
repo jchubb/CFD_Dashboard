@@ -9,22 +9,28 @@ import { DailyPlanSection } from "@/components/daily-plan-section"
 import { DailyLESection } from "@/components/daily-le-section"
 import { usePlanningPeriod } from "@/components/planning-period-context"
 import {
-  FileBarChart,
   CalendarRange,
   TrendingUp,
   Target,
+  Activity,
 } from "lucide-react"
 
+// Get days in a given month string e.g. "January 2024"
+function getDaysInMonth(monthStr: string): number {
+  const parts = monthStr.split(" ")
+  const year = parseInt(parts[1]) || new Date().getFullYear()
+  const monthIndex = new Date(`${parts[0]} 1, ${year}`).getMonth()
+  return new Date(year, monthIndex + 1, 0).getDate()
+}
+
 export function MonthlyPlanContent() {
-  const { selectedMonth, monthlyPlanRows, dailyLERows } = usePlanningPeriod()
+  const { selectedMonth, monthlyPlanRows, dailyLERows, dailyActualsRows } = usePlanningPeriod()
 
   // Monthly plan summary
   const monthSummary = useMemo(() => {
     const totalTarget = monthlyPlanRows.reduce((sum, row) => sum + row.monthlyTarget, 0)
-    const families = new Set(monthlyPlanRows.map(r => r.programFamily)).size
     return {
       totalTarget: totalTarget > 0 ? totalTarget : null,
-      families: families > 0 ? families : null,
     }
   }, [monthlyPlanRows])
 
@@ -36,6 +42,31 @@ export function MonthlyPlanContent() {
       return sum + leValue
     }, 0)
   }, [dailyLERows])
+
+  // Avg daily units remaining = (totalTarget - totalActualsToDate) / remainingDays
+  const avgDailyUnitsRemaining = useMemo(() => {
+    if (!monthSummary.totalTarget || dailyActualsRows.length === 0) return null
+
+    // Sum all non-null actuals across all parts
+    const totalActuals = dailyActualsRows.reduce((sum, row) => {
+      return sum + row.dailyQty.reduce((s, v) => s + (v ?? 0), 0)
+    }, 0)
+
+    // Find the last day with actuals data
+    let lastActualDay = 0
+    dailyActualsRows.forEach(row => {
+      row.dailyQty.forEach((v, i) => {
+        if (v !== null && i + 1 > lastActualDay) lastActualDay = i + 1
+      })
+    })
+
+    const totalDays = getDaysInMonth(selectedMonth)
+    const remainingDays = totalDays - lastActualDay
+    if (remainingDays <= 0) return 0
+
+    const unitsRemaining = monthSummary.totalTarget - totalActuals
+    return Math.round((unitsRemaining / remainingDays) * 10) / 10
+  }, [monthSummary.totalTarget, dailyActualsRows, selectedMonth])
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -74,14 +105,14 @@ export function MonthlyPlanContent() {
         <Card className="border border-border">
           <CardContent className="py-4 px-5 flex items-center gap-4">
             <div className="p-2.5 rounded-lg bg-purple-50">
-              <FileBarChart className="h-5 w-5 text-purple-600" />
+              <Activity className="h-5 w-5 text-purple-600" />
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Program Families</p>
+              <p className="text-xs text-muted-foreground">Avg Daily Units Remaining</p>
               <p className="text-xl font-semibold font-mono">
-                {monthSummary.families !== null ? monthSummary.families : "—"}
+                {avgDailyUnitsRemaining !== null ? avgDailyUnitsRemaining : "—"}
               </p>
-              <p className="text-xs text-muted-foreground">active</p>
+              <p className="text-xs text-muted-foreground">units / day</p>
             </div>
           </CardContent>
         </Card>
