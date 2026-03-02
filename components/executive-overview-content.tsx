@@ -86,16 +86,16 @@ function generateMonthlyData() {
 // -- Section status data --
 const SECTIONS = [
   {
-    id: "dashboard",
-    name: "Operations Dashboard",
-    icon: LayoutDashboard,
-    href: "/dashboard",
-    color: "text-primary",
-    bgColor: "bg-primary/10",
+    id: "monthly-plan",
+    name: "Data Ingestion",
+    icon: FileBarChart,
+    href: "/monthly-plan",
+    color: "text-success",
+    bgColor: "bg-success/10",
     metrics: [
-      { label: "Run Rate", value: "125 units/wk" },
-      { label: "Variation", value: "-10.7%", negative: true },
-      { label: "Adherence", value: "87.3%", positive: true },
+      { label: "Period", value: "Feb 2026" },
+      { label: "Total Target", value: "950 units" },
+      { label: "Families", value: "5 active" },
     ],
   },
   {
@@ -112,6 +112,19 @@ const SECTIONS = [
     ],
   },
   {
+    id: "dashboard",
+    name: "Operations Dashboard",
+    icon: LayoutDashboard,
+    href: "/dashboard",
+    color: "text-primary",
+    bgColor: "bg-primary/10",
+    metrics: [
+      { label: "Run Rate", value: "125 units/wk" },
+      { label: "Variation", value: "-10.7%", negative: true },
+      { label: "Adherence", value: "87.3%", positive: true },
+    ],
+  },
+  {
     id: "parameters",
     name: "Parameters Setup",
     icon: Settings2,
@@ -122,19 +135,6 @@ const SECTIONS = [
       { label: "Online", value: "18 machines", positive: true },
       { label: "Offline", value: "1 machine", negative: true },
       { label: "Maintenance", value: "1 machine" },
-    ],
-  },
-  {
-    id: "monthly-plan",
-    name: "Data Ingestion",
-    icon: FileBarChart,
-    href: "/monthly-plan",
-    color: "text-success",
-    bgColor: "bg-success/10",
-    metrics: [
-      { label: "Period", value: "Feb 2026" },
-      { label: "Total Target", value: "950 units" },
-      { label: "Families", value: "5 active" },
     ],
   },
 ]
