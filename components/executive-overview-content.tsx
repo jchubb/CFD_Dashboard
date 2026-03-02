@@ -93,9 +93,9 @@ const SECTIONS_TOP = [
     color: "text-success",
     bgColor: "bg-success/10",
     metrics: [
-      { label: "Period", value: "Feb 2026" },
-      { label: "Total Target", value: "950 units" },
-      { label: "Families", value: "5 active" },
+      { label: "Active WIP", value: "Daily Demands Met" },
+      { label: "Monthly Target", value: "950 units" },
+      { label: "Daily LE", value: "95 units" },
     ],
   },
   {
