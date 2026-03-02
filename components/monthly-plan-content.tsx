@@ -135,36 +135,39 @@ export function MonthlyPlanContent() {
                     dailyPlanRows.length > 0 ||
                     dailyActualsRows.length > 0 ||
                     dailyLERows.length > 0
-                  if (allLoaded) {
-                    return (
-                      <>
-                        <Badge variant="outline" className="text-[11px] border-emerald-300 text-emerald-700 bg-emerald-50">
-                          Loaded
-                        </Badge>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="h-6 px-2 text-[11px] gap-1 border-primary/40 text-primary hover:bg-primary/5"
-                          onClick={() => router.push("/optimized-schedule")}
-                        >
-                          <LineChart className="h-3 w-3" />
-                          Generate Forecast
-                        </Button>
-                      </>
-                    )
-                  } else if (anyLoaded) {
-                    return (
-                      <Badge variant="outline" className="text-[11px] border-blue-300 text-blue-700 bg-blue-50">
-                        Partial
-                      </Badge>
-                    )
-                  } else {
-                    return (
-                      <Badge variant="outline" className="text-[11px] border-amber-300 text-amber-700 bg-amber-50">
-                        Awaiting Data
-                      </Badge>
-                    )
-                  }
+
+                  const statusBadge = allLoaded ? (
+                    <Badge variant="outline" className="text-[11px] border-emerald-300 text-emerald-700 bg-emerald-50">
+                      Loaded
+                    </Badge>
+                  ) : anyLoaded ? (
+                    <Badge variant="outline" className="text-[11px] border-blue-300 text-blue-700 bg-blue-50">
+                      Partial
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="text-[11px] border-amber-300 text-amber-700 bg-amber-50">
+                      Awaiting Data
+                    </Badge>
+                  )
+
+                  return (
+                    <>
+                      {statusBadge}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className={`h-6 px-2 text-[11px] gap-1 transition-colors ${
+                          allLoaded
+                            ? "border-primary/40 text-primary hover:bg-primary/5"
+                            : "border-muted-foreground/20 text-muted-foreground/50 cursor-not-allowed"
+                        }`}
+                        onClick={() => router.push("/optimized-schedule")}
+                      >
+                        <LineChart className="h-3 w-3" />
+                        Generate Forecast
+                      </Button>
+                    </>
+                  )
                 })()}
               </div>
             </div>
