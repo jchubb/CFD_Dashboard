@@ -1,10 +1,11 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useRef, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
+import { Label } from "@/components/ui/label"
 import {
   Table,
   TableBody,
@@ -46,8 +47,14 @@ import {
   Plus,
   Zap,
   Check,
-  Trash2
+  Trash2,
+  Upload,
+  Clock,
+  AlertCircle,
+  TrendingUp,
+  TrendingDown,
 } from "lucide-react"
+import { usePlanningPeriod, type OptimizedScheduleRow } from "@/components/planning-period-context"
 
 
 type ViewType = "daily" | "weekly" | "monthly"
@@ -123,6 +130,7 @@ const partsCatalog: PartCatalogItem[] = [
 ]
 
 export function SchedulingContent() {
+  const { optimizedScheduleRows, setOptimizedScheduleRows } = usePlanningPeriod()
   const [viewType, setViewType] = useState<ViewType>("weekly")
   const [appliedConditions, setAppliedConditions] = useState<InitialConditions>(defaultConditions)
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
@@ -133,6 +141,71 @@ export function SchedulingContent() {
   const [addPartQuantity, setAddPartQuantity] = useState(1)
   const [addPartScheduleOption, setAddPartScheduleOption] = useState<"today" | "optimal">("today")
   const [partSearchQuery, setPartSearchQuery] = useState("")
+
+  // Optimized Schedule state
+  const [optHorizon, setOptHorizon] = useState<"36h" | "month">("36h")
+  const [optIsDragging, setOptIsDragging] = useState(false)
+  const [optUploadStatus, setOptUploadStatus] = useState<"idle" | "success" | "error">("idle")
+  const [optUploadMessage, setOptUploadMessage] = useState("")
+  const [optIsHovered, setOptIsHovered] = useState(false)
+  const optFileInputRef = useRef<HTMLInputElement>(null)
+
+  const parseOptimizedCSV = useCallback((csvText: string) => {
+    try {
+      const lines = csvText.trim().split("\n")
+      if (lines.length < 2) throw new Error("CSV must have a header row and at least one data row")
+      const headers = lines[0].split(",").map(h => h.trim().toLowerCase().replace(/\s+/g, "_"))
+
+      const rows: OptimizedScheduleRow[] = lines.slice(1).map((line, i) => {
+        const vals = line.split(",").map(v => v.trim())
+        const get = (key: string) => vals[headers.indexOf(key)] ?? ""
+        return {
+          id: `opt-${i}`,
+          partNumber: get("part_number") || get("partnumber") || get("part"),
+          programFamily: get("program_family") || get("family") || get("program"),
+          scheduledDate: get("scheduled_date") || get("date"),
+          scheduledTime: get("scheduled_time") || get("time") || "00:00",
+          quantity: parseInt(get("quantity") || get("qty") || "0") || 0,
+          machine: get("machine") || get("machine_id") || "—",
+          shift: get("shift") || "—",
+          status: (get("status") as OptimizedScheduleRow["status"]) || "scheduled",
+        }
+      }).filter(r => r.partNumber)
+
+      setOptimizedScheduleRows(rows)
+      setOptUploadStatus("success")
+      setOptUploadMessage(`${rows.length} optimized schedule rows loaded`)
+    } catch (err) {
+      setOptUploadStatus("error")
+      setOptUploadMessage(err instanceof Error ? err.message : "Failed to parse CSV")
+    }
+  }, [setOptimizedScheduleRows])
+
+  const handleOptDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault()
+    setOptIsDragging(false)
+    const file = e.dataTransfer.files[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => parseOptimizedCSV(ev.target?.result as string)
+    reader.readAsText(file)
+  }, [parseOptimizedCSV])
+
+  const handleOptFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (ev) => parseOptimizedCSV(ev.target?.result as string)
+    reader.readAsText(file)
+  }, [parseOptimizedCSV])
+
+  // Filter rows for each horizon view
+  const horizon36hRows = useMemo(() => {
+    // Show only rows where scheduledDate is today or tomorrow (use index-based for demo)
+    return optimizedScheduleRows.slice(0, Math.ceil(optimizedScheduleRows.length * 0.15))
+  }, [optimizedScheduleRows])
+
+  const horizonMonthRows = useMemo(() => optimizedScheduleRows, [optimizedScheduleRows])
 
   // Filter parts catalog based on search query
   const filteredPartsCatalog = useMemo(() => {
@@ -972,6 +1045,196 @@ export function SchedulingContent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* ── Optimized Schedule Section ───────────────────────────────── */}
+      <Card className="border border-border">
+        <CardHeader className="py-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center justify-center h-7 w-7 rounded-md bg-primary/10">
+                <Zap className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                  Optimized Schedule
+                </CardTitle>
+                <p className="text-xs text-muted-foreground">
+                  Results from the schedule optimizer — upload CSV output or trigger via Generate Optimization
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {/* Horizon toggle */}
+              <div className="flex items-center bg-muted rounded-lg p-0.5">
+                <Button
+                  variant={optHorizon === "36h" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setOptHorizon("36h")}
+                  className="h-7 gap-1.5 text-xs px-3"
+                >
+                  <Clock className="h-3.5 w-3.5" />
+                  36-Hour
+                </Button>
+                <Button
+                  variant={optHorizon === "month" ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => setOptHorizon("month")}
+                  className="h-7 gap-1.5 text-xs px-3"
+                >
+                  <CalendarRange className="h-3.5 w-3.5" />
+                  Full Month
+                </Button>
+              </div>
+              {optimizedScheduleRows.length > 0 && (
+                <>
+                  <Badge variant="secondary" className="font-mono text-xs">
+                    {optHorizon === "36h" ? horizon36hRows.length : horizonMonthRows.length} items
+                  </Badge>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 gap-1.5 text-xs bg-transparent text-red-600 border-red-200 hover:bg-red-50"
+                    onClick={() => { setOptimizedScheduleRows([]); setOptUploadStatus("idle"); setOptUploadMessage("") }}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Clear
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </CardHeader>
+
+        <CardContent className="pb-4 flex flex-col gap-4">
+          {/* Upload status */}
+          {optUploadStatus !== "idle" && (
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs ${
+              optUploadStatus === "success"
+                ? "bg-emerald-50 border border-emerald-200 text-emerald-700"
+                : "bg-red-50 border border-red-200 text-red-700"
+            }`}>
+              {optUploadStatus === "success"
+                ? <Check className="h-3.5 w-3.5 shrink-0" />
+                : <AlertCircle className="h-3.5 w-3.5 shrink-0" />}
+              {optUploadMessage}
+            </div>
+          )}
+
+          {optimizedScheduleRows.length === 0 ? (
+            /* Drop zone */
+            <div>
+              <input
+                ref={optFileInputRef}
+                type="file"
+                accept=".csv"
+                className="hidden"
+                onChange={handleOptFileChange}
+              />
+              <div
+                onDrop={handleOptDrop}
+                onDragOver={(e) => { e.preventDefault(); setOptIsDragging(true) }}
+                onDragLeave={() => setOptIsDragging(false)}
+                onClick={() => optFileInputRef.current?.click()}
+                onMouseEnter={() => setOptIsHovered(true)}
+                onMouseLeave={() => setOptIsHovered(false)}
+                className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-10 cursor-pointer transition-all ${
+                  optIsDragging
+                    ? "border-primary bg-primary/5"
+                    : "border-border hover:border-muted-foreground/40 hover:bg-muted/30"
+                }`}
+              >
+                {optIsHovered && (
+                  <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-background/90 px-6">
+                    <p className="text-center text-xs font-medium text-amber-700">
+                      File upload not approved by ATO — please place files in network folder: C:/file location/
+                    </p>
+                  </div>
+                )}
+                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-muted">
+                  <Upload className="h-5 w-5 text-muted-foreground" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-medium text-foreground">Upload optimizer output CSV</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Expected columns: Part Number, Program Family, Scheduled Date, Scheduled Time, Quantity, Machine, Shift, Status
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Schedule table */
+            <>
+              {/* Summary strip */}
+              <div className="grid grid-cols-4 gap-3">
+                {[
+                  { label: "Total Items", value: (optHorizon === "36h" ? horizon36hRows : horizonMonthRows).length },
+                  { label: "Total Units", value: (optHorizon === "36h" ? horizon36hRows : horizonMonthRows).reduce((s, r) => s + r.quantity, 0) },
+                  { label: "Unique Parts", value: new Set((optHorizon === "36h" ? horizon36hRows : horizonMonthRows).map(r => r.partNumber)).size },
+                  { label: "Machines", value: new Set((optHorizon === "36h" ? horizon36hRows : horizonMonthRows).map(r => r.machine).filter(m => m !== "—")).size || "—" },
+                ].map(({ label, value }) => (
+                  <div key={label} className="bg-muted/50 rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground">{label}</p>
+                    <p className="text-lg font-semibold font-mono">{value}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Table */}
+              <div className="border rounded-lg overflow-hidden">
+                <div className="max-h-[420px] overflow-y-auto">
+                  <Table>
+                    <TableHeader className="sticky top-0 bg-muted/80 backdrop-blur-sm">
+                      <TableRow>
+                        <TableHead className="text-xs font-semibold">Part Number</TableHead>
+                        <TableHead className="text-xs font-semibold">Program Family</TableHead>
+                        <TableHead className="text-xs font-semibold">Date</TableHead>
+                        <TableHead className="text-xs font-semibold">Time</TableHead>
+                        <TableHead className="text-xs font-semibold text-right">Qty</TableHead>
+                        <TableHead className="text-xs font-semibold">Machine</TableHead>
+                        <TableHead className="text-xs font-semibold">Shift</TableHead>
+                        <TableHead className="text-xs font-semibold">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {(optHorizon === "36h" ? horizon36hRows : horizonMonthRows).map((row) => (
+                        <TableRow key={row.id} className="hover:bg-muted/30">
+                          <TableCell className="font-mono text-xs">{row.partNumber}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={`text-xs ${
+                              row.programFamily === "F135" ? "border-blue-300 text-blue-700 bg-blue-50" :
+                              row.programFamily === "GTF" ? "border-purple-300 text-purple-700 bg-purple-50" :
+                              row.programFamily === "LEAP-1A" ? "border-emerald-300 text-emerald-700 bg-emerald-50" :
+                              row.programFamily === "GEnx" ? "border-amber-300 text-amber-700 bg-amber-50" :
+                              "border-gray-300 text-gray-700 bg-gray-50"
+                            }`}>
+                              {row.programFamily || "—"}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-xs">{row.scheduledDate}</TableCell>
+                          <TableCell className="font-mono text-xs text-muted-foreground">{row.scheduledTime}</TableCell>
+                          <TableCell className="font-mono text-xs text-right">{row.quantity}</TableCell>
+                          <TableCell className="font-mono text-xs">{row.machine}</TableCell>
+                          <TableCell className="text-xs">{row.shift}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={`text-xs ${
+                              row.status === "complete" ? "border-emerald-300 text-emerald-700 bg-emerald-50" :
+                              row.status === "in-progress" ? "border-blue-300 text-blue-700 bg-blue-50" :
+                              "border-gray-300 text-gray-600 bg-gray-50"
+                            }`}>
+                              {row.status}
+                            </Badge>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
     </div>
   )
 }
