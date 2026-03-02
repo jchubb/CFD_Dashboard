@@ -6,18 +6,39 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
-  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table"
 import {
-  ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+  type ChartConfig,
 } from "@/components/ui/chart"
 import { Bar, BarChart, XAxis, YAxis, CartesianGrid, Cell } from "recharts"
 import {
-  Upload, FileSpreadsheet, X, AlertCircle, CheckCircle2, BarChart3, TableIcon, Search,
+  Upload,
+  FileSpreadsheet,
+  X,
+  AlertCircle,
+  CheckCircle2,
+  BarChart3,
+  TableIcon,
+  Search,
 } from "lucide-react"
-import { usePlanningPeriod, type MonthlyPlanRow } from "@/components/planning-period-context"
 
-export type { MonthlyPlanRow }
+export interface MonthlyPlanRow {
+  id: string
+  programFamily: string
+  partNumber: string
+  description: string
+  monthlyTarget: number
+  weeklyBreakdown: number[]
+}
 
 const FAMILY_COLORS: Record<string, string> = {
   F135: "#3b82f6",
@@ -62,11 +83,7 @@ interface MonthlyPlanSectionProps {
 }
 
 export function MonthlyPlanSection({ selectedMonth = "January 2024", onDataChange }: MonthlyPlanSectionProps) {
-  const { monthlyPlanRows: csvData, setMonthlyPlanRows: setCsvDataCtx } = usePlanningPeriod()
-  const setCsvData = useCallback((rows: MonthlyPlanRow[]) => {
-    setCsvDataCtx(rows)
-    onDataChange?.(rows)
-  }, [setCsvDataCtx, onDataChange])
+  const [csvData, setCsvData] = useState<MonthlyPlanRow[]>([])
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
   const [uploadMessage, setUploadMessage] = useState("")
   const [isDragging, setIsDragging] = useState(false)

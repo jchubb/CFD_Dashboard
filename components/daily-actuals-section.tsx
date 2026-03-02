@@ -22,9 +22,11 @@ import {
   Search,
 } from "lucide-react"
 
-import { usePlanningPeriod, type DailyActualsRow } from "@/components/planning-period-context"
-
-export type { DailyActualsRow }
+export interface DailyActualsRow {
+  id: string
+  partNumber: string
+  dailyQty: (number | null)[]
+}
 
 // Generate sample CSV with 31 days; days 11-31 are empty to represent incomplete actuals
 const buildSampleCSV = () => {
@@ -59,7 +61,7 @@ interface DailyActualsSectionProps {
 }
 
 export function DailyActualsSection({ selectedMonth = "January 2024" }: DailyActualsSectionProps) {
-  const { dailyActualsRows: csvData, setDailyActualsRows: setCsvData } = usePlanningPeriod()
+  const [csvData, setCsvData] = useState<DailyActualsRow[]>([])
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
   const [uploadMessage, setUploadMessage] = useState("")
   const [isDragging, setIsDragging] = useState(false)
