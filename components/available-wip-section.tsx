@@ -31,6 +31,7 @@ import {
   Search,
   Package,
 } from "lucide-react"
+import { usePlanningPeriod, type WipRow } from "@/components/planning-period-context"
 
 const FAMILY_COLORS: Record<string, string> = {
   F135: "#3b82f6",
@@ -48,14 +49,6 @@ function getFamilyBadgeClass(family: string) {
     case "GEnx":    return "border-amber-300 text-amber-700 bg-amber-50"
     default:        return "border-gray-300 text-gray-700 bg-gray-50"
   }
-}
-
-interface WipRow {
-  id: string
-  programFamily: string
-  partNumber: string
-  description: string
-  totalAvailable: number
 }
 
 const sampleCSV = `Program Family,Part Number,Description,Total Available
@@ -77,7 +70,7 @@ interface AvailableWipSectionProps {
 }
 
 export function AvailableWipSection({ selectedMonth = "January 2024" }: AvailableWipSectionProps) {
-  const [rows, setRows] = useState<WipRow[]>([])
+  const { wipRows: rows, setWipRows: setRows } = usePlanningPeriod()
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
   const [uploadMessage, setUploadMessage] = useState("")
   const [isDragging, setIsDragging] = useState(false)
