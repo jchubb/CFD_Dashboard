@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useMemo, useRef, useCallback } from "react"
+import { usePlanningPeriod, type MonthlyPlanRow } from "@/components/planning-period-context"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -31,14 +32,8 @@ import {
   Search,
 } from "lucide-react"
 
-export interface MonthlyPlanRow {
-  id: string
-  programFamily: string
-  partNumber: string
-  description: string
-  monthlyTarget: number
-  weeklyBreakdown: number[]
-}
+// Re-export the type from context for external consumers
+export type { MonthlyPlanRow } from "@/components/planning-period-context"
 
 const FAMILY_COLORS: Record<string, string> = {
   F135: "#3b82f6",
@@ -83,7 +78,7 @@ interface MonthlyPlanSectionProps {
 }
 
 export function MonthlyPlanSection({ selectedMonth = "January 2024", onDataChange }: MonthlyPlanSectionProps) {
-  const [csvData, setCsvData] = useState<MonthlyPlanRow[]>([])
+  const { monthlyPlanRows: csvData, setMonthlyPlanRows: setCsvData } = usePlanningPeriod()
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
   const [uploadMessage, setUploadMessage] = useState("")
   const [isDragging, setIsDragging] = useState(false)
