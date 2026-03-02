@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
+import { PlanKpiBar } from "@/components/plan-kpi-bar"
 import {
   TrendingUp,
   TrendingDown,
@@ -258,8 +259,9 @@ function OverviewChartTooltip({ active, payload, label }: any) {
               />
               <span className="text-muted-foreground">{entry.name}:</span>
               <span className="font-mono font-medium">{entry.value}</span>
-            </div>
-          )
+      </div>
+    </div>
+  )
         })}
       </div>
     </div>
@@ -271,7 +273,9 @@ export function ExecutiveOverviewContent() {
   const monthlyData = useMemo(() => generateMonthlyData(), [])
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <div className="flex flex-col gap-6">
+      <PlanKpiBar />
+      <div className="flex flex-col gap-6 p-6">
       {/* Section A: Executive KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {EXEC_KPIS.map((kpi) => (
