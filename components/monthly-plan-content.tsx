@@ -2,6 +2,7 @@
 
 import { useMemo } from "react"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { MonthlyPlanSection } from "@/components/monthly-plan-section"
 import { DailyActualsSection } from "@/components/daily-actuals-section"
 import { DailyPlanSection } from "@/components/daily-plan-section"
@@ -12,6 +13,7 @@ import {
   TrendingUp,
   Target,
   Activity,
+  LineChart,
 } from "lucide-react"
 
 // Get days in a given month string e.g. "January 2024"
@@ -119,7 +121,7 @@ export function MonthlyPlanContent() {
             </div>
             <div className="min-w-0">
               <p className="text-[11px] text-muted-foreground leading-none">Plan Status</p>
-              <div className="mt-0.5">
+              <div className="mt-0.5 flex items-center gap-2">
                 {(() => {
                   const allLoaded =
                     monthSummary.totalTarget !== null &&
@@ -133,9 +135,20 @@ export function MonthlyPlanContent() {
                     dailyLERows.length > 0
                   if (allLoaded) {
                     return (
-                      <Badge variant="outline" className="text-[11px] border-emerald-300 text-emerald-700 bg-emerald-50">
-                        Loaded
-                      </Badge>
+                      <>
+                        <Badge variant="outline" className="text-[11px] border-emerald-300 text-emerald-700 bg-emerald-50">
+                          Loaded
+                        </Badge>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-6 px-2 text-[11px] gap-1 border-primary/40 text-primary hover:bg-primary/5"
+                          onClick={() => {/* API call to be wired up */}}
+                        >
+                          <LineChart className="h-3 w-3" />
+                          Generate Forecast
+                        </Button>
+                      </>
                     )
                   } else if (anyLoaded) {
                     return (
