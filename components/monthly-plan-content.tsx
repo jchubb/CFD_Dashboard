@@ -124,7 +124,7 @@ export function MonthlyPlanContent() {
             </div>
             <div className="min-w-0">
               <p className="text-[11px] text-muted-foreground leading-none">Plan Status</p>
-              <div className="mt-0.5 flex items-center gap-2">
+              <div className="mt-0.5 flex items-center gap-4">
                 {(() => {
                   const allLoaded =
                     monthSummary.totalTarget !== null &&
