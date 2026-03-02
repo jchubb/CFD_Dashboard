@@ -3,12 +3,18 @@
 import { createContext, useContext, useState } from "react"
 
 export const availableMonths = [
-  "January 2024",
-  "February 2024",
-  "March 2024",
-  "April 2024",
-  "May 2024",
-  "June 2024",
+  "July 2025",
+  "August 2025",
+  "September 2025",
+  "October 2025",
+  "November2025",
+  "December 2025",
+  "January 2026",
+  "February 2026",
+  "March 2026",
+  "April 2026",
+  "May 2026",
+  "June 2026",
 ]
 
 // Shared type for monthly plan rows
@@ -57,15 +63,15 @@ interface PlanningPeriodContextValue {
 
 const PlanningPeriodContext = createContext<PlanningPeriodContextValue>({
   selectedMonth: availableMonths[0],
-  setSelectedMonth: () => {},
+  setSelectedMonth: () => { },
   monthlyPlanRows: [],
-  setMonthlyPlanRows: () => {},
+  setMonthlyPlanRows: () => { },
   dailyActualsRows: [],
-  setDailyActualsRows: () => {},
+  setDailyActualsRows: () => { },
   dailyPlanRows: [],
-  setDailyPlanRows: () => {},
+  setDailyPlanRows: () => { },
   dailyLERows: [],
-  setDailyLERows: () => {},
+  setDailyLERows: () => { },
 })
 
 export function PlanningPeriodProvider({ children }: { children: React.ReactNode }) {
