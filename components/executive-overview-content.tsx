@@ -100,15 +100,15 @@ const SECTIONS_TOP = [
   },
   {
     id: "scheduling",
-    name: "Scheduling Tool",
+    name: "Optimized Schedule",
     icon: Calendar,
-    href: "/scheduling",
+    href: "/optimized-schedule",
     color: "text-chart-1",
     bgColor: "bg-chart-1/10",
     metrics: [
-      { label: "Active Scenario", value: "Base Case" },
-      { label: "Current View", value: "Weekly" },
-      { label: "Forecast", value: "Enabled", positive: true },
+      { label: "36 Hour Schedule", value: "145 units" },
+      { label: "HT Cell Utilization", value: "95%", positive: true },
+      { label: "Avg Remaining Daily Demand", value: "78 units" },
     ],
   },
 ]
