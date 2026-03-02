@@ -61,7 +61,7 @@ interface PlanningPeriodContextValue {
 }
 
 const PlanningPeriodContext = createContext<PlanningPeriodContextValue>({
-  selectedMonth: availableMonths[0],
+  selectedMonth: "February 2026",
   setSelectedMonth: () => { },
   monthlyPlanRows: [],
   setMonthlyPlanRows: () => { },
@@ -74,7 +74,7 @@ const PlanningPeriodContext = createContext<PlanningPeriodContextValue>({
 })
 
 export function PlanningPeriodProvider({ children }: { children: React.ReactNode }) {
-  const [selectedMonth, setSelectedMonth] = useState(availableMonths[0])
+  const [selectedMonth, setSelectedMonth] = useState("February 2026")
   const [monthlyPlanRows, setMonthlyPlanRows] = useState<MonthlyPlanRow[]>([])
   const [dailyActualsRows, setDailyActualsRows] = useState<DailyActualsRow[]>([])
   const [dailyPlanRows, setDailyPlanRows] = useState<DailyPlanRow[]>([])
