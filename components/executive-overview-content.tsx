@@ -83,8 +83,8 @@ function generateMonthlyData() {
   }))
 }
 
-// -- Section status data --
-const SECTIONS = [
+// -- Section status data: top row (shown above KPI cards) --
+const SECTIONS_TOP = [
   {
     id: "monthly-plan",
     name: "Data Ingestion",
@@ -111,6 +111,10 @@ const SECTIONS = [
       { label: "Forecast", value: "Enabled", positive: true },
     ],
   },
+]
+
+// -- Section status data: bottom row (shown after chart) --
+const SECTIONS_BOTTOM = [
   {
     id: "dashboard",
     name: "Operations Dashboard",
@@ -272,7 +276,45 @@ export function ExecutiveOverviewContent() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      {/* Section A: Executive KPI Cards */}
+
+      {/* Section A: Data Ingestion & Scheduling Tool — top of page */}
+      <div className="grid gap-4 md:grid-cols-2">
+        {SECTIONS_TOP.map((section) => {
+          const Icon = section.icon
+          return (
+            <Card key={section.id} className="border-2 border-border bg-card group">
+              <CardContent className="flex flex-col gap-4 pt-5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={cn("flex items-center justify-center h-9 w-9 rounded-md", section.bgColor)}>
+                      <Icon className={cn("h-5 w-5", section.color)} />
+                    </div>
+                    <h3 className="text-sm font-semibold text-foreground">{section.name}</h3>
+                  </div>
+                  <Button variant="ghost" size="sm" asChild className="gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+                    <Link href={section.href}>
+                      Open
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </Button>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  {section.metrics.map((metric) => (
+                    <div key={metric.label} className="flex flex-col gap-0.5">
+                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground">{metric.label}</span>
+                      <span className={cn("font-mono text-sm font-medium", metric.negative && "text-destructive", metric.positive && "text-success", !metric.negative && !metric.positive && "text-foreground")}>
+                        {metric.value}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )
+        })}
+      </div>
+
+      {/* Section B: Executive KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {EXEC_KPIS.map((kpi) => (
           <ExecKpiCard key={kpi.title} {...kpi} />
@@ -360,9 +402,9 @@ export function ExecutiveOverviewContent() {
         </CardContent>
       </Card>
 
-      {/* Section C: Section Status Cards (2x2 grid) */}
+      {/* Section D: Operations Dashboard & Parameters Setup */}
       <div className="grid gap-4 md:grid-cols-2">
-        {SECTIONS.map((section) => {
+        {SECTIONS_BOTTOM.map((section) => {
           const Icon = section.icon
           return (
             <Card key={section.id} className="border-2 border-border bg-card group">
