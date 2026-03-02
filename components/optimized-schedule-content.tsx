@@ -54,11 +54,7 @@ const SOURCE_COLORS: Record<Source, string> = {
 export function OptimizedScheduleContent() {
   const [search, setSearch] = useState("")
 
-  const scheduleDate = new Date()
-  scheduleDate.setDate(scheduleDate.getDate() + 1)
-  const dateLabel = scheduleDate.toLocaleDateString("en-US", {
-    weekday: "long", year: "numeric", month: "long", day: "numeric",
-  })
+  const dateLabel = "Wednesday, February 11, 2026"
 
   const filtered = NEXT_DAY_SCHEDULE.filter(row =>
     row.partNumber.toLowerCase().includes(search.toLowerCase()) ||
