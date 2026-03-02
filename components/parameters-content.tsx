@@ -365,28 +365,17 @@ export function ParametersContent() {
           </div>
         </CardHeader>
         <CardContent className="pb-4 pt-0 flex flex-col gap-4">
-          {/* Color key */}
-          <div className="flex flex-wrap items-center gap-4">
-            {Object.values(FAMILY_COLORS).map(fc => (
-              <div key={fc.label} className="flex items-center gap-2">
-                <span className={`inline-block w-3 h-3 rounded-full ${fc.dot}`} />
-                <Badge variant="outline" className={`text-xs font-medium ${fc.border} ${fc.text} ${fc.bg}`}>
-                  {fc.label}
-                </Badge>
-              </div>
-            ))}
-          </div>
 
           {/* Machine map: 4 sections × 2 columns each = 8 columns total */}
-          <div className="grid grid-cols-4 gap-x-6 gap-y-0 border-t border-border pt-4">
+          <div className="grid grid-cols-4 gap-x-6 gap-y-0">
             {[1, 2, 3, 4].map(sectionId => {
               const mList = machines.filter(m => m.sectionId === sectionId)
               const groupA = mList.filter(m => m.group === "A")
               const groupB = mList.filter(m => m.group === "B")
               return (
                 <div key={sectionId} className="flex flex-col gap-2">
-                  {/* Section title */}
-                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide">
+                  {/* Section title — centered */}
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide text-center">
                     Line {sectionId}
                   </p>
                   {/* Two columns: Oven (A) + Quench (B) */}
@@ -435,6 +424,19 @@ export function ParametersContent() {
               )
             })}
           </div>
+
+          {/* Color key — below machine map, centered */}
+          <div className="flex flex-wrap justify-center items-center gap-4 border-t border-border pt-3">
+            {Object.values(FAMILY_COLORS).map(fc => (
+              <div key={fc.label} className="flex items-center gap-2">
+                <span className={`inline-block w-3 h-3 rounded-full ${fc.dot}`} />
+                <Badge variant="outline" className={`text-xs font-medium ${fc.border} ${fc.text} ${fc.bg}`}>
+                  {fc.label}
+                </Badge>
+              </div>
+            ))}
+          </div>
+
         </CardContent>
       </Card>
 
