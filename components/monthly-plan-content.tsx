@@ -77,7 +77,7 @@ export function MonthlyPlanContent() {
     <div className="flex flex-col gap-6">
       {/* Sticky KPI Header Bar */}
       <div className="sticky top-0 z-10 bg-background border-b border-border px-6 py-2 shadow-sm">
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-5 gap-3">
 
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-md bg-blue-50 shrink-0">
@@ -124,7 +124,7 @@ export function MonthlyPlanContent() {
             </div>
             <div className="min-w-0">
               <p className="text-[11px] text-muted-foreground leading-none">Plan Status</p>
-              <div className="mt-0.5 flex items-center gap-4">
+              <div className="mt-0.5">
                 {(() => {
                   const allLoaded =
                     monthSummary.totalTarget !== null &&
@@ -136,8 +136,7 @@ export function MonthlyPlanContent() {
                     dailyPlanRows.length > 0 ||
                     dailyActualsRows.length > 0 ||
                     dailyLERows.length > 0
-
-                  const statusBadge = allLoaded ? (
+                  return allLoaded ? (
                     <Badge variant="outline" className="text-[11px] border-emerald-300 text-emerald-700 bg-emerald-50">
                       Loaded
                     </Badge>
@@ -150,24 +149,38 @@ export function MonthlyPlanContent() {
                       Awaiting Data
                     </Badge>
                   )
+                })()}
+              </div>
+            </div>
+          </div>
 
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-md bg-primary/10 shrink-0">
+              <LineChart className="h-4 w-4 text-primary" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] text-muted-foreground leading-none">Forecast</p>
+              <div className="mt-0.5">
+                {(() => {
+                  const allLoaded =
+                    monthSummary.totalTarget !== null &&
+                    dailyPlanRows.length > 0 &&
+                    dailyActualsRows.length > 0 &&
+                    dailyLERows.length > 0
                   return (
-                    <>
-                      {statusBadge}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className={`h-6 px-2 text-[11px] gap-1 transition-colors ${
-                          allLoaded
-                            ? "border-primary/40 text-primary hover:bg-primary/5"
-                            : "border-muted-foreground/20 text-muted-foreground/50 cursor-not-allowed"
-                        }`}
-                        onClick={() => router.push("/optimized-schedule")}
-                      >
-                        <LineChart className="h-3 w-3" />
-                        Generate Forecast
-                      </Button>
-                    </>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className={`h-6 px-2 text-[11px] gap-1 transition-colors ${
+                        allLoaded
+                          ? "border-primary/40 text-primary hover:bg-primary/5"
+                          : "border-muted-foreground/20 text-muted-foreground/50 cursor-not-allowed"
+                      }`}
+                      onClick={() => router.push("/optimized-schedule")}
+                    >
+                      <LineChart className="h-3 w-3" />
+                      Generate Forecast
+                    </Button>
                   )
                 })()}
               </div>
