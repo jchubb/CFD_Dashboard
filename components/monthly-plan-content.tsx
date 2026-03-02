@@ -1,7 +1,6 @@
 "use client"
 
 import { useMemo } from "react"
-import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { MonthlyPlanSection } from "@/components/monthly-plan-section"
 import { DailyActualsSection } from "@/components/daily-actuals-section"
@@ -70,72 +69,69 @@ export function MonthlyPlanContent() {
   }, [monthSummary.totalTarget, dailyActualsRows, dailyLETotal, selectedMonth])
 
   return (
-    <div className="flex flex-col gap-6 p-6">
-      {/* Summary KPI Cards */}
-      <div className="grid grid-cols-4 gap-4">
-        <Card className="border border-border">
-          <CardContent className="py-4 px-5 flex items-center gap-4">
-            <div className="p-2.5 rounded-lg bg-blue-50">
-              <Target className="h-5 w-5 text-blue-600" />
+    <div className="flex flex-col gap-6">
+      {/* Sticky KPI Header Bar */}
+      <div className="sticky top-0 z-10 bg-background border-b border-border px-6 py-2 shadow-sm">
+        <div className="grid grid-cols-4 gap-3">
+
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-md bg-blue-50 shrink-0">
+              <Target className="h-4 w-4 text-blue-600" />
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Monthly Target</p>
-              <p className="text-xl font-semibold font-mono">
+            <div className="min-w-0">
+              <p className="text-[11px] text-muted-foreground leading-none">Monthly Target</p>
+              <p className="text-base font-semibold font-mono leading-tight">
                 {monthSummary.totalTarget !== null ? monthSummary.totalTarget : "—"}
               </p>
-              <p className="text-xs text-muted-foreground">total units</p>
+              <p className="text-[11px] text-muted-foreground leading-none">total units</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card className="border border-border">
-          <CardContent className="py-4 px-5 flex items-center gap-4">
-            <div className="p-2.5 rounded-lg bg-emerald-50">
-              <TrendingUp className="h-5 w-5 text-emerald-600" />
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-md bg-emerald-50 shrink-0">
+              <TrendingUp className="h-4 w-4 text-emerald-600" />
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Daily LE Target</p>
-              <p className="text-xl font-semibold font-mono">
+            <div className="min-w-0">
+              <p className="text-[11px] text-muted-foreground leading-none">Daily LE Target</p>
+              <p className="text-base font-semibold font-mono leading-tight">
                 {dailyLETotal !== null ? dailyLETotal : "—"}
               </p>
-              <p className="text-xs text-muted-foreground">total units</p>
+              <p className="text-[11px] text-muted-foreground leading-none">total units</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card className="border border-border">
-          <CardContent className="py-4 px-5 flex items-center gap-4">
-            <div className="p-2.5 rounded-lg bg-purple-50">
-              <Activity className="h-5 w-5 text-purple-600" />
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-md bg-purple-50 shrink-0">
+              <Activity className="h-4 w-4 text-purple-600" />
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Avg Daily Units Remaining</p>
-              <p className="text-xl font-semibold font-mono">
+            <div className="min-w-0">
+              <p className="text-[11px] text-muted-foreground leading-none">Avg Daily Units Remaining</p>
+              <p className="text-base font-semibold font-mono leading-tight">
                 {avgDailyUnitsRemaining !== null ? avgDailyUnitsRemaining : "—"}
               </p>
-              <p className="text-xs text-muted-foreground">units / day</p>
+              <p className="text-[11px] text-muted-foreground leading-none">units / day</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
 
-        <Card className="border border-border">
-          <CardContent className="py-4 px-5 flex items-center gap-4">
-            <div className="p-2.5 rounded-lg bg-amber-50">
-              <Target className="h-5 w-5 text-amber-600" />
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-md bg-amber-50 shrink-0">
+              <Target className="h-4 w-4 text-amber-600" />
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Plan Status</p>
-              <p className="text-xl font-semibold font-mono">
-                <Badge variant="outline" className="text-xs border-amber-300 text-amber-700 bg-amber-50">
+            <div className="min-w-0">
+              <p className="text-[11px] text-muted-foreground leading-none">Plan Status</p>
+              <div className="mt-0.5">
+                <Badge variant="outline" className={`text-[11px] ${monthSummary.totalTarget !== null ? "border-emerald-300 text-emerald-700 bg-emerald-50" : "border-amber-300 text-amber-700 bg-amber-50"}`}>
                   {monthSummary.totalTarget !== null ? "Loaded" : "Awaiting Data"}
                 </Badge>
-              </p>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+        </div>
       </div>
 
-      {/* Main Monthly Plan Section - CSV Upload, Table, and Histogram */}
+      {/* Scrollable content */}
+      <div className="flex flex-col gap-6 px-6 pb-6">
       <MonthlyPlanSection selectedMonth={selectedMonth} />
 
       {/* Daily Plan Section */}
@@ -159,6 +155,7 @@ export function MonthlyPlanContent() {
           </Badge>
         </div>
       </div>
+    </div>
     </div>
   )
 }
