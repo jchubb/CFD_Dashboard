@@ -93,7 +93,7 @@ const SECTIONS_TOP = [
     color: "text-success",
     bgColor: "bg-success/10",
     metrics: [
-      { label: "Active WIP", value: "Daily Demands Met" },
+      { label: "Active WIP", value: "2444 units" },
       { label: "Monthly Target", value: "950 units" },
       { label: "Daily LE", value: "95 units" },
     ],
