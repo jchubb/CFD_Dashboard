@@ -191,7 +191,7 @@ export function MonthlyPlanContent() {
       </div>
 
       {/* Scrollable content */}
-      <div className="flex flex-col gap-6 px-6 pb-6">
+      <div className="flex flex-col gap-3 px-6 pb-4">
       <AvailableWipSection selectedMonth={selectedMonth} />
 
       <MonthlyPlanSection selectedMonth={selectedMonth} />
