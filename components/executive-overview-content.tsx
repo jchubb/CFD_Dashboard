@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { cn } from "@/lib/utils"
+import { usePlanningPeriod } from "@/components/planning-period-context"
 import {
   TrendingUp,
   TrendingDown,
@@ -22,6 +23,7 @@ import {
   Clock,
   AlertCircle,
   Info,
+  Gauge,
 } from "lucide-react"
 import {
   Bar,
@@ -33,6 +35,14 @@ import {
   ResponsiveContainer,
   ComposedChart,
 } from "recharts"
+
+// Get days in a given month string e.g. "January 2024"
+function getDaysInMonth(monthStr: string): number {
+  const parts = monthStr.split(" ")
+  const year = parseInt(parts[1]) || new Date().getFullYear()
+  const monthIndex = new Date(`${parts[0]} 1, ${year}`).getMonth()
+  return new Date(year, monthIndex + 1, 0).getDate()
+}
 
 // -- Executive KPI data --
 const EXEC_KPIS = [
@@ -269,9 +279,94 @@ function OverviewChartTooltip({ active, payload, label }: any) {
 // -- Main content component --
 export function ExecutiveOverviewContent() {
   const monthlyData = useMemo(() => generateMonthlyData(), [])
+  const { selectedMonth, monthlyPlanRows, dailyLERows, dailyActualsRows } = usePlanningPeriod()
+
+  // Monthly target total
+  const monthlyTarget = useMemo(() => {
+    const t = monthlyPlanRows.reduce((s, r) => s + r.monthlyTarget, 0)
+    return t > 0 ? t : null
+  }, [monthlyPlanRows])
+
+  // Daily LE total (last column across all parts)
+  const dailyLETotal = useMemo(() => {
+    if (dailyLERows.length === 0) return null
+    return dailyLERows.reduce((s, r) => s + (r.dailyQty[r.dailyQty.length - 1] ?? 0), 0)
+  }, [dailyLERows])
+
+  // Avg daily units remaining = (target - actuals - leTotal) / (remainingDays - 1)
+  const avgDailyRemaining = useMemo(() => {
+    if (!monthlyTarget || !dailyActualsRows.length || dailyLETotal === null) return null
+    const totalActuals = dailyActualsRows.reduce(
+      (s, r) => s + r.dailyQty.reduce((a, v) => a + (v ?? 0), 0), 0
+    )
+    let lastActualDay = 0
+    dailyActualsRows.forEach(r => r.dailyQty.forEach((v, i) => {
+      if (v !== null && i + 1 > lastActualDay) lastActualDay = i + 1
+    }))
+    const totalDays = getDaysInMonth(selectedMonth)
+    const remaining = totalDays - lastActualDay - 1
+    if (remaining <= 0) return 0
+    return Math.round(((monthlyTarget - totalActuals - dailyLETotal) / remaining) * 10) / 10
+  }, [monthlyTarget, dailyActualsRows, dailyLETotal, selectedMonth])
+
+  // Utilization = avgDailyRemaining / 60
+  const utilization = avgDailyRemaining !== null
+    ? Math.round((avgDailyRemaining / 60) * 1000) / 10
+    : null
+
+  const kpiStrip = [
+    {
+      label: "Monthly Target",
+      value: monthlyTarget !== null ? monthlyTarget.toLocaleString() : "—",
+      sub: "total units",
+      icon: Target,
+      color: "text-blue-600",
+      bg: "bg-blue-50",
+    },
+    {
+      label: "Daily LE Target",
+      value: dailyLETotal !== null ? dailyLETotal.toLocaleString() : "—",
+      sub: "total units",
+      icon: TrendingUp,
+      color: "text-emerald-600",
+      bg: "bg-emerald-50",
+    },
+    {
+      label: "Avg Daily Units Remaining",
+      value: avgDailyRemaining !== null ? avgDailyRemaining.toString() : "—",
+      sub: "units / day",
+      icon: Activity,
+      color: "text-purple-600",
+      bg: "bg-purple-50",
+    },
+    {
+      label: "Utilization",
+      value: utilization !== null ? `${utilization}%` : "—",
+      sub: "avg daily / 60",
+      icon: Gauge,
+      color: "text-amber-600",
+      bg: "bg-amber-50",
+    },
+  ]
 
   return (
     <div className="flex flex-col gap-6 p-6">
+
+      {/* Plan KPI Strip */}
+      <div className="grid grid-cols-4 gap-3">
+        {kpiStrip.map(({ label, value, sub, icon: Icon, color, bg }) => (
+          <div key={label} className="flex items-center gap-3 rounded-lg border border-border bg-card px-4 py-3">
+            <div className={cn("flex items-center justify-center h-8 w-8 rounded-md shrink-0", bg)}>
+              <Icon className={cn("h-4 w-4", color)} />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] text-muted-foreground leading-none truncate">{label}</p>
+              <p className="text-base font-semibold font-mono leading-tight tabular-nums">{value}</p>
+              <p className="text-[11px] text-muted-foreground leading-none">{sub}</p>
+            </div>
+          </div>
+        ))}
+      </div>
       {/* Section A: Executive KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {EXEC_KPIS.map((kpi) => (
