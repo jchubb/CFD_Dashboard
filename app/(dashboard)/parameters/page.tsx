@@ -1,9 +1,4 @@
-import dynamic from "next/dynamic"
-
-const ParametersContent = dynamic(
-  () => import("@/components/parameters-content").then((m) => m.ParametersContent),
-  { ssr: false }
-)
+import { ParametersContent } from "@/components/parameters-content"
 
 export default function ParametersPage() {
   return <ParametersContent />
