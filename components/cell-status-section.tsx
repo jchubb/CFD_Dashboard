@@ -22,9 +22,16 @@ import {
   Search,
   Activity,
 } from "lucide-react"
-import { usePlanningPeriod, type CellStatusRow } from "@/components/planning-period-context"
 
-export type { CellStatusRow }
+export interface CellStatusRow {
+  id: string
+  loadNumber: string
+  partNumber: string
+  heatcode: string
+  cycle: string
+  status: string
+  startTime: string
+}
 
 const STATUS_COLORS: Record<string, string> = {
   active:    "border-emerald-300 text-emerald-700 bg-emerald-50",
@@ -55,7 +62,7 @@ interface CellStatusSectionProps {
 }
 
 export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatusSectionProps) {
-  const { cellStatusRows: rows, setCellStatusRows: setRows } = usePlanningPeriod()
+  const [rows, setRows] = useState<CellStatusRow[]>([])
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
   const [uploadMessage, setUploadMessage] = useState("")
   const [isDragging, setIsDragging] = useState(false)
