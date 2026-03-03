@@ -28,6 +28,7 @@ import {
   Home,
   ClipboardList,
   CalendarRange,
+  CalendarClock,
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { usePlanningPeriod, availableMonths } from "@/components/planning-period-context"
@@ -73,6 +74,11 @@ const PAGE_META: Record<string, { title: string; description: string; icon: Reac
     title: "Data Ingestion",
     description: "Import and analyze monthly production targets",
     icon: FileBarChart,
+  },
+  "/optimized-schedule": {
+    title: "Optimized Schedule",
+    description: "Machine-generated production schedule output",
+    icon: CalendarClock,
   },
 }
 

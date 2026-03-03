@@ -13,7 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { CalendarClock, Download, Search, Info } from "lucide-react"
+import { CalendarClock, Download, Search } from "lucide-react"
 
 // ---------------------------------------------------------------------------
 // Hardcoded Next Day Schedule — replace with API/CSV data when available
@@ -69,20 +69,6 @@ export function OptimizedScheduleContent() {
 
   return (
     <div className="flex flex-col gap-3 p-4">
-
-      {/* Page header */}
-      <div className="flex items-start justify-between">
-        <div>
-          <h2 className="text-base font-semibold text-foreground">Optimized Schedule</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            Machine-generated production schedule output
-          </p>
-        </div>
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground bg-muted/60 border border-border rounded-md px-3 py-1.5">
-          <Info className="h-3.5 w-3.5 shrink-0" />
-          Hardcoded data — will be replaced by optimizer API output
-        </div>
-      </div>
 
       {/* Next Day Schedule card */}
       <Card className="border border-border">
