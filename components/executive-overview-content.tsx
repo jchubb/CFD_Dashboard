@@ -130,7 +130,7 @@ const SECTIONS_BOTTOM = [
   },
   {
     id: "parameters",
-    name: "Parameters Setup",
+    name: "Machine Status",
     icon: Settings2,
     href: "/parameters",
     color: "text-accent",
@@ -402,7 +402,7 @@ export function ExecutiveOverviewContent() {
         </CardContent>
       </Card>
 
-      {/* Section D: Operations Dashboard & Parameters Setup */}
+      {/* Section D: Operations Dashboard & Machine Status */}
       <div className="grid gap-4 md:grid-cols-2">
         {SECTIONS_BOTTOM.map((section) => {
           const Icon = section.icon

@@ -18,7 +18,7 @@ const navItems: { id: NavTab; label: string; icon: React.ElementType; href: stri
   { id: "overview", label: "Overview", icon: Home, href: "/overview" },
   { id: "monthly-plan", label: "Data Ingestion", icon: FileBarChart, href: "/monthly-plan" },
   { id: "optimized-schedule", label: "Optimized Schedule", icon: CalendarClock, href: "/optimized-schedule" },
-  { id: "parameters", label: "Parameters Setup", icon: Settings2, href: "/parameters" },
+  { id: "parameters", label: "Machine Status", icon: Settings2, href: "/parameters" },
   { id: "dashboard", label: "Future State Dashboards", icon: LayoutDashboard, href: "/dashboard" },
 ]
 
