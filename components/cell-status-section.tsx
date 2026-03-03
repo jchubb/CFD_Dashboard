@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo, useRef, useCallback } from "react"
+import React, { useMemo, useRef, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,15 +23,9 @@ import {
   Activity,
 } from "lucide-react"
 
-export interface CellStatusRow {
-  id: string
-  loadNumber: string
-  partNumber: string
-  heatcode: string
-  cycle: string
-  status: string
-  startTime: string
-}
+import { usePlanningPeriod, type CellStatusRow } from "@/components/planning-period-context"
+
+export type { CellStatusRow }
 
 const STATUS_COLORS: Record<string, string> = {
   active:    "border-emerald-300 text-emerald-700 bg-emerald-50",
@@ -62,7 +56,7 @@ interface CellStatusSectionProps {
 }
 
 export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatusSectionProps) {
-  const [rows, setRows] = useState<CellStatusRow[]>([])
+  const { cellStatusRows: rows, setCellStatusRows: setRows } = usePlanningPeriod()
   const [uploadStatus, setUploadStatus] = useState<"idle" | "success" | "error">("idle")
   const [uploadMessage, setUploadMessage] = useState("")
   const [isDragging, setIsDragging] = useState(false)

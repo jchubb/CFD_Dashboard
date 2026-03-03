@@ -32,7 +32,7 @@ function getDaysInMonth(monthStr: string): number {
 
 export function MonthlyPlanContent() {
   const router = useRouter()
-  const { selectedMonth, monthlyPlanRows, dailyLERows, dailyActualsRows, dailyPlanRows, wipRows } = usePlanningPeriod()
+  const { selectedMonth, monthlyPlanRows, dailyLERows, dailyActualsRows, dailyPlanRows, wipRows, cellStatusRows } = usePlanningPeriod()
   const [verifiedAssetAllocation, setVerifiedAssetAllocation] = useState(false)
 
   // Monthly plan summary
@@ -135,13 +135,15 @@ export function MonthlyPlanContent() {
                     monthSummary.totalTarget !== null &&
                     dailyPlanRows.length > 0 &&
                     dailyActualsRows.length > 0 &&
-                    dailyLERows.length > 0
+                    dailyLERows.length > 0 &&
+                    cellStatusRows.length > 0
                   const anyLoaded =
                     monthSummary.totalTarget !== null ||
                     dailyPlanRows.length > 0 ||
                     dailyActualsRows.length > 0 ||
                     dailyLERows.length > 0 ||
-                    wipRows.length > 0
+                    wipRows.length > 0 ||
+                    cellStatusRows.length > 0
                   return allLoaded ? (
                     <Badge variant="outline" className="text-[11px] border-emerald-300 text-emerald-700 bg-emerald-50">
                       Loaded
