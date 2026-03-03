@@ -65,7 +65,7 @@ const PAGE_META: Record<string, { title: string; description: string; icon: Reac
     icon: Calendar,
   },
   "/parameters": {
-    title: "Parameters Configuration",
+    title: "Machine Status",
     description: "Machine status, overrides, and part-family allocation",
     icon: Settings2,
   },
