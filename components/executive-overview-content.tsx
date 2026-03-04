@@ -106,7 +106,7 @@ const SECTIONS_TOP = [
     color: "text-chart-1",
     bgColor: "bg-chart-1/10",
     metrics: [
-      { label: "36 Hour Schedule", value: "145 units" },
+      { label: "Next Day Schedule", value: "145 units" },
       { label: "HT Cell Utilization", value: "95%", positive: true },
       { label: "Monthly Plan", value: "On Track", positive: true },
     ],
