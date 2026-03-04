@@ -37,9 +37,9 @@ import {
 const FAMILY_COLORS: Record<string, { label: string; bg: string; border: string; text: string; dot: string }> = {
   F135: { label: "F135", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700", dot: "bg-blue-500" },
   GTF: { label: "GTF", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700", dot: "bg-purple-500" },
-  "LEAP-1A": { label: "LEAP-1A", bg: "bg-emerald-50", border: "border-emerald-300", text: "text-emerald-700", dot: "bg-emerald-500" },
-  GEnx: { label: "GEnx", bg: "bg-amber-50", border: "border-amber-300", text: "text-amber-700", dot: "bg-amber-500" },
-  CFM56: { label: "CFM56", bg: "bg-gray-50", border: "border-gray-300", text: "text-gray-700", dot: "bg-gray-400" },
+  "F100": { label: "F100", bg: "bg-emerald-50", border: "border-emerald-300", text: "text-emerald-700", dot: "bg-emerald-500" },
+  PWC: { label: "PWC", bg: "bg-amber-50", border: "border-amber-300", text: "text-amber-700", dot: "bg-amber-500" },
+  Legacy: { label: "Legacy", bg: "bg-gray-50", border: "border-gray-300", text: "text-gray-700", dot: "bg-gray-400" },
 }
 
 type MachineStatus = "online" | "offline" | "maintenance"
@@ -61,10 +61,10 @@ interface Machine {
 // ------------------------------------------------------------------
 function generateMockMachines(): Machine[] {
   const sections = [
-    { id: 1, name: "Line 1", families: ["F135", "F135", "GTF", "GTF", "LEAP-1A", "LEAP-1A", "GEnx", "CFM56"] },
-    { id: 2, name: "Line 2", families: ["F135", "GTF", "GTF", "LEAP-1A", "LEAP-1A", "GEnx", "GEnx", "CFM56"] },
-    { id: 3, name: "Line 3", families: ["F135", "F135", "GTF", "LEAP-1A", "GEnx", "GEnx", "CFM56", "CFM56"] },
-    { id: 4, name: "Line 4", families: ["F135", "GTF", "GTF", "GTF", "LEAP-1A", "GEnx", "CFM56", "CFM56"] },
+    { id: 1, name: "Line 1", families: ["F135", "F135", "GTF", "GTF", "F100", "F100", "PWC", "Legacy"] },
+    { id: 2, name: "Line 2", families: ["F135", "GTF", "GTF", "F100", "F100", "PWC", "PWC", "Legacy"] },
+    { id: 3, name: "Line 3", families: ["F135", "F135", "GTF", "F100", "PWC", "PWC", "Legacy", "Legacy"] },
+    { id: 4, name: "Line 4", families: ["F135", "GTF", "GTF", "GTF", "F100", "PWC", "Legacy", "Legacy"] },
   ]
 
   // Simulated real-time statuses (some offline / maintenance for realism)
@@ -157,9 +157,9 @@ export function ParametersContent() {
     const demandWeights: Record<string, number> = {
       "F135": 0.28,
       "GTF": 0.25,
-      "LEAP-1A": 0.22,
-      "GEnx": 0.15,
-      "CFM56": 0.10,
+      "F100": 0.22,
+      "PWC": 0.15,
+      "Legacy": 0.10,
     }
 
     const families = Object.keys(demandWeights)
@@ -302,9 +302,9 @@ export function ParametersContent() {
                         <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
                           <span>F135: <span className="font-mono font-semibold">28%</span></span>
                           <span>GTF: <span className="font-mono font-semibold">25%</span></span>
-                          <span>LEAP-1A: <span className="font-mono font-semibold">22%</span></span>
-                          <span>GEnx: <span className="font-mono font-semibold">15%</span></span>
-                          <span>CFM56: <span className="font-mono font-semibold">10%</span></span>
+                          <span>F100: <span className="font-mono font-semibold">22%</span></span>
+                          <span>PWC: <span className="font-mono font-semibold">15%</span></span>
+                          <span>Legacy: <span className="font-mono font-semibold">10%</span></span>
                         </div>
                       </div>
                     </div>
@@ -338,14 +338,14 @@ export function ParametersContent() {
                           <p className="text-muted-foreground">BT_id,assigned_family,status</p>
                           <p>S1-A1,F135</p>
                           <p>S1-A2,GTF</p>
-                          <p>S2-B3,LEAP-1A</p>
+                          <p>S2-B3,F100</p>
                           <p className="text-muted-foreground">...</p>
                         </div>
                         <p className="text-muted-foreground">
                           Machine IDs: <span className="font-mono">S[1-4]-[A|B][1-4]</span>
                         </p>
                         <p className="text-muted-foreground pt-1">
-                          Valid families: <span className="font-mono">F135, GTF, LEAP-1A, GEnx, CFM56</span>
+                          Valid families: <span className="font-mono">F135, GTF, F100, PWC, Legacy</span>
                         </p>
                         <p className="text-muted-foreground pt-1">
                           Statuses: <span className="font-mono"> 0 (off), 1 (on), 2 (maint)</span>
@@ -388,7 +388,7 @@ export function ParametersContent() {
                     {groupA.map((ma, i) => {
                       const mb = groupB[i]
                       const renderChip = (m: Machine) => {
-                        const fc = FAMILY_COLORS[m.assignedFamily] ?? FAMILY_COLORS.CFM56
+                        const fc = FAMILY_COLORS[m.assignedFamily] ?? FAMILY_COLORS.Legacy
                         const eff = getEffectiveStatus(m)
                         const isDown = eff !== "online"
                         return (
@@ -541,7 +541,7 @@ function MachineRow({
   onToggle: (id: string) => void
   onFamilyChange: (id: string, family: string) => void
 }) {
-  const fc = FAMILY_COLORS[machine.assignedFamily] ?? FAMILY_COLORS.CFM56
+  const fc = FAMILY_COLORS[machine.assignedFamily] ?? FAMILY_COLORS.Legacy
   const isOverridden = machine.overrideEnabled !== null
   const statusIcon = effectiveStatus === "online"
     ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
