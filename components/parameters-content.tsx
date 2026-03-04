@@ -412,10 +412,10 @@ export function ParametersContent() {
                         )
                       }
                       return (
-                        <>
+                        <React.Fragment key={ma.id}>
                           {renderChip(ma)}
                           {mb && renderChip(mb)}
-                        </>
+                        </React.Fragment>
                       )
                     })}
                   </div>
