@@ -16,61 +16,153 @@ import {
 import { CalendarClock, Download, Search } from "lucide-react"
 
 // ---------------------------------------------------------------------------
-// Hardcoded Next Day Schedule — replace with API/CSV data when available
+// Types
 // ---------------------------------------------------------------------------
 type Source = "Plan" | "Rollover" | "Manual"
 
-const NEXT_DAY_SCHEDULE: { partNumber: string; programFamily: string; description: string; quantity: number; source: Source }[] = [
-  { partNumber: "PN-10045", programFamily: "F135", description: "Fan Blade Assembly", quantity: 12, source: "Plan" },
-  { partNumber: "PN-20187", programFamily: "GTF", description: "Compressor Disk Stage 3", quantity: 8, source: "Plan" },
-  { partNumber: "PN-30291", programFamily: "LEAP-1A", description: "Low Pressure Turbine Vane", quantity: 10, source: "Rollover" },
-  { partNumber: "PN-40334", programFamily: "GEnx", description: "High Pressure Turbine Disk", quantity: 6, source: "Plan" },
-  { partNumber: "PN-10112", programFamily: "F135", description: "Stator Vane Cluster", quantity: 8, source: "Manual" },
-  { partNumber: "PN-20204", programFamily: "GTF", description: "Combustor Liner Panel", quantity: 10, source: "Plan" },
-  { partNumber: "PN-30378", programFamily: "LEAP-1A", description: "Turbine Blade Tip Seal", quantity: 30, source: "Rollover" },
-  { partNumber: "PN-40412", programFamily: "GEnx", description: "Accessory Gearbox Cover", quantity: 4, source: "Manual" },
-  { partNumber: "PN-10223", programFamily: "F135", description: "Variable Exhaust Nozzle", quantity: 9, source: "Plan" },
-  { partNumber: "PN-50019", programFamily: "CF6", description: "Bearing Housing Assembly", quantity: 15, source: "Rollover" },
-  { partNumber: "PN-50067", programFamily: "CF6", description: "Oil Pump Drive Gear", quantity: 7, source: "Plan" },
-  { partNumber: "PN-20315", programFamily: "GTF", description: "Fan Exit Guide Vane", quantity: 10, source: "Plan" },
-  { partNumber: "PN-30455", programFamily: "LEAP-1A", description: "Bleed Air Manifold", quantity: 5, source: "Manual" },
-  { partNumber: "PN-40501", programFamily: "GEnx", description: "Thrust Reverser Bracket", quantity: 11, source: "Rollover" },
+type ScheduleRow = {
+  partNumber: string
+  programFamily: string
+  description: string
+  quantity: number
+  source: Source
+}
+
+type DayType = "simulated" | "projected"
+
+type ScheduleDay = {
+  label: string        // e.g. "Mar 5"
+  fullLabel: string    // e.g. "Thursday, March 5, 2026"
+  type: DayType
+  rows: ScheduleRow[]
+}
+
+// ---------------------------------------------------------------------------
+// Mock data
+// ---------------------------------------------------------------------------
+const DAYS: ScheduleDay[] = [
+  {
+    label: "Mar 5",
+    fullLabel: "Thursday, March 5, 2026",
+    type: "simulated",
+    rows: [
+      { partNumber: "PN-10045", programFamily: "F135",   description: "Fan Blade Assembly",           quantity: 12, source: "Plan" },
+      { partNumber: "PN-20187", programFamily: "GTF",    description: "Compressor Disk Stage 3",       quantity: 8,  source: "Plan" },
+      { partNumber: "PN-30291", programFamily: "LEAP-1A",description: "Low Pressure Turbine Vane",     quantity: 10, source: "Rollover" },
+      { partNumber: "PN-40334", programFamily: "GEnx",   description: "High Pressure Turbine Disk",    quantity: 6,  source: "Plan" },
+      { partNumber: "PN-10112", programFamily: "F135",   description: "Stator Vane Cluster",           quantity: 8,  source: "Manual" },
+      { partNumber: "PN-20204", programFamily: "GTF",    description: "Combustor Liner Panel",         quantity: 10, source: "Plan" },
+      { partNumber: "PN-30378", programFamily: "LEAP-1A",description: "Turbine Blade Tip Seal",        quantity: 30, source: "Rollover" },
+      { partNumber: "PN-40412", programFamily: "GEnx",   description: "Accessory Gearbox Cover",       quantity: 4,  source: "Manual" },
+      { partNumber: "PN-10223", programFamily: "F135",   description: "Variable Exhaust Nozzle",       quantity: 9,  source: "Plan" },
+      { partNumber: "PN-50019", programFamily: "CF6",    description: "Bearing Housing Assembly",      quantity: 15, source: "Rollover" },
+      { partNumber: "PN-50067", programFamily: "CF6",    description: "Oil Pump Drive Gear",           quantity: 7,  source: "Plan" },
+      { partNumber: "PN-20315", programFamily: "GTF",    description: "Fan Exit Guide Vane",           quantity: 10, source: "Plan" },
+      { partNumber: "PN-30455", programFamily: "LEAP-1A",description: "Bleed Air Manifold",            quantity: 5,  source: "Manual" },
+      { partNumber: "PN-40501", programFamily: "GEnx",   description: "Thrust Reverser Bracket",       quantity: 11, source: "Rollover" },
+    ],
+  },
+  {
+    label: "Mar 6",
+    fullLabel: "Friday, March 6, 2026",
+    type: "simulated",
+    rows: [
+      { partNumber: "PN-10045", programFamily: "F135",   description: "Fan Blade Assembly",           quantity: 10, source: "Plan" },
+      { partNumber: "PN-20187", programFamily: "GTF",    description: "Compressor Disk Stage 3",       quantity: 9,  source: "Plan" },
+      { partNumber: "PN-30291", programFamily: "LEAP-1A",description: "Low Pressure Turbine Vane",     quantity: 12, source: "Rollover" },
+      { partNumber: "PN-40334", programFamily: "GEnx",   description: "High Pressure Turbine Disk",    quantity: 5,  source: "Plan" },
+      { partNumber: "PN-10112", programFamily: "F135",   description: "Stator Vane Cluster",           quantity: 7,  source: "Manual" },
+      { partNumber: "PN-20204", programFamily: "GTF",    description: "Combustor Liner Panel",         quantity: 11, source: "Plan" },
+      { partNumber: "PN-30378", programFamily: "LEAP-1A",description: "Turbine Blade Tip Seal",        quantity: 28, source: "Rollover" },
+      { partNumber: "PN-50019", programFamily: "CF6",    description: "Bearing Housing Assembly",      quantity: 14, source: "Rollover" },
+      { partNumber: "PN-10223", programFamily: "F135",   description: "Variable Exhaust Nozzle",       quantity: 8,  source: "Plan" },
+      { partNumber: "PN-50067", programFamily: "CF6",    description: "Oil Pump Drive Gear",           quantity: 6,  source: "Plan" },
+      { partNumber: "PN-40501", programFamily: "GEnx",   description: "Thrust Reverser Bracket",       quantity: 10, source: "Plan" },
+      { partNumber: "PN-20315", programFamily: "GTF",    description: "Fan Exit Guide Vane",           quantity: 9,  source: "Plan" },
+    ],
+  },
+  {
+    label: "Mar 7",
+    fullLabel: "Saturday, March 7, 2026",
+    type: "projected",
+    rows: [
+      { partNumber: "PN-10045", programFamily: "F135",   description: "Fan Blade Assembly",           quantity: 11, source: "Plan" },
+      { partNumber: "PN-20187", programFamily: "GTF",    description: "Compressor Disk Stage 3",       quantity: 7,  source: "Plan" },
+      { partNumber: "PN-30291", programFamily: "LEAP-1A",description: "Low Pressure Turbine Vane",     quantity: 9,  source: "Plan" },
+      { partNumber: "PN-40334", programFamily: "GEnx",   description: "High Pressure Turbine Disk",    quantity: 6,  source: "Plan" },
+      { partNumber: "PN-20204", programFamily: "GTF",    description: "Combustor Liner Panel",         quantity: 10, source: "Plan" },
+      { partNumber: "PN-50019", programFamily: "CF6",    description: "Bearing Housing Assembly",      quantity: 13, source: "Plan" },
+      { partNumber: "PN-10223", programFamily: "F135",   description: "Variable Exhaust Nozzle",       quantity: 8,  source: "Plan" },
+      { partNumber: "PN-50067", programFamily: "CF6",    description: "Oil Pump Drive Gear",           quantity: 5,  source: "Plan" },
+      { partNumber: "PN-40501", programFamily: "GEnx",   description: "Thrust Reverser Bracket",       quantity: 9,  source: "Plan" },
+    ],
+  },
+  {
+    label: "Mar 8",
+    fullLabel: "Sunday, March 8, 2026",
+    type: "projected",
+    rows: [
+      { partNumber: "PN-10045", programFamily: "F135",   description: "Fan Blade Assembly",           quantity: 13, source: "Plan" },
+      { partNumber: "PN-30291", programFamily: "LEAP-1A",description: "Low Pressure Turbine Vane",     quantity: 8,  source: "Plan" },
+      { partNumber: "PN-40334", programFamily: "GEnx",   description: "High Pressure Turbine Disk",    quantity: 7,  source: "Plan" },
+      { partNumber: "PN-20204", programFamily: "GTF",    description: "Combustor Liner Panel",         quantity: 12, source: "Plan" },
+      { partNumber: "PN-30378", programFamily: "LEAP-1A",description: "Turbine Blade Tip Seal",        quantity: 25, source: "Plan" },
+      { partNumber: "PN-50019", programFamily: "CF6",    description: "Bearing Housing Assembly",      quantity: 11, source: "Plan" },
+      { partNumber: "PN-20315", programFamily: "GTF",    description: "Fan Exit Guide Vane",           quantity: 8,  source: "Plan" },
+      { partNumber: "PN-10112", programFamily: "F135",   description: "Stator Vane Cluster",           quantity: 6,  source: "Plan" },
+    ],
+  },
+  {
+    label: "Mar 9",
+    fullLabel: "Monday, March 9, 2026",
+    type: "projected",
+    rows: [
+      { partNumber: "PN-10045", programFamily: "F135",   description: "Fan Blade Assembly",           quantity: 10, source: "Plan" },
+      { partNumber: "PN-20187", programFamily: "GTF",    description: "Compressor Disk Stage 3",       quantity: 8,  source: "Plan" },
+      { partNumber: "PN-40334", programFamily: "GEnx",   description: "High Pressure Turbine Disk",    quantity: 5,  source: "Plan" },
+      { partNumber: "PN-20204", programFamily: "GTF",    description: "Combustor Liner Panel",         quantity: 9,  source: "Plan" },
+      { partNumber: "PN-30378", programFamily: "LEAP-1A",description: "Turbine Blade Tip Seal",        quantity: 22, source: "Plan" },
+      { partNumber: "PN-50067", programFamily: "CF6",    description: "Oil Pump Drive Gear",           quantity: 6,  source: "Plan" },
+      { partNumber: "PN-40501", programFamily: "GEnx",   description: "Thrust Reverser Bracket",       quantity: 8,  source: "Plan" },
+      { partNumber: "PN-10223", programFamily: "F135",   description: "Variable Exhaust Nozzle",       quantity: 7,  source: "Plan" },
+      { partNumber: "PN-30455", programFamily: "LEAP-1A",description: "Bleed Air Manifold",            quantity: 4,  source: "Plan" },
+    ],
+  },
 ]
 
 const PROGRAM_COLORS: Record<string, string> = {
-  "F135": "border-blue-300 text-blue-700 bg-blue-50",
-  "GTF": "border-purple-300 text-purple-700 bg-purple-50",
-  "LEAP-1A": "border-emerald-300 text-emerald-700 bg-emerald-50",
-  "GEnx": "border-amber-300 text-amber-700 bg-amber-50",
-  "CF6": "border-rose-300 text-rose-700 bg-rose-50",
+  "F135":   "border-blue-300 text-blue-700 bg-blue-50",
+  "GTF":    "border-purple-300 text-purple-700 bg-purple-50",
+  "LEAP-1A":"border-emerald-300 text-emerald-700 bg-emerald-50",
+  "GEnx":   "border-amber-300 text-amber-700 bg-amber-50",
+  "CF6":    "border-rose-300 text-rose-700 bg-rose-50",
 }
 
 const SOURCE_COLORS: Record<Source, string> = {
-  "Plan": "border-gray-200 text-gray-600 bg-gray-50",
-  "Rollover": "border-yellow-300 text-yellow-700 bg-yellow-50",
-  "Manual": "border-red-300 text-red-700 bg-red-50",
+  "Plan":    "border-gray-200 text-gray-600 bg-gray-50",
+  "Rollover":"border-yellow-300 text-yellow-700 bg-yellow-50",
+  "Manual":  "border-red-300 text-red-700 bg-red-50",
 }
 
 export function OptimizedScheduleContent() {
+  const [selectedDayIndex, setSelectedDayIndex] = useState(0)
   const [search, setSearch] = useState("")
 
-  const dateLabel = "March 5-6, 2026"
+  const day = DAYS[selectedDayIndex]
 
-  const filtered = NEXT_DAY_SCHEDULE.filter(row =>
+  const filtered = day.rows.filter(row =>
     row.partNumber.toLowerCase().includes(search.toLowerCase()) ||
     row.programFamily.toLowerCase().includes(search.toLowerCase()) ||
     row.description.toLowerCase().includes(search.toLowerCase())
   )
 
-  const totalUnits = filtered.reduce((s, r) => s + r.quantity, 0)
-  const uniqueParts = new Set(filtered.map(r => r.partNumber)).size
+  const totalUnits   = filtered.reduce((s, r) => s + r.quantity, 0)
+  const uniqueParts  = new Set(filtered.map(r => r.partNumber)).size
   const rolloverCount = filtered.filter(r => r.source === "Rollover").length
-  const manualCount = filtered.filter(r => r.source === "Manual").length
+  const manualCount  = filtered.filter(r => r.source === "Manual").length
 
   return (
     <div className="flex flex-col gap-3 p-4">
-
-      {/* Next Day Schedule card */}
       <Card className="border border-border">
         <CardHeader className="py-3 border-b border-border">
           <div className="flex items-center justify-between">
@@ -80,9 +172,9 @@ export function OptimizedScheduleContent() {
               </div>
               <div>
                 <CardTitle className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                  36 Hour Schedule
+                  Daily Schedule
                 </CardTitle>
-                <p className="text-xs text-muted-foreground">{dateLabel}</p>
+                <p className="text-xs text-muted-foreground">{day.fullLabel}</p>
               </div>
             </div>
             <Button variant="outline" size="sm" className="h-7 gap-1.5 text-xs">
@@ -94,12 +186,51 @@ export function OptimizedScheduleContent() {
 
         <CardContent className="flex flex-col gap-4 pt-4 pb-4">
 
+          {/* Legend + Day selectors */}
+          <div className="flex flex-col gap-2">
+
+            {/* Legend */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded-sm bg-primary/20 border border-primary/40" />
+                <span className="text-[11px] text-muted-foreground">Fully Simulated</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="inline-block w-3 h-3 rounded-sm bg-amber-100 border border-amber-300" />
+                <span className="text-[11px] text-muted-foreground">Projected</span>
+              </div>
+            </div>
+
+            {/* Day buttons */}
+            <div className="flex items-center gap-1.5">
+              {DAYS.map((d, i) => (
+                <Button
+                  key={d.label}
+                  size="sm"
+                  variant={selectedDayIndex === i ? "default" : "outline"}
+                  className={`h-7 px-3 text-xs transition-colors ${
+                    selectedDayIndex !== i
+                      ? d.type === "simulated"
+                        ? "border-primary/30 text-primary/80 hover:bg-primary/5"
+                        : "border-amber-300 text-amber-700 hover:bg-amber-50"
+                      : d.type === "simulated"
+                        ? ""
+                        : "bg-amber-500 hover:bg-amber-600 border-amber-500 text-white"
+                  }`}
+                  onClick={() => { setSelectedDayIndex(i); setSearch("") }}
+                >
+                  {d.label}
+                </Button>
+              ))}
+            </div>
+          </div>
+
           {/* Summary strip */}
           <div className="grid grid-cols-4 gap-3">
             {[
-              { label: "Total Units", value: totalUnits },
-              { label: "Unique Parts", value: uniqueParts },
-              { label: "Rollover", value: rolloverCount },
+              { label: "Total Units",    value: totalUnits },
+              { label: "Unique Parts",   value: uniqueParts },
+              { label: "Rollover",       value: rolloverCount },
               { label: "Manual Entries", value: manualCount },
             ].map(({ label, value }) => (
               <div key={label} className="bg-muted/50 rounded-lg px-4 py-3">
@@ -163,7 +294,6 @@ export function OptimizedScheduleContent() {
 
         </CardContent>
       </Card>
-
     </div>
   )
 }
