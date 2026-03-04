@@ -81,7 +81,7 @@ export function MonthlyPlanContent() {
   return (
     <div className="flex flex-col gap-6">
       {/* Sticky KPI Header Bar */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border px-6 py-2 shadow-sm">
+      <div className="sticky top-0 z-30 bg-background border-b border-border px-6 py-2 shadow-sm">
         <div className="grid grid-cols-6 gap-3">
 
           <div className="flex items-center gap-3">
