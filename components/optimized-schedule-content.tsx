@@ -192,11 +192,11 @@ export function OptimizedScheduleContent() {
             {/* Legend */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-sm bg-primary/20 border border-primary/40" />
-                <span className="text-[11px] text-muted-foreground">Fully Simulated</span>
+                <span className="inline-block w-3 h-3 rounded-sm bg-amber-100 border border-amber-300" />
+                <span className="text-[11px] text-muted-foreground">Fully Optimized</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="inline-block w-3 h-3 rounded-sm bg-amber-100 border border-amber-300" />
+                <span className="inline-block w-3 h-3 rounded-sm bg-primary/20 border border-primary/40" />
                 <span className="text-[11px] text-muted-foreground">Projected</span>
               </div>
             </div>
@@ -211,11 +211,11 @@ export function OptimizedScheduleContent() {
                   className={`h-7 px-3 text-xs transition-colors ${
                     selectedDayIndex !== i
                       ? d.type === "simulated"
-                        ? "border-primary/30 text-primary/80 hover:bg-primary/5"
-                        : "border-amber-300 text-amber-700 hover:bg-amber-50"
+                        ? "border-amber-300 text-amber-700 hover:bg-amber-50"
+                        : "border-primary/30 text-primary/80 hover:bg-primary/5"
                       : d.type === "simulated"
-                        ? ""
-                        : "bg-amber-500 hover:bg-amber-600 border-amber-500 text-white"
+                        ? "bg-amber-500 hover:bg-amber-600 border-amber-500 text-white"
+                        : ""
                   }`}
                   onClick={() => { setSelectedDayIndex(i); setSearch("") }}
                 >
