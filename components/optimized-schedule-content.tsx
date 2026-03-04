@@ -54,7 +54,7 @@ const SOURCE_COLORS: Record<Source, string> = {
 export function OptimizedScheduleContent() {
   const [search, setSearch] = useState("")
 
-  const dateLabel = "Thursday, March 5, 2026"
+  const dateLabel = "March 5-6, 2026"
 
   const filtered = NEXT_DAY_SCHEDULE.filter(row =>
     row.partNumber.toLowerCase().includes(search.toLowerCase()) ||
@@ -80,7 +80,7 @@ export function OptimizedScheduleContent() {
               </div>
               <div>
                 <CardTitle className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
-                  Next Day Schedule
+                  36 Hour Schedule
                 </CardTitle>
                 <p className="text-xs text-muted-foreground">{dateLabel}</p>
               </div>
