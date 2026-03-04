@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useState, useMemo, useRef, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -396,8 +397,8 @@ export function ParametersContent() {
                               <TooltipTrigger asChild>
                                 <div
                                   className={`flex items-center justify-center rounded px-1 py-1.5 border text-[10px] font-mono font-semibold leading-none select-none transition-colors ${isDown
-                                      ? "bg-transparent border-border/30 text-muted-foreground/30"
-                                      : `${fc.bg} ${fc.border} ${fc.text}`
+                                    ? "bg-transparent border-border/30 text-muted-foreground/30"
+                                    : `${fc.bg} ${fc.border} ${fc.text}`
                                     }`}
                                 >
                                   {m.name}
