@@ -28,28 +28,28 @@ import { usePlanningPeriod, type CellStatusRow } from "@/components/planning-per
 export type { CellStatusRow }
 
 const STATUS_COLORS: Record<string, string> = {
-  active:    "border-emerald-300 text-emerald-700 bg-emerald-50",
-  complete:  "border-blue-300 text-blue-700 bg-blue-50",
-  pending:   "border-amber-300 text-amber-700 bg-amber-50",
-  hold:      "border-red-300 text-red-700 bg-red-50",
-  idle:      "border-gray-200 text-gray-500 bg-gray-50",
+  f_load: "border-emerald-300 text-emerald-700 bg-emerald-50",
+  f_unload: "border-blue-300 text-blue-700 bg-blue-50",
+  f_build: "border-amber-300 text-amber-700 bg-amber-50",
+  f_at_temp: "border-red-300 text-red-700 bg-red-50",
+  idle: "border-gray-200 text-gray-500 bg-gray-50",
 }
 
 function getStatusClass(status: string) {
   return STATUS_COLORS[status.toLowerCase()] ?? "border-gray-200 text-gray-500 bg-gray-50"
 }
 
-const sampleCSV = `Load Number,Part Number,Heatcode,Cycle,Status,Start Time
-L-0041,F135-HPC-001,HC-7741,Cycle-3,Active,2026-02-11 06:00
-L-0042,GTF-LPC-002,HC-7742,Cycle-1,Active,2026-02-11 06:30
-L-0043,LEAP-CMB-001,HC-7743,Cycle-2,Complete,2026-02-11 02:00
-L-0044,GENX-LPT-001,HC-7744,Cycle-4,Pending,2026-02-11 10:00
-L-0045,F135-FAN-003,HC-7745,Cycle-1,Active,2026-02-11 07:15
-L-0046,CFM-HPT-001,HC-7746,Cycle-3,Hold,2026-02-11 05:45
-L-0047,GTF-HPT-003,HC-7747,Cycle-2,Complete,2026-02-11 01:30
-L-0048,LEAP-HPT-002,HC-7748,Cycle-1,Pending,2026-02-11 11:00
-L-0049,F135-LPT-002,HC-7749,Cycle-5,Active,2026-02-11 08:00
-L-0050,GENX-HPC-002,HC-7750,Cycle-2,Idle,2026-02-11 09:30`
+const sampleCSV = `Load Number,Part Number,Heatcode,Cycle,Status,Start Time,BT_ID
+20261231,F135-HPC-001,HC-7741,3,F_LOAD,2026-02-11 06:00,543289
+20261232,GTF-LPC-002,HC-7742,1,F_BUILD,2026-02-11 06:30,543233
+20261233,LEAP-CMB-001,HC-7743,2,F_BUILD,2026-02-11 02:00,543273
+20261234,GENX-LPT-001,HC-7744,4,F_UNLOAD,2026-02-11 10:00,543280
+20261235,F135-FAN-003,HC-7745,1,F_AT_TEMP,2026-02-11 07:15,543272
+20261236,CFM-HPT-001,HC-7746,3,F_AT_TEMP,2026-02-11 05:45,543287
+20261237,GTF-HPT-003,HC-7747,2,F_LOAD,2026-02-11 01:30,543289
+20261238,LEAP-HPT-002,HC-7748,1,F_UNLOAD,2026-02-11 11:00,543289
+20261239,F135-LPT-002,HC-7749,5,F_LOAD,2026-02-11 08:00,543289
+20261240,GENX-HPC-002,HC-7750,2,F_BUILD,2026-02-11 09:30,543289`
 
 interface CellStatusSectionProps {
   selectedMonth?: string
@@ -70,12 +70,13 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
       if (lines.length < 2) throw new Error("CSV must have a header row and at least one data row.")
 
       const headers = lines[0].split(",").map(h => h.trim().toLowerCase())
-      const loadIdx   = headers.findIndex(h => h.includes("load"))
-      const partIdx   = headers.findIndex(h => h.includes("part"))
-      const heatIdx   = headers.findIndex(h => h.includes("heat"))
-      const cycleIdx  = headers.findIndex(h => h.includes("cycle"))
+      const loadIdx = headers.findIndex(h => h.includes("load"))
+      const partIdx = headers.findIndex(h => h.includes("part"))
+      const heatIdx = headers.findIndex(h => h.includes("heat"))
+      const cycleIdx = headers.findIndex(h => h.includes("cycle"))
       const statusIdx = headers.findIndex(h => h.includes("status"))
-      const startIdx  = headers.findIndex(h => h.includes("start"))
+      const startIdx = headers.findIndex(h => h.includes("start"))
+      const btIdx = headers.findIndex(h => h.includes("BT"))
 
       if (loadIdx === -1 || partIdx === -1 || statusIdx === -1) {
         throw new Error("CSV must include Load Number, Part Number, and Status columns.")
@@ -86,13 +87,14 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
         const cols = lines[i].split(",").map(c => c.trim())
         if (cols.length < 2) continue
         parsed.push({
-          id:        `cell-${i}-${Date.now()}`,
-          loadNumber: loadIdx  !== -1 ? cols[loadIdx]  || `L-${i}` : `L-${i}`,
-          partNumber: partIdx  !== -1 ? cols[partIdx]  || "" : "",
-          heatcode:   heatIdx  !== -1 ? cols[heatIdx]  || "" : "",
-          cycle:      cycleIdx !== -1 ? cols[cycleIdx] || "" : "",
-          status:     statusIdx !== -1 ? cols[statusIdx] || "" : "",
-          startTime:  startIdx  !== -1 ? cols[startIdx]  || "" : "",
+          id: `cell-${i}-${Date.now()}`,
+          loadNumber: loadIdx !== -1 ? cols[loadIdx] || `L-${i}` : `L-${i}`,
+          partNumber: partIdx !== -1 ? cols[partIdx] || "" : "",
+          heatcode: heatIdx !== -1 ? cols[heatIdx] || "" : "",
+          cycle: cycleIdx !== -1 ? cols[cycleIdx] || "" : "",
+          status: statusIdx !== -1 ? cols[statusIdx] || "" : "",
+          startTime: startIdx !== -1 ? cols[startIdx] || "" : "",
+          btid: btIdx !== -1 ? cols[btIdx] || "" : "",
         })
       }
 
@@ -124,7 +126,7 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
     if (file) handleFileUpload(file)
   }, [handleFileUpload])
 
-  const handleDragOver  = useCallback((e: React.DragEvent) => { e.preventDefault(); setIsDragging(true) }, [])
+  const handleDragOver = useCallback((e: React.DragEvent) => { e.preventDefault(); setIsDragging(true) }, [])
   const handleDragLeave = useCallback(() => setIsDragging(false), [])
   const handleLoadSample = useCallback(() => parseCSV(sampleCSV), [parseCSV])
   const handleClear = useCallback(() => {
@@ -139,7 +141,8 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
       r.partNumber.toLowerCase().includes(q) ||
       r.heatcode.toLowerCase().includes(q) ||
       r.cycle.toLowerCase().includes(q) ||
-      r.status.toLowerCase().includes(q)
+      r.status.toLowerCase().includes(q) ||
+      r.btid.toLowerCase().includes(q)
     )
   }, [rows, searchQuery])
 
@@ -200,11 +203,10 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
               onClick={() => fileInputRef.current?.click()}
               onMouseEnter={() => setIsUploadHovered(true)}
               onMouseLeave={() => setIsUploadHovered(false)}
-              className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-all ${
-                isDragging
-                  ? "border-blue-400 bg-blue-50"
-                  : "border-border hover:border-muted-foreground/40 hover:bg-muted/30"
-              }`}
+              className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-all ${isDragging
+                ? "border-blue-400 bg-blue-50"
+                : "border-border hover:border-muted-foreground/40 hover:bg-muted/30"
+                }`}
             >
               {isUploadHovered && (
                 <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-background/90 px-6">
@@ -228,7 +230,7 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
                   {isDragging ? "Drop CSV file here" : "Upload Cell Status CSV"}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Expected columns: Load Number, Part Number, Heatcode, Cycle, Status, Start Time
+                  Expected columns: Load Number, Part Number, Heatcode, Cycle, Status, Start Time, BT_ID
                 </p>
               </div>
             </div>
@@ -254,8 +256,8 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
             <div className="p-3 rounded-lg border border-border bg-card">
               <p className="text-xs font-medium text-foreground mb-2">Expected CSV Format:</p>
               <div className="font-mono text-xs text-muted-foreground bg-muted/50 p-2 rounded overflow-x-auto">
-                <p>Load Number,Part Number,Heatcode,Cycle,Status,Start Time</p>
-                <p>L-0041,F135-HPC-001,HC-7741,Cycle-3,Active,2026-02-11 06:00</p>
+                <p>Load Number,Part Number,Heatcode,Cycle,Status,Start Time,BT_ID</p>
+                <p>L-0041,F135-HPC-001,PIRAQ0012,Cycle-3,Active,2026-02-11 06:00,543289</p>
               </div>
             </div>
           </div>
@@ -271,7 +273,7 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by load number, part number, heatcode, cycle, or status..."
+                placeholder="Search by load number, part number, heatcode, cycle, status, or BT_ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -289,12 +291,13 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
                       <TableHead className="font-semibold text-xs w-[100px]">Cycle</TableHead>
                       <TableHead className="font-semibold text-xs w-[100px]">Status</TableHead>
                       <TableHead className="font-semibold text-xs w-[150px]">Start Time</TableHead>
+                      <TableHead className="font-semibold text-xs w-[150px]">BT_ID</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {filtered.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                        <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                           No records match your search.
                         </TableCell>
                       </TableRow>
@@ -311,6 +314,7 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
                             </Badge>
                           </TableCell>
                           <TableCell className="font-mono text-xs text-muted-foreground">{row.startTime}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground">{row.btid}</TableCell>
                         </TableRow>
                       ))
                     )}

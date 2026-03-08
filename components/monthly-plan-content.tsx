@@ -187,11 +187,10 @@ export function MonthlyPlanContent() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className={`h-6 px-2 text-[11px] gap-1 transition-colors ${
-                        allLoaded
+                      className={`h-6 px-2 text-[11px] gap-1 transition-colors ${allLoaded
                           ? "border-primary/40 text-primary hover:bg-primary/5"
                           : "border-muted-foreground/20 text-muted-foreground/50 cursor-not-allowed"
-                      }`}
+                        }`}
                       onClick={() => allLoaded && setConfirmOpen(true)}
                     >
                       <LineChart className="h-3 w-3" />
@@ -212,7 +211,7 @@ export function MonthlyPlanContent() {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-sm">Generate Forecast</AlertDialogTitle>
             <AlertDialogDescription className="text-sm">
-              All input data up to date and verified asset statuses?
+              Please verify that all input data and asset statuses are up-to-date.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -229,34 +228,34 @@ export function MonthlyPlanContent() {
 
       {/* Scrollable content */}
       <div className="flex flex-col gap-3 px-6 pb-4">
-      <CellStatusSection selectedMonth={selectedMonth} />
+        <CellStatusSection selectedMonth={selectedMonth} />
 
-      <AvailableWipSection selectedMonth={selectedMonth} />
+        <AvailableWipSection selectedMonth={selectedMonth} />
 
-      <MonthlyPlanSection selectedMonth={selectedMonth} />
+        <MonthlyPlanSection selectedMonth={selectedMonth} />
 
-      {/* Daily Plan Section */}
-      <DailyPlanSection selectedMonth={selectedMonth} />
+        {/* Daily Plan Section */}
+        <DailyPlanSection selectedMonth={selectedMonth} />
 
-      {/* Daily Actuals Section */}
-      <DailyActualsSection selectedMonth={selectedMonth} />
+        {/* Daily Actuals Section */}
+        <DailyActualsSection selectedMonth={selectedMonth} />
 
-      {/* Daily LE Section */}
-      <DailyLESection selectedMonth={selectedMonth} />
+        {/* Daily LE Section */}
+        <DailyLESection selectedMonth={selectedMonth} />
 
-      {/* Footer Guidance */}
-      <div className="flex items-center justify-between px-1">
-        <p className="text-xs text-muted-foreground">
-          Upload a CSV or load sample data to populate the plan. Use the Data Ingestion tab to manage monthly targets and daily inputs.
-        </p>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs text-muted-foreground">
-            <CalendarRange className="h-3 w-3 mr-1" />
-            {selectedMonth}
-          </Badge>
+        {/* Footer Guidance */}
+        <div className="flex items-center justify-between px-1">
+          <p className="text-xs text-muted-foreground">
+            Upload a CSV or load sample data to populate the plan. Use the Data Ingestion tab to manage monthly targets and daily inputs.
+          </p>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs text-muted-foreground">
+              <CalendarRange className="h-3 w-3 mr-1" />
+              {selectedMonth}
+            </Badge>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   )
 }
