@@ -47,7 +47,7 @@ const EXEC_KPIS = [
     icon: <Target className="h-4 w-4 text-muted-foreground" />,
   },
   {
-    title: "Schedule Adherence",
+    title: "Load Adherence",
     value: "87.3%",
     trend: { value: "+2.1% vs target", direction: "up" as const },
     variant: "success" as const,
