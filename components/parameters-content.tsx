@@ -66,11 +66,11 @@ interface Machine {
 // Family color mapping
 // ------------------------------------------------------------------
 const FAMILY_COLORS: Record<string, { label: string; border: string; text: string; bg: string; dot: string }> = {
-  F135:   { label: "F135",   border: "border-blue-300",    text: "text-blue-700",    bg: "bg-blue-50",    dot: "bg-blue-500" },
-  GTF:    { label: "GTF",    border: "border-purple-300",  text: "text-purple-700",  bg: "bg-purple-50",  dot: "bg-purple-500" },
-  F100:   { label: "F100",   border: "border-emerald-300", text: "text-emerald-700", bg: "bg-emerald-50", dot: "bg-emerald-500" },
-  PWC:    { label: "PWC",    border: "border-amber-300",   text: "text-amber-700",   bg: "bg-amber-50",   dot: "bg-amber-500" },
-  Legacy: { label: "Legacy", border: "border-rose-300",    text: "text-rose-700",    bg: "bg-rose-50",    dot: "bg-rose-500" },
+  F135: { label: "F135", border: "border-gray-500", text: "text-gray-700", bg: "bg-gray-50", dot: "bg-gray-500" },
+  GTF: { label: "GTF", border: "border-green-300", text: "text-green-700", bg: "bg-green-50", dot: "bg-green-500" },
+  F100: { label: "F100", border: "border-blue-300", text: "text-blue-700", bg: "bg-blue-50", dot: "bg-blue-500" },
+  PWC: { label: "PWC", border: "border-rose-300", text: "text-rose-700", bg: "bg-rose-50", dot: "bg-rose-500" },
+  Legacy: { label: "Legacy", border: "border-amber-300", text: "text-amber-700", bg: "bg-amber-50", dot: "bg-amber-500" },
 }
 
 // ------------------------------------------------------------------
@@ -324,20 +324,20 @@ export function ParametersContent() {
     <div className="flex flex-col gap-6 p-6">
       {/* Machine status summary badges */}
       <div className="flex items-center gap-3">
-        <Badge variant="outline" className="gap-1.5 font-mono text-xs border-emerald-300 text-emerald-700 bg-emerald-50">
-          <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
+        <Badge variant="outline" className="gap-1.5 font-mono text-xs border-blue-300 text-blue-700 bg-blue-50">
+          <span className="inline-block w-2 h-2 rounded-full bg-blue-500" />
           {summary.online} Online
         </Badge>
-        <Badge variant="outline" className="gap-1.5 font-mono text-xs border-red-300 text-red-700 bg-red-50">
-          <span className="inline-block w-2 h-2 rounded-full bg-red-500" />
+        <Badge variant="outline" className="gap-1.5 font-mono text-xs border-rose-300 text-rose-700 bg-rose-50">
+          <span className="inline-block w-2 h-2 rounded-full bg-rose-500" />
           {summary.offline} Offline
         </Badge>
-        <Badge variant="outline" className="gap-1.5 font-mono text-xs border-amber-300 text-amber-700 bg-amber-50">
-          <span className="inline-block w-2 h-2 rounded-full bg-amber-500" />
+        <Badge variant="outline" className="gap-1.5 font-mono text-xs border-rose-300 text-rose-700 bg-rose-50">
+          <span className="inline-block w-2 h-2 rounded-full bg-rose-500" />
           {summary.maint} Maint
         </Badge>
         {summary.overrides > 0 && (
-          <Badge variant="outline" className="gap-1.5 font-mono text-xs border-blue-300 text-blue-700 bg-blue-50">
+          <Badge variant="outline" className="gap-1.5 font-mono text-xs border-gray-300 text-gray-700 bg-gray-50">
             {summary.overrides} Override{summary.overrides > 1 ? "s" : ""}
           </Badge>
         )}
@@ -367,7 +367,7 @@ export function ParametersContent() {
                     <div className="space-y-2">
                       <p className="text-sm font-semibold">Optimize Allocation</p>
                       <p className="text-xs text-muted-foreground">
-                        Automatically redistributes part family assignments across all machines based on monthly demand targets and optimized mix ratios.
+                        Automatically roseistributes part family assignments across all machines based on monthly demand targets and optimized mix ratios.
                       </p>
                       <div className="text-xs border-t pt-2 space-y-1">
                         <p className="font-medium text-muted-foreground">Current Demand Weights:</p>
@@ -405,7 +405,7 @@ export function ParametersContent() {
                         Upload a .csv file to manually assign part families to specific machines, overriding the current allocation.
                       </p>
                       <div className="text-xs border-t pt-2 space-y-1">
-                        <p className="font-medium text-muted-foreground">Required CSV Schema:</p>
+                        <p className="font-medium text-muted-foreground">Requirose CSV Schema:</p>
                         <div className="bg-muted/50 rounded p-2 font-mono text-[11px] space-y-0.5">
                           <p className="text-muted-foreground">BT_id,assigned_family,status</p>
                           <p>S1-A1,F135</p>
@@ -447,7 +447,7 @@ export function ParametersContent() {
               const groupB = mList.filter(m => m.group === "B")
               return (
                 <div key={sectionId} className="flex flex-col gap-2">
-                  {/* Section title — centered */}
+                  {/* Section title — centerose */}
                   <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide text-center">
                     Line {sectionId}
                   </p>
@@ -497,7 +497,7 @@ export function ParametersContent() {
             })}
           </div>
 
-          {/* Color key — below machine map, centered */}
+          {/* Color key — below machine map, centerose */}
           <div className="flex flex-wrap justify-center items-center gap-4 border-t border-border pt-3">
             {Object.values(FAMILY_COLORS).map(fc => (
               <div key={fc.label} className="flex items-center gap-2">
@@ -620,14 +620,14 @@ export function ParametersContent() {
                 {sectionId === 1 && lineDowntimes[sectionId]?.length > 0 && (
                   <div className="flex items-center gap-1.5 flex-wrap mt-2">
                     {lineDowntimes[sectionId].map(dt => (
-                      <div key={dt.id} className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded px-2 py-1">
-                        <span className="text-[11px] text-amber-900">{formatDowntimeDisplay(dt)}</span>
+                      <div key={dt.id} className="flex items-center gap-1.5 bg-rose-50 border border-rose-200 rounded px-2 py-1">
+                        <span className="text-[11px] text-rose-900">{formatDowntimeDisplay(dt)}</span>
                         <button
                           onClick={() => deleteDowntime(sectionId, dt.id)}
-                          className="p-0.5 hover:bg-amber-100 rounded transition-colors"
+                          className="p-0.5 hover:bg-rose-100 rounded transition-colors"
                           title="Delete downtime"
                         >
-                          <Trash2 className="h-3 w-3 text-amber-600" />
+                          <Trash2 className="h-3 w-3 text-rose-600" />
                         </button>
                       </div>
                     ))}
@@ -714,17 +714,17 @@ function MachineRow({
   const fc = FAMILY_COLORS[machine.assignedFamily] ?? FAMILY_COLORS.Legacy
   const isOverridden = machine.overrideEnabled !== null
   const statusIcon = effectiveStatus === "online"
-    ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" />
+    ? <CheckCircle2 className="h-3.5 w-3.5 text-blue-600" />
     : effectiveStatus === "maintenance"
-      ? <Wrench className="h-3.5 w-3.5 text-amber-600" />
-      : <XCircle className="h-3.5 w-3.5 text-red-500" />
+      ? <Wrench className="h-3.5 w-3.5 text-rose-600" />
+      : <XCircle className="h-3.5 w-3.5 text-rose-500" />
 
   return (
     <div className={`flex items-center gap-3 rounded-lg border p-2.5 transition-colors ${effectiveStatus === "online"
-      ? "border-emerald-200 bg-emerald-50/40"
+      ? "border-blue-200 bg-blue-50/40"
       : effectiveStatus === "maintenance"
-        ? "border-amber-200 bg-amber-50/40"
-        : "border-red-200 bg-red-50/40"
+        ? "border-rose-200 bg-rose-50/40"
+        : "border-rose-200 bg-rose-50/40"
       }`}>
       {/* Family color indicator */}
       <TooltipProvider>
@@ -744,7 +744,7 @@ function MachineRow({
           {statusIcon}
           <span className="text-sm font-mono font-semibold text-foreground">{machine.id}</span>
           {isOverridden && (
-            <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 border-blue-300 text-blue-600 bg-blue-50 font-medium">
+            <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 border-gray-300 text-gray-600 bg-gray-50 font-medium">
               Override
             </Badge>
           )}
@@ -770,10 +770,10 @@ function MachineRow({
             </SelectContent>
           </Select>
           {effectiveStatus === "maintenance" && (
-            <span className="text-[10px] text-amber-600 font-medium">Scheduled maintenance</span>
+            <span className="text-[10px] text-rose-600 font-medium">Scheduled maintenance</span>
           )}
           {effectiveStatus === "offline" && (
-            <span className="text-[10px] text-red-600 font-medium">Inactive</span>
+            <span className="text-[10px] text-rose-600 font-medium">Inactive</span>
           )}
         </div>
       </div>
@@ -788,7 +788,7 @@ function MachineRow({
                 onCheckedChange={() => onToggle(machine.id)}
                 aria-label={`Toggle machine ${machine.id}`}
               />
-              <Power className={`h-3.5 w-3.5 ${effectiveStatus === "online" ? "text-emerald-600" : "text-muted-foreground"}`} />
+              <Power className={`h-3.5 w-3.5 ${effectiveStatus === "online" ? "text-blue-600" : "text-muted-foreground"}`} />
             </div>
           </TooltipTrigger>
           <TooltipContent side="top" className="bg-white border border-border shadow-lg text-foreground max-w-[200px]">
