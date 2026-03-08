@@ -627,19 +627,21 @@ export function ParametersContent() {
                 </div>
                 {/* Display scheduled downtimes */}
                 {sectionId === 1 && lineDowntimes[sectionId]?.length > 0 && (
-                  <div className="flex items-center gap-1.5 flex-wrap mt-2">
-                    {lineDowntimes[sectionId].map(dt => (
-                      <div key={dt.id} className="flex items-center gap-1.5 bg-rose-50 border border-rose-200 rounded px-2 py-1">
-                        <span className="text-[11px] text-rose-900">{formatDowntimeDisplay(dt)}</span>
-                        <button
-                          onClick={() => deleteDowntime(sectionId, dt.id)}
-                          className="p-0.5 hover:bg-rose-100 rounded transition-colors"
-                          title="Delete downtime"
-                        >
-                          <Trash2 className="h-3 w-3 text-rose-600" />
-                        </button>
-                      </div>
-                    ))}
+                  <div className="flex flex-col gap-1 mt-2">
+                    {[...lineDowntimes[sectionId]]
+                      .sort((a, b) => new Date(`${a.startDate}T${a.startTime}`).getTime() - new Date(`${b.startDate}T${b.startTime}`).getTime())
+                      .map(dt => (
+                        <div key={dt.id} className="flex items-center justify-between gap-1.5 bg-rose-50 border border-rose-200 rounded px-2 py-1">
+                          <span className="text-[11px] text-rose-900">{formatDowntimeDisplay(dt)}</span>
+                          <button
+                            onClick={() => deleteDowntime(sectionId, dt.id)}
+                            className="p-0.5 hover:bg-rose-100 rounded transition-colors shrink-0"
+                            title="Delete downtime"
+                          >
+                            <Trash2 className="h-3 w-3 text-rose-600" />
+                          </button>
+                        </div>
+                      ))}
                   </div>
                 )}
               </CardHeader>
