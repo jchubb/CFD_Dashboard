@@ -76,7 +76,7 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
       const cycleIdx = headers.findIndex(h => h.includes("cycle"))
       const statusIdx = headers.findIndex(h => h.includes("status"))
       const startIdx = headers.findIndex(h => h.includes("start"))
-      const btIdx = headers.findIndex(h => h.includes("BT"))
+      const btIdx = headers.findIndex(h => h.includes("bt"))
 
       if (loadIdx === -1 || partIdx === -1 || statusIdx === -1) {
         throw new Error("CSV must include Load Number, Part Number, and Status columns.")

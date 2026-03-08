@@ -65,6 +65,7 @@ export interface CellStatusRow {
   cycle: string
   status: string
   startTime: string
+  btid: string
 }
 
 interface PlanningPeriodContextValue {
