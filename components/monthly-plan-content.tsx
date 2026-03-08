@@ -4,8 +4,16 @@ import { useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog"
 import { MonthlyPlanSection } from "@/components/monthly-plan-section"
 import { AvailableWipSection } from "@/components/available-wip-section"
 import { CellStatusSection } from "@/components/cell-status-section"
@@ -19,7 +27,6 @@ import {
   Target,
   Activity,
   LineChart,
-  ShieldCheck,
 } from "lucide-react"
 
 // Get days in a given month string e.g. "January 2024"
@@ -33,7 +40,7 @@ function getDaysInMonth(monthStr: string): number {
 export function MonthlyPlanContent() {
   const router = useRouter()
   const { selectedMonth, monthlyPlanRows, dailyLERows, dailyActualsRows, dailyPlanRows, wipRows, cellStatusRows } = usePlanningPeriod()
-  const [verifiedAssetAllocation, setVerifiedAssetAllocation] = useState(false)
+  const [confirmOpen, setConfirmOpen] = useState(false)
 
   // Monthly plan summary
   const monthSummary = useMemo(() => {
@@ -82,7 +89,7 @@ export function MonthlyPlanContent() {
     <div className="flex flex-col gap-6">
       {/* Sticky KPI Header Bar */}
       <div className="sticky top-0 z-30 bg-background border-b border-border px-6 py-2 shadow-sm">
-        <div className="grid grid-cols-6 gap-3">
+        <div className="grid grid-cols-5 gap-3">
 
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-md bg-blue-50 shrink-0">
@@ -162,30 +169,6 @@ export function MonthlyPlanContent() {
             </div>
           </div>
 
-          {/* Verified Asset Allocation checkbox */}
-          <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-md shrink-0 ${verifiedAssetAllocation ? "bg-emerald-50" : "bg-muted/50"}`}>
-              <ShieldCheck className={`h-4 w-4 ${verifiedAssetAllocation ? "text-emerald-600" : "text-muted-foreground"}`} />
-            </div>
-            <div className="min-w-0 flex flex-col gap-1">
-              <p className="text-[11px] text-muted-foreground leading-none">Asset Allocation</p>
-              <div className="flex items-center gap-1.5">
-                <Checkbox
-                  id="verified-asset-allocation"
-                  checked={verifiedAssetAllocation}
-                  onCheckedChange={(checked) => setVerifiedAssetAllocation(checked === true)}
-                  className="h-3.5 w-3.5"
-                />
-                <Label
-                  htmlFor="verified-asset-allocation"
-                  className="text-[11px] leading-none cursor-pointer text-muted-foreground"
-                >
-                  Verified
-                </Label>
-              </div>
-            </div>
-          </div>
-
           {/* Generate Forecast button */}
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-md bg-primary/10 shrink-0">
@@ -199,8 +182,7 @@ export function MonthlyPlanContent() {
                     monthSummary.totalTarget !== null &&
                     dailyPlanRows.length > 0 &&
                     dailyActualsRows.length > 0 &&
-                    dailyLERows.length > 0 &&
-                    verifiedAssetAllocation
+                    dailyLERows.length > 0
                   return (
                     <Button
                       size="sm"
@@ -210,7 +192,7 @@ export function MonthlyPlanContent() {
                           ? "border-primary/40 text-primary hover:bg-primary/5"
                           : "border-muted-foreground/20 text-muted-foreground/50 cursor-not-allowed"
                       }`}
-                      onClick={() => router.push("/optimized-schedule")}
+                      onClick={() => allLoaded && setConfirmOpen(true)}
                     >
                       <LineChart className="h-3 w-3" />
                       Generate Forecast
@@ -223,6 +205,27 @@ export function MonthlyPlanContent() {
 
         </div>
       </div>
+
+      {/* Confirmation dialog */}
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent className="max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-sm">Generate Forecast</AlertDialogTitle>
+            <AlertDialogDescription className="text-sm">
+              All input data up to date and verified asset statuses?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="text-xs h-8">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="text-xs h-8"
+              onClick={() => router.push("/optimized-schedule")}
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Scrollable content */}
       <div className="flex flex-col gap-3 px-6 pb-4">
