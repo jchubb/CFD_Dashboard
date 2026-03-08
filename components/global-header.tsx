@@ -180,29 +180,6 @@ export function GlobalHeader({
 
         <Separator orientation="vertical" className="h-5" />
 
-        {/* View density */}
-        <div className="flex items-center gap-1.5">
-          <Monitor className="h-3.5 w-3.5 text-muted-foreground" />
-          {mounted ? (
-            <Select value={density} onValueChange={(v) => onDensityChange(v as ViewDensity)}>
-              <SelectTrigger className="h-7 w-[110px] text-[11px] bg-transparent border-border">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="compact" className="text-xs">Compact</SelectItem>
-                <SelectItem value="default" className="text-xs">Default</SelectItem>
-                <SelectItem value="comfortable" className="text-xs">Comfortable</SelectItem>
-              </SelectContent>
-            </Select>
-          ) : (
-            <div className="h-7 w-[110px] rounded-md border border-input bg-transparent px-2 flex items-center text-[11px] text-muted-foreground capitalize">
-              {density}
-            </div>
-          )}
-        </div>
-
-        <Separator orientation="vertical" className="h-5" />
-
         {/* Auto-refresh controls */}
         <div className="flex items-center gap-1.5">
           {mounted ? (
