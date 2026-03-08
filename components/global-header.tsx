@@ -1,6 +1,6 @@
 "use client"
 
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -18,6 +18,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog"
+import {
   LayoutDashboard,
   Calendar,
   Settings2,
@@ -29,6 +39,7 @@ import {
   ClipboardList,
   CalendarRange,
   CalendarClock,
+  LineChart,
 } from "lucide-react"
 import { useState, useEffect } from "react"
 import { usePlanningPeriod, availableMonths } from "@/components/planning-period-context"
@@ -91,11 +102,13 @@ export function GlobalHeader({
   onRefreshIntervalChange,
 }: GlobalHeaderProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const meta = PAGE_META[pathname] || PAGE_META["/overview"]
   const Icon = meta.icon
   const [elapsed, setElapsed] = useState<string>("00:00:00")
   const [mounted, setMounted] = useState(false)
-  const { selectedMonth, setSelectedMonth } = usePlanningPeriod()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const { selectedMonth, setSelectedMonth, monthlyPlanRows, dailyLERows, dailyActualsRows, dailyPlanRows } = usePlanningPeriod()
 
   useEffect(() => {
     setMounted(true)
@@ -177,6 +190,59 @@ export function GlobalHeader({
             </div>
           )}
         </div>
+
+        {/* Generate Forecast button (only on /monthly-plan page) */}
+        {pathname === "/monthly-plan" && (
+          <>
+            <Separator orientation="vertical" className="h-5" />
+            <Button
+              size="sm"
+              variant="outline"
+              className={`h-7 gap-1.5 text-[11px] px-2.5 ${
+                monthlyPlanRows.length > 0 &&
+                dailyPlanRows.length > 0 &&
+                dailyActualsRows.length > 0 &&
+                dailyLERows.length > 0
+                  ? "border-primary/40 text-primary hover:bg-primary/5"
+                  : "border-muted-foreground/20 text-muted-foreground/50 cursor-not-allowed"
+              }`}
+              onClick={() => {
+                if (
+                  monthlyPlanRows.length > 0 &&
+                  dailyPlanRows.length > 0 &&
+                  dailyActualsRows.length > 0 &&
+                  dailyLERows.length > 0
+                ) {
+                  setConfirmOpen(true)
+                }
+              }}
+            >
+              <LineChart className="h-3 w-3" />
+              Generate Forecast
+            </Button>
+          </>
+        )}
+
+        {/* Confirmation dialog */}
+        <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+          <AlertDialogContent className="max-w-sm">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-sm">Generate Forecast</AlertDialogTitle>
+              <AlertDialogDescription className="text-sm">
+                All input data up to date and verified asset statuses?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="text-xs h-8">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="text-xs h-8"
+                onClick={() => router.push("/optimized-schedule")}
+              >
+                Confirm
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
       </div>
     </header>
