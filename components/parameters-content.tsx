@@ -533,10 +533,10 @@ export function ParametersContent() {
                     {/* Maintenance downtime scheduler — only on Line 1 for now */}
                     {sectionId === 1 && (
                       <Popover open={openPopovers[sectionId]} onOpenChange={(open) => setOpenPopovers(prev => ({ ...prev, [sectionId]: open }))}>
-                        <PopoverTrigger asChild>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <PopoverTrigger asChild>
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -545,13 +545,13 @@ export function ParametersContent() {
                                   <Wrench className="h-3 w-3 text-muted-foreground" />
                                   <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
                                 </Button>
-                              </TooltipTrigger>
-                              <TooltipContent side="top" className="text-xs">
-                                Planned Maintenance
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        </PopoverTrigger>
+                              </PopoverTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="text-xs">
+                              Planned Maintenance
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                         <PopoverContent className="w-80" align="start">
                           <div className="space-y-3">
                             <p className="text-sm font-semibold">Schedule Downtime</p>
