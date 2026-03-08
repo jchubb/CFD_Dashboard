@@ -25,8 +25,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const activeTab = (pathname.split("/")[1] as NavTab) || "dashboard"
 
-  console.log("[v0] DashboardLayout rendering, pathname:", pathname)
-
   return (
     <PlanningPeriodProvider>
       <div className="flex h-screen overflow-hidden bg-background">
