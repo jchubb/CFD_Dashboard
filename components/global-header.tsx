@@ -108,7 +108,12 @@ export function GlobalHeader({
   const [elapsed, setElapsed] = useState<string>("00:00:00")
   const [mounted, setMounted] = useState(false)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  
+  console.log("[v0] GlobalHeader rendering, pathname:", pathname)
+  
   const { selectedMonth, setSelectedMonth, monthlyPlanRows, dailyLERows, dailyActualsRows, dailyPlanRows } = usePlanningPeriod()
+  
+  console.log("[v0] GlobalHeader got context, selectedMonth:", selectedMonth)
 
   useEffect(() => {
     setMounted(true)
