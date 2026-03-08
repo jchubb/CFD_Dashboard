@@ -534,14 +534,23 @@ export function ParametersContent() {
                     {sectionId === 1 && (
                       <Popover open={openPopovers[sectionId]} onOpenChange={(open) => setOpenPopovers(prev => ({ ...prev, [sectionId]: open }))}>
                         <PopoverTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-6 w-6 p-0 ml-1"
-                            title="Schedule maintenance downtime"
-                          >
-                            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-                          </Button>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 px-1.5 ml-1 gap-1"
+                                >
+                                  <Wrench className="h-3 w-3 text-muted-foreground" />
+                                  <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="text-xs">
+                                Planned Maintenance
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </PopoverTrigger>
                         <PopoverContent className="w-80" align="start">
                           <div className="space-y-3">
