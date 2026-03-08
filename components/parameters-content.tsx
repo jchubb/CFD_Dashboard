@@ -622,6 +622,7 @@ export function ParametersContent() {
                     ))}
                   </div>
                 )}
+              </CardHeader>
               <CardContent className="pb-4 pt-0">
                 <div className="grid grid-cols-2 gap-4">
                   {/* Group A */}
