@@ -65,7 +65,7 @@ const EXEC_KPIS = [
     title: "User Adoption",
     value: "7/8",
     subtitle: "days forecast generated",
-    trend: { value: "this month", direction: "neutral" as const },
+    trend: { value: "+12.5% vs prior month", direction: "up" as const },
     variant: "default" as const,
     icon: <Users className="h-4 w-4 text-muted-foreground" />,
   },
