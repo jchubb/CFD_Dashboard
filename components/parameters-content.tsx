@@ -22,6 +22,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
   Settings2,
   Activity,
   Power,
@@ -31,18 +36,19 @@ import {
   Wrench,
   Sparkles,
   Upload,
+  Calendar,
+  Trash2,
 } from "lucide-react"
 
-// Part family color definitions (consistent with scheduling-content.tsx)
-const FAMILY_COLORS: Record<string, { label: string; bg: string; border: string; text: string; dot: string }> = {
-  F135: { label: "F135", bg: "bg-blue-50", border: "border-blue-300", text: "text-blue-700", dot: "bg-blue-500" },
-  GTF: { label: "GTF", bg: "bg-purple-50", border: "border-purple-300", text: "text-purple-700", dot: "bg-purple-500" },
-  "F100": { label: "F100", bg: "bg-emerald-50", border: "border-emerald-300", text: "text-emerald-700", dot: "bg-emerald-500" },
-  PWC: { label: "PWC", bg: "bg-amber-50", border: "border-amber-300", text: "text-amber-700", dot: "bg-amber-500" },
-  Legacy: { label: "Legacy", bg: "bg-gray-50", border: "border-gray-300", text: "text-gray-700", dot: "bg-gray-400" },
-}
-
 type MachineStatus = "online" | "offline" | "maintenance"
+
+interface MaintenanceDowntime {
+  id: string
+  startDate: string
+  startTime: string
+  endDate: string
+  endTime: string
+}
 
 interface Machine {
   id: string
@@ -109,6 +115,24 @@ const SECTION_NAMES = ["Line 1", "Line 2", "Line 3", "Line 4"]
 // ------------------------------------------------------------------
 export function ParametersContent() {
   const [machines, setMachines] = useState<Machine[]>(generateMockMachines)
+  const [lineDowntimes, setLineDowntimes] = useState<Record<number, MaintenanceDowntime[]>>({
+    1: [],
+    2: [],
+    3: [],
+    4: [],
+  })
+  const [openPopovers, setOpenPopovers] = useState<Record<number, boolean>>({
+    1: false,
+    2: false,
+    3: false,
+    4: false,
+  })
+  const [newDowntime, setNewDowntime] = useState<Record<number, MaintenanceDowntime>>({
+    1: { id: "", startDate: "", startTime: "", endDate: "", endTime: "" },
+    2: { id: "", startDate: "", startTime: "", endDate: "", endTime: "" },
+    3: { id: "", startDate: "", startTime: "", endDate: "", endTime: "" },
+    4: { id: "", startDate: "", startTime: "", endDate: "", endTime: "" },
+  })
 
   // Derived counts
   const summary = useMemo(() => {
@@ -247,6 +271,43 @@ export function ParametersContent() {
 
   const sectionMachines = (sectionId: number) =>
     machines.filter(m => m.sectionId === sectionId)
+
+  function addDowntime(sectionId: number) {
+    const dt = newDowntime[sectionId]
+    if (!dt.startDate || !dt.startTime || !dt.endDate || !dt.endTime) return
+
+    const id = `dt-${Date.now()}`
+    setLineDowntimes(prev => ({
+      ...prev,
+      [sectionId]: [...(prev[sectionId] || []), { ...dt, id }],
+    }))
+    setNewDowntime(prev => ({
+      ...prev,
+      [sectionId]: { id: "", startDate: "", startTime: "", endDate: "", endTime: "" },
+    }))
+    setOpenPopovers(prev => ({ ...prev, [sectionId]: false }))
+  }
+
+  function deleteDowntime(sectionId: number, id: string) {
+    setLineDowntimes(prev => ({
+      ...prev,
+      [sectionId]: prev[sectionId].filter(dt => dt.id !== id),
+    }))
+  }
+
+  function formatDowntimeDisplay(dt: MaintenanceDowntime): string {
+    const start = new Date(`${dt.startDate}T${dt.startTime}`)
+    const end = new Date(`${dt.endDate}T${dt.endTime}`)
+    const startStr = start.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    const startTime = start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })
+    const endStr = end.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    const endTime = end.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })
+
+    if (dt.startDate === dt.endDate) {
+      return `${startStr}, ${startTime} - ${endTime}`
+    }
+    return `${startStr}, ${startTime} - ${endStr}, ${endTime}`
+  }
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -458,12 +519,109 @@ export function ParametersContent() {
                     <CardTitle className="text-sm font-semibold">
                       {sectionName}
                     </CardTitle>
+                    {/* Maintenance downtime scheduler — only on Line 1 for now */}
+                    {sectionId === 1 && (
+                      <Popover open={openPopovers[sectionId]} onOpenChange={(open) => setOpenPopovers(prev => ({ ...prev, [sectionId]: open }))}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-6 w-6 p-0 ml-1"
+                            title="Schedule maintenance downtime"
+                          >
+                            <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80" align="start">
+                          <div className="space-y-3">
+                            <p className="text-sm font-semibold">Schedule Downtime</p>
+                            <div className="space-y-2">
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <label className="text-[11px] text-muted-foreground">Start Date</label>
+                                  <Input
+                                    type="date"
+                                    className="h-8 text-xs"
+                                    value={newDowntime[sectionId].startDate}
+                                    onChange={(e) => setNewDowntime(prev => ({
+                                      ...prev,
+                                      [sectionId]: { ...prev[sectionId], startDate: e.target.value }
+                                    }))}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-[11px] text-muted-foreground">Start Time</label>
+                                  <Input
+                                    type="time"
+                                    className="h-8 text-xs"
+                                    value={newDowntime[sectionId].startTime}
+                                    onChange={(e) => setNewDowntime(prev => ({
+                                      ...prev,
+                                      [sectionId]: { ...prev[sectionId], startTime: e.target.value }
+                                    }))}
+                                  />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <label className="text-[11px] text-muted-foreground">End Date</label>
+                                  <Input
+                                    type="date"
+                                    className="h-8 text-xs"
+                                    value={newDowntime[sectionId].endDate}
+                                    onChange={(e) => setNewDowntime(prev => ({
+                                      ...prev,
+                                      [sectionId]: { ...prev[sectionId], endDate: e.target.value }
+                                    }))}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-[11px] text-muted-foreground">End Time</label>
+                                  <Input
+                                    type="time"
+                                    className="h-8 text-xs"
+                                    value={newDowntime[sectionId].endTime}
+                                    onChange={(e) => setNewDowntime(prev => ({
+                                      ...prev,
+                                      [sectionId]: { ...prev[sectionId], endTime: e.target.value }
+                                    }))}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              className="w-full h-8 text-xs"
+                              onClick={() => addDowntime(sectionId)}
+                            >
+                              Add Downtime
+                            </Button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
                   </div>
                   <Badge variant="secondary" className="font-mono text-xs">
                     {onlineCount}/8 online
                   </Badge>
                 </div>
-              </CardHeader>
+                {/* Display scheduled downtimes */}
+                {sectionId === 1 && lineDowntimes[sectionId]?.length > 0 && (
+                  <div className="flex items-center gap-1.5 flex-wrap mt-2">
+                    {lineDowntimes[sectionId].map(dt => (
+                      <div key={dt.id} className="flex items-center gap-1.5 bg-amber-50 border border-amber-200 rounded px-2 py-1">
+                        <span className="text-[11px] text-amber-900">{formatDowntimeDisplay(dt)}</span>
+                        <button
+                          onClick={() => deleteDowntime(sectionId, dt.id)}
+                          className="p-0.5 hover:bg-amber-100 rounded transition-colors"
+                          title="Delete downtime"
+                        >
+                          <Trash2 className="h-3 w-3 text-amber-600" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
               <CardContent className="pb-4 pt-0">
                 <div className="grid grid-cols-2 gap-4">
                   {/* Group A */}
