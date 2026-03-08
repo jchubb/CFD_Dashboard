@@ -530,8 +530,8 @@ export function ParametersContent() {
                     <CardTitle className="text-sm font-semibold">
                       {sectionName}
                     </CardTitle>
-                    {/* Maintenance downtime scheduler — only on Line 1 for now */}
-                    {sectionId === 1 && (
+                    {/* Maintenance downtime scheduler — all lines */}
+                    {(
                       <Popover open={openPopovers[sectionId]} onOpenChange={(open) => setOpenPopovers(prev => ({ ...prev, [sectionId]: open }))}>
                         <TooltipProvider>
                           <Tooltip>
@@ -626,7 +626,7 @@ export function ParametersContent() {
                   </Badge>
                 </div>
                 {/* Display scheduled downtimes */}
-                {sectionId === 1 && lineDowntimes[sectionId]?.length > 0 && (
+                {lineDowntimes[sectionId]?.length > 0 && (
                   <div className="flex flex-col gap-1 mt-2">
                     {[...lineDowntimes[sectionId]]
                       .sort((a, b) => new Date(`${a.startDate}T${a.startTime}`).getTime() - new Date(`${b.startDate}T${b.startTime}`).getTime())
