@@ -63,6 +63,17 @@ interface Machine {
 }
 
 // ------------------------------------------------------------------
+// Family color mapping
+// ------------------------------------------------------------------
+const FAMILY_COLORS: Record<string, { label: string; border: string; text: string; bg: string; dot: string }> = {
+  F135:   { label: "F135",   border: "border-blue-300",    text: "text-blue-700",    bg: "bg-blue-50",    dot: "bg-blue-500" },
+  GTF:    { label: "GTF",    border: "border-purple-300",  text: "text-purple-700",  bg: "bg-purple-50",  dot: "bg-purple-500" },
+  F100:   { label: "F100",   border: "border-emerald-300", text: "text-emerald-700", bg: "bg-emerald-50", dot: "bg-emerald-500" },
+  PWC:    { label: "PWC",    border: "border-amber-300",   text: "text-amber-700",   bg: "bg-amber-50",   dot: "bg-amber-500" },
+  Legacy: { label: "Legacy", border: "border-rose-300",    text: "text-rose-700",    bg: "bg-rose-50",    dot: "bg-rose-500" },
+}
+
+// ------------------------------------------------------------------
 // Mock data: 4 sections x 8 machines (2 parallel groups of 4)
 // ------------------------------------------------------------------
 function generateMockMachines(): Machine[] {
