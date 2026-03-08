@@ -12,6 +12,7 @@ import {
   TrendingDown,
   Target,
   AlertTriangle,
+  Users,
   CheckCircle2,
   Activity,
   LayoutDashboard,
@@ -61,12 +62,12 @@ const EXEC_KPIS = [
     icon: <Activity className="h-4 w-4 text-muted-foreground" />,
   },
   {
-    title: "Active Alerts",
-    value: "3",
-    subtitle: "require attention",
-    trend: { value: "1 critical, 2 warning", direction: "neutral" as const },
-    variant: "warning" as const,
-    icon: <AlertTriangle className="h-4 w-4 text-warning" />,
+    title: "User Adoption",
+    value: "7/8",
+    subtitle: "days forecast generated",
+    trend: { value: "this month", direction: "neutral" as const },
+    variant: "default" as const,
+    icon: <Users className="h-4 w-4 text-muted-foreground" />,
   },
 ]
 
