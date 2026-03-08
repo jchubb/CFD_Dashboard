@@ -184,11 +184,10 @@ export function GlobalHeader({
         <Button
           variant="outline"
           size="sm"
-          className="h-7 gap-1.5 text-[11px] px-2.5"
+          className="h-7 w-7 p-0"
           onClick={() => window.location.reload()}
         >
           <RefreshCw className="h-3 w-3" />
-          Refresh
         </Button>
       </div>
     </header>
