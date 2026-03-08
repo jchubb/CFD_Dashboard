@@ -191,37 +191,35 @@ export function GlobalHeader({
           )}
         </div>
 
-        {/* Generate Forecast button (only on /monthly-plan page) */}
-        {pathname === "/monthly-plan" && (
-          <>
-            <Separator orientation="vertical" className="h-5" />
-            <Button
-              size="sm"
-              variant="outline"
-              className={`h-7 gap-1.5 text-[11px] px-2.5 ${
+        {/* Generate Forecast button */}
+        <>
+          <Separator orientation="vertical" className="h-5" />
+          <Button
+            size="sm"
+            variant="outline"
+            className={`h-7 gap-1.5 text-[11px] px-2.5 ${
+              monthlyPlanRows.length > 0 &&
+              dailyPlanRows.length > 0 &&
+              dailyActualsRows.length > 0 &&
+              dailyLERows.length > 0
+                ? "border-primary/40 text-primary hover:bg-primary/5"
+                : "border-muted-foreground/20 text-muted-foreground/50 cursor-not-allowed"
+            }`}
+            onClick={() => {
+              if (
                 monthlyPlanRows.length > 0 &&
                 dailyPlanRows.length > 0 &&
                 dailyActualsRows.length > 0 &&
                 dailyLERows.length > 0
-                  ? "border-primary/40 text-primary hover:bg-primary/5"
-                  : "border-muted-foreground/20 text-muted-foreground/50 cursor-not-allowed"
-              }`}
-              onClick={() => {
-                if (
-                  monthlyPlanRows.length > 0 &&
-                  dailyPlanRows.length > 0 &&
-                  dailyActualsRows.length > 0 &&
-                  dailyLERows.length > 0
-                ) {
-                  setConfirmOpen(true)
-                }
-              }}
-            >
-              <LineChart className="h-3 w-3" />
-              Generate Forecast
-            </Button>
-          </>
-        )}
+              ) {
+                setConfirmOpen(true)
+              }
+            }}
+          >
+            <LineChart className="h-3 w-3" />
+            Generate Forecast
+          </Button>
+        </>
 
         {/* Confirmation dialog */}
         <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
