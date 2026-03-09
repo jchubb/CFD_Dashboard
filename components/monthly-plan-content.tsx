@@ -11,6 +11,7 @@ import {
 import { MonthlyPlanSection } from "@/components/monthly-plan-section"
 import { AvailableWipSection } from "@/components/available-wip-section"
 import { CellStatusSection } from "@/components/cell-status-section"
+import { CellEventsSection } from "@/components/cell-events-section"
 import { DailyActualsSection } from "@/components/daily-actuals-section"
 import { DailyPlanSection } from "@/components/daily-plan-section"
 import { DailyLESection } from "@/components/daily-le-section"
@@ -141,6 +142,8 @@ export function MonthlyPlanContent() {
       {/* Scrollable content */}
       <div className="flex flex-col gap-3 px-6 pb-4">
         <CellStatusSection selectedMonth={selectedMonth} />
+
+        <CellEventsSection selectedMonth={selectedMonth} />
 
         <AvailableWipSection selectedMonth={selectedMonth} />
 
