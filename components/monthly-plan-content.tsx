@@ -44,31 +44,12 @@ export function MonthlyPlanContent() {
     }, 0)
   }, [dailyLERows])
 
-  // Avg daily units remaining = (totalTarget - totalActualsToDate - dailyLETotal) / (remainingDays - 1)
-  const avgDailyUnitsRemaining = useMemo(() => {
-    if (!monthSummary.totalTarget || dailyActualsRows.length === 0 || dailyLETotal === null) return null
-
-    // Sum all non-null actuals across all parts
-    const totalActuals = dailyActualsRows.reduce((sum, row) => {
-      return sum + row.dailyQty.reduce((s, v) => s + (v ?? 0), 0)
-    }, 0)
-
-    // Find the last day with actuals data
-    let lastActualDay = 0
-    dailyActualsRows.forEach(row => {
-      row.dailyQty.forEach((v, i) => {
-        if (v !== null && i + 1 > lastActualDay) lastActualDay = i + 1
-      })
-    })
-
-    const totalDays = getDaysInMonth(selectedMonth)
-    // -1 because the LE day is already accounted for in dailyLETotal
-    const remainingDays = totalDays - lastActualDay - 1
-    if (remainingDays <= 0) return 0
-
-    const unitsRemaining = monthSummary.totalTarget - totalActuals - dailyLETotal
-    return Math.round((unitsRemaining / remainingDays) * 10) / 10
-  }, [monthSummary.totalTarget, dailyActualsRows, dailyLETotal, selectedMonth])
+  // Daily Load Target = ceil(dailyLETotal / 2)
+  // Placeholder calc until per-part max load sizes are available
+  const dailyLoadTarget = useMemo(() => {
+    if (dailyLETotal === null) return null
+    return Math.ceil(dailyLETotal / 2)
+  }, [dailyLETotal])
 
   return (
     <div className="flex flex-col gap-6">
@@ -107,11 +88,11 @@ export function MonthlyPlanContent() {
               <Activity className="h-4 w-4 text-purple-600" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] text-muted-foreground leading-none">Avg Daily Units Remaining</p>
+              <p className="text-[11px] text-muted-foreground leading-none">Daily Load Target</p>
               <p className="text-base font-semibold font-mono leading-tight">
-                {avgDailyUnitsRemaining !== null ? avgDailyUnitsRemaining : "—"}
+                {dailyLoadTarget !== null ? dailyLoadTarget : "—"}
               </p>
-              <p className="text-[11px] text-muted-foreground leading-none">units / day</p>
+              <p className="text-[11px] text-muted-foreground leading-none">loads / day</p>
             </div>
           </div>
 
