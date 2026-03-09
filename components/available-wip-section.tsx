@@ -43,11 +43,11 @@ const FAMILY_COLORS: Record<string, string> = {
 
 function getFamilyBadgeClass(family: string) {
   switch (family) {
-    case "F135":    return "border-blue-300 text-blue-700 bg-blue-50"
-    case "GTF":     return "border-purple-300 text-purple-700 bg-purple-50"
+    case "F135": return "border-blue-300 text-blue-700 bg-blue-50"
+    case "GTF": return "border-purple-300 text-purple-700 bg-purple-50"
     case "LEAP-1A": return "border-emerald-300 text-emerald-700 bg-emerald-50"
-    case "GEnx":    return "border-amber-300 text-amber-700 bg-amber-50"
-    default:        return "border-gray-300 text-gray-700 bg-gray-50"
+    case "GEnx": return "border-amber-300 text-amber-700 bg-amber-50"
+    default: return "border-gray-300 text-gray-700 bg-gray-50"
   }
 }
 
@@ -85,10 +85,10 @@ export function AvailableWipSection({ selectedMonth = "January 2024" }: Availabl
       if (lines.length < 2) throw new Error("CSV must have a header row and at least one data row.")
 
       const headers = lines[0].split(",").map(h => h.trim().toLowerCase())
-      const familyIdx  = headers.findIndex(h => h.includes("family") || h.includes("program"))
-      const partIdx    = headers.findIndex(h => h.includes("part"))
-      const descIdx    = headers.findIndex(h => h.includes("desc"))
-      const availIdx   = headers.findIndex(h => h.includes("available") || h.includes("total"))
+      const familyIdx = headers.findIndex(h => h.includes("family") || h.includes("program"))
+      const partIdx = headers.findIndex(h => h.includes("part"))
+      const descIdx = headers.findIndex(h => h.includes("desc"))
+      const availIdx = headers.findIndex(h => h.includes("available") || h.includes("total"))
 
       if (familyIdx === -1 || partIdx === -1 || availIdx === -1) {
         throw new Error("CSV must include Program Family, Part Number, and Total Available columns.")
@@ -100,9 +100,9 @@ export function AvailableWipSection({ selectedMonth = "January 2024" }: Availabl
         if (cols.length < 2) continue
         parsed.push({
           id: `wip-${i}-${Date.now()}`,
-          programFamily:  cols[familyIdx] || "Unknown",
-          partNumber:     cols[partIdx]   || `PART-${i}`,
-          description:    descIdx !== -1  ? cols[descIdx] || "" : "",
+          programFamily: cols[familyIdx] || "Unknown",
+          partNumber: cols[partIdx] || `PART-${i}`,
+          description: descIdx !== -1 ? cols[descIdx] || "" : "",
           totalAvailable: parseInt(cols[availIdx]) || 0,
         })
       }
@@ -126,7 +126,7 @@ export function AvailableWipSection({ selectedMonth = "January 2024" }: Availabl
     }
     const reader = new FileReader()
     reader.onload = (e) => parseCSV(e.target?.result as string)
-    reader.onerror  = () => { setUploadStatus("error"); setUploadMessage("Failed to read the file.") }
+    reader.onerror = () => { setUploadStatus("error"); setUploadMessage("Failed to read the file.") }
     reader.readAsText(file)
   }, [parseCSV])
 
@@ -136,7 +136,7 @@ export function AvailableWipSection({ selectedMonth = "January 2024" }: Availabl
     if (file) handleFileUpload(file)
   }, [handleFileUpload])
 
-  const handleDragOver  = useCallback((e: React.DragEvent) => { e.preventDefault(); setIsDragging(true)  }, [])
+  const handleDragOver = useCallback((e: React.DragEvent) => { e.preventDefault(); setIsDragging(true) }, [])
   const handleDragLeave = useCallback(() => setIsDragging(false), [])
   const handleLoadSample = useCallback(() => parseCSV(sampleCSV), [parseCSV])
   const handleClear = useCallback(() => {
@@ -172,7 +172,7 @@ export function AvailableWipSection({ selectedMonth = "January 2024" }: Availabl
   }, [histogramData])
 
   const totalAvailable = rows.reduce((s, r) => s + r.totalAvailable, 0)
-  const totalParts     = rows.length
+  const totalParts = rows.length
 
   return (
     <Card className="border border-border">
@@ -236,11 +236,10 @@ export function AvailableWipSection({ selectedMonth = "January 2024" }: Availabl
               onClick={() => fileInputRef.current?.click()}
               onMouseEnter={() => setIsUploadHovered(true)}
               onMouseLeave={() => setIsUploadHovered(false)}
-              className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-all ${
-                isDragging
-                  ? "border-blue-400 bg-blue-50"
-                  : "border-border hover:border-muted-foreground/40 hover:bg-muted/30"
-              }`}
+              className={`relative flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed p-8 cursor-pointer transition-all ${isDragging
+                ? "border-blue-400 bg-blue-50"
+                : "border-border hover:border-muted-foreground/40 hover:bg-muted/30"
+                }`}
             >
               {isUploadHovered && (
                 <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center rounded-xl bg-background/90 px-6">
@@ -264,7 +263,7 @@ export function AvailableWipSection({ selectedMonth = "January 2024" }: Availabl
                   {isDragging ? "Drop CSV file here" : "Upload Available WIP CSV"}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Expected columns: Program Family, Part Number, Total Available
+                  Expected columns: Part Number, Serial Number, Time at Op
                 </p>
               </div>
             </div>
@@ -290,8 +289,8 @@ export function AvailableWipSection({ selectedMonth = "January 2024" }: Availabl
             <div className="p-3 rounded-lg border border-border bg-card">
               <p className="text-xs font-medium text-foreground mb-2">Expected CSV Format:</p>
               <div className="font-mono text-xs text-muted-foreground bg-muted/50 p-2 rounded overflow-x-auto">
-                <p>Program Family,Part Number,Description,Total Available</p>
-                <p>F135,F135-HPC-001,HPC Blade,45</p>
+                <p>Part Number,Serial Number,Time at Op</p>
+                <p>9S530G4565G1S,PIREW2017,11 days</p>
               </div>
             </div>
           </div>
