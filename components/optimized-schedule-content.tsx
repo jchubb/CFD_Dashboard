@@ -259,7 +259,7 @@ export function OptimizedScheduleContent() {
                 <TableRow>
                   <TableHead className="text-xs font-semibold w-[110px]">Part Number</TableHead>
                   <TableHead className="text-xs font-semibold w-[100px]">Program</TableHead>
-                  <TableHead className="text-xs font-semibold">Description</TableHead>
+                  <TableHead className="text-xs font-semibold">Heat</TableHead>
                   <TableHead className="text-xs font-semibold text-right w-[80px]">Quantity</TableHead>
                   <TableHead className="text-xs font-semibold w-[90px]">Source</TableHead>
                 </TableRow>
