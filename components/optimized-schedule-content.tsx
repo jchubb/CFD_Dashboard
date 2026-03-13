@@ -25,7 +25,16 @@ type ScheduleRow = {
   programFamily: string
   description: string
   quantity: number
+  loads: number
   source: Source
+}
+
+// Returns loads as ceil(quantity * factor) where factor is between 0.25 and 0.5
+// Using a deterministic seed based on partNumber + quantity to avoid hydration issues
+function calcLoads(partNumber: string, quantity: number): number {
+  const seed = partNumber.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0)
+  const factor = 0.25 + ((seed * quantity) % 100) / 400 // range: 0.25 – 0.5
+  return Math.ceil(quantity * factor)
 }
 
 type DayType = "simulated" | "projected"
@@ -69,52 +78,52 @@ const DAYS: ScheduleDay[] = [
   {
     label: "0-24 Hrs", fullLabel: "0–24 Hour Window", type: "simulated",
     rows: [
-      { partNumber: "PN-10045", programFamily: "F135", description: getHeatcodes("PN-10045", 12), quantity: 12, source: "Plan" },
-      { partNumber: "PN-20187", programFamily: "GTF",  description: getHeatcodes("PN-20187", 8),  quantity: 8,  source: "Plan" },
-      { partNumber: "PN-30291", programFamily: "F100", description: getHeatcodes("PN-30291", 10), quantity: 10, source: "Rollover" },
-      { partNumber: "PN-40334", programFamily: "PWC",  description: getHeatcodes("PN-40334", 6),  quantity: 6,  source: "Plan" },
-      { partNumber: "PN-10112", programFamily: "F135", description: getHeatcodes("PN-10112", 8),  quantity: 8,  source: "Manual" },
-      { partNumber: "PN-20204", programFamily: "GTF",  description: getHeatcodes("PN-20204", 10), quantity: 10, source: "Plan" },
-      { partNumber: "PN-30378", programFamily: "F100", description: getHeatcodes("PN-30378", 30), quantity: 30, source: "Rollover" },
-      { partNumber: "PN-40412", programFamily: "PWC",  description: getHeatcodes("PN-40412", 4),  quantity: 4,  source: "Manual" },
-      { partNumber: "PN-10223", programFamily: "F135", description: getHeatcodes("PN-10223", 9),  quantity: 9,  source: "Plan" },
-      { partNumber: "PN-50019", programFamily: "Legacy", description: getHeatcodes("PN-50019", 15), quantity: 15, source: "Rollover" },
-      { partNumber: "PN-50067", programFamily: "Legacy", description: getHeatcodes("PN-50067", 7),  quantity: 7,  source: "Plan" },
-      { partNumber: "PN-20315", programFamily: "GTF",  description: getHeatcodes("PN-20315", 10), quantity: 10, source: "Plan" },
-      { partNumber: "PN-30455", programFamily: "F100", description: getHeatcodes("PN-30455", 5),  quantity: 5,  source: "Manual" },
-      { partNumber: "PN-40501", programFamily: "PWC",  description: getHeatcodes("PN-40501", 11), quantity: 11, source: "Rollover" },
+      { partNumber: "PN-10045", programFamily: "F135", description: getHeatcodes("PN-10045", 12), quantity: 12, loads: calcLoads("PN-10045", 12), source: "Plan" },
+      { partNumber: "PN-20187", programFamily: "GTF",  description: getHeatcodes("PN-20187", 8),  quantity: 8,  loads: calcLoads("PN-20187", 8),  source: "Plan" },
+      { partNumber: "PN-30291", programFamily: "F100", description: getHeatcodes("PN-30291", 10), quantity: 10, loads: calcLoads("PN-30291", 10), source: "Rollover" },
+      { partNumber: "PN-40334", programFamily: "PWC",  description: getHeatcodes("PN-40334", 6),  quantity: 6,  loads: calcLoads("PN-40334", 6),  source: "Plan" },
+      { partNumber: "PN-10112", programFamily: "F135", description: getHeatcodes("PN-10112", 8),  quantity: 8,  loads: calcLoads("PN-10112", 8),  source: "Manual" },
+      { partNumber: "PN-20204", programFamily: "GTF",  description: getHeatcodes("PN-20204", 10), quantity: 10, loads: calcLoads("PN-20204", 10), source: "Plan" },
+      { partNumber: "PN-30378", programFamily: "F100", description: getHeatcodes("PN-30378", 30), quantity: 30, loads: calcLoads("PN-30378", 30), source: "Rollover" },
+      { partNumber: "PN-40412", programFamily: "PWC",  description: getHeatcodes("PN-40412", 4),  quantity: 4,  loads: calcLoads("PN-40412", 4),  source: "Manual" },
+      { partNumber: "PN-10223", programFamily: "F135", description: getHeatcodes("PN-10223", 9),  quantity: 9,  loads: calcLoads("PN-10223", 9),  source: "Plan" },
+      { partNumber: "PN-50019", programFamily: "Legacy", description: getHeatcodes("PN-50019", 15), quantity: 15, loads: calcLoads("PN-50019", 15), source: "Rollover" },
+      { partNumber: "PN-50067", programFamily: "Legacy", description: getHeatcodes("PN-50067", 7),  quantity: 7,  loads: calcLoads("PN-50067", 7),  source: "Plan" },
+      { partNumber: "PN-20315", programFamily: "GTF",  description: getHeatcodes("PN-20315", 10), quantity: 10, loads: calcLoads("PN-20315", 10), source: "Plan" },
+      { partNumber: "PN-30455", programFamily: "F100", description: getHeatcodes("PN-30455", 5),  quantity: 5,  loads: calcLoads("PN-30455", 5),  source: "Manual" },
+      { partNumber: "PN-40501", programFamily: "PWC",  description: getHeatcodes("PN-40501", 11), quantity: 11, loads: calcLoads("PN-40501", 11), source: "Rollover" },
     ],
   },
   {
     label: "24-48 Hrs", fullLabel: "24–48 Hour Window", type: "simulated",
     rows: [
-      { partNumber: "PN-10045", programFamily: "F135", description: getHeatcodes("PN-10045", 10), quantity: 10, source: "Plan" },
-      { partNumber: "PN-20187", programFamily: "GTF",  description: getHeatcodes("PN-20187", 9),  quantity: 9,  source: "Plan" },
-      { partNumber: "PN-30291", programFamily: "F100", description: getHeatcodes("PN-30291", 12), quantity: 12, source: "Rollover" },
-      { partNumber: "PN-40334", programFamily: "PWC",  description: getHeatcodes("PN-40334", 5),  quantity: 5,  source: "Plan" },
-      { partNumber: "PN-10112", programFamily: "F135", description: getHeatcodes("PN-10112", 7),  quantity: 7,  source: "Manual" },
-      { partNumber: "PN-20204", programFamily: "GTF",  description: getHeatcodes("PN-20204", 11), quantity: 11, source: "Plan" },
-      { partNumber: "PN-30378", programFamily: "F100", description: getHeatcodes("PN-30378", 28), quantity: 28, source: "Rollover" },
-      { partNumber: "PN-50019", programFamily: "Legacy", description: getHeatcodes("PN-50019", 14), quantity: 14, source: "Rollover" },
-      { partNumber: "PN-10223", programFamily: "F135", description: getHeatcodes("PN-10223", 8),  quantity: 8,  source: "Plan" },
-      { partNumber: "PN-50067", programFamily: "Legacy", description: getHeatcodes("PN-50067", 6),  quantity: 6,  source: "Plan" },
-      { partNumber: "PN-40501", programFamily: "PWC",  description: getHeatcodes("PN-40501", 10), quantity: 10, source: "Plan" },
-      { partNumber: "PN-20315", programFamily: "GTF",  description: getHeatcodes("PN-20315", 9),  quantity: 9,  source: "Plan" },
+      { partNumber: "PN-10045", programFamily: "F135", description: getHeatcodes("PN-10045", 10), quantity: 10, loads: calcLoads("PN-10045", 10), source: "Plan" },
+      { partNumber: "PN-20187", programFamily: "GTF",  description: getHeatcodes("PN-20187", 9),  quantity: 9,  loads: calcLoads("PN-20187", 9),  source: "Plan" },
+      { partNumber: "PN-30291", programFamily: "F100", description: getHeatcodes("PN-30291", 12), quantity: 12, loads: calcLoads("PN-30291", 12), source: "Rollover" },
+      { partNumber: "PN-40334", programFamily: "PWC",  description: getHeatcodes("PN-40334", 5),  quantity: 5,  loads: calcLoads("PN-40334", 5),  source: "Plan" },
+      { partNumber: "PN-10112", programFamily: "F135", description: getHeatcodes("PN-10112", 7),  quantity: 7,  loads: calcLoads("PN-10112", 7),  source: "Manual" },
+      { partNumber: "PN-20204", programFamily: "GTF",  description: getHeatcodes("PN-20204", 11), quantity: 11, loads: calcLoads("PN-20204", 11), source: "Plan" },
+      { partNumber: "PN-30378", programFamily: "F100", description: getHeatcodes("PN-30378", 28), quantity: 28, loads: calcLoads("PN-30378", 28), source: "Rollover" },
+      { partNumber: "PN-50019", programFamily: "Legacy", description: getHeatcodes("PN-50019", 14), quantity: 14, loads: calcLoads("PN-50019", 14), source: "Rollover" },
+      { partNumber: "PN-10223", programFamily: "F135", description: getHeatcodes("PN-10223", 8),  quantity: 8,  loads: calcLoads("PN-10223", 8),  source: "Plan" },
+      { partNumber: "PN-50067", programFamily: "Legacy", description: getHeatcodes("PN-50067", 6),  quantity: 6,  loads: calcLoads("PN-50067", 6),  source: "Plan" },
+      { partNumber: "PN-40501", programFamily: "PWC",  description: getHeatcodes("PN-40501", 10), quantity: 10, loads: calcLoads("PN-40501", 10), source: "Plan" },
+      { partNumber: "PN-20315", programFamily: "GTF",  description: getHeatcodes("PN-20315", 9),  quantity: 9,  loads: calcLoads("PN-20315", 9),  source: "Plan" },
     ],
   },
   {
     label: "48-72 Hrs", fullLabel: "48–72 Hour Window", type: "projected",
     rows: [
-      { partNumber: "PN-10045", programFamily: "F135", description: "", quantity: 11, source: "Plan" },
-      { partNumber: "PN-20187", programFamily: "GTF",  description: "", quantity: 7,  source: "Plan" },
-      { partNumber: "PN-30291", programFamily: "F100", description: "", quantity: 9,  source: "Plan" },
-      { partNumber: "PN-40334", programFamily: "PWC",  description: "", quantity: 6,  source: "Plan" },
-      { partNumber: "PN-20204", programFamily: "GTF",  description: "", quantity: 10, source: "Plan" },
-      { partNumber: "PN-30378", programFamily: "F100", description: "", quantity: 24, source: "Plan" },
-      { partNumber: "PN-50019", programFamily: "Legacy", description: "", quantity: 13, source: "Plan" },
-      { partNumber: "PN-50067", programFamily: "Legacy", description: "", quantity: 5,  source: "Plan" },
-      { partNumber: "PN-40501", programFamily: "PWC",  description: "", quantity: 9,  source: "Plan" },
-      { partNumber: "PN-10223", programFamily: "F135", description: "", quantity: 8,  source: "Plan" },
+      { partNumber: "PN-10045", programFamily: "F135", description: "", quantity: 11, loads: calcLoads("PN-10045", 11), source: "Plan" },
+      { partNumber: "PN-20187", programFamily: "GTF",  description: "", quantity: 7,  loads: calcLoads("PN-20187", 7),  source: "Plan" },
+      { partNumber: "PN-30291", programFamily: "F100", description: "", quantity: 9,  loads: calcLoads("PN-30291", 9),  source: "Plan" },
+      { partNumber: "PN-40334", programFamily: "PWC",  description: "", quantity: 6,  loads: calcLoads("PN-40334", 6),  source: "Plan" },
+      { partNumber: "PN-20204", programFamily: "GTF",  description: "", quantity: 10, loads: calcLoads("PN-20204", 10), source: "Plan" },
+      { partNumber: "PN-30378", programFamily: "F100", description: "", quantity: 24, loads: calcLoads("PN-30378", 24), source: "Plan" },
+      { partNumber: "PN-50019", programFamily: "Legacy", description: "", quantity: 13, loads: calcLoads("PN-50019", 13), source: "Plan" },
+      { partNumber: "PN-50067", programFamily: "Legacy", description: "", quantity: 5,  loads: calcLoads("PN-50067", 5),  source: "Plan" },
+      { partNumber: "PN-40501", programFamily: "PWC",  description: "", quantity: 9,  loads: calcLoads("PN-40501", 9),  source: "Plan" },
+      { partNumber: "PN-10223", programFamily: "F135", description: "", quantity: 8,  loads: calcLoads("PN-10223", 8),  source: "Plan" },
     ],
   },
 ]
@@ -146,7 +155,7 @@ export function OptimizedScheduleContent() {
   )
 
   const totalUnits    = filtered.reduce((s, r) => s + r.quantity, 0)
-  const uniqueParts   = new Set(filtered.map(r => r.partNumber)).size
+  const totalLoads    = filtered.reduce((s, r) => s + r.loads, 0)
   const rolloverCount = filtered.filter(r => r.source === "Rollover").length
   const manualCount   = filtered.filter(r => r.source === "Manual").length
 
@@ -220,7 +229,7 @@ export function OptimizedScheduleContent() {
           <div className="grid grid-cols-4 gap-3">
             {[
               { label: "Total Units",    value: totalUnits },
-              { label: "Unique Parts",   value: uniqueParts },
+              { label: "Total Loads",    value: totalLoads },
               { label: "Rollover",       value: rolloverCount },
               { label: "Manual Entries", value: manualCount },
             ].map(({ label, value }) => (
@@ -251,6 +260,7 @@ export function OptimizedScheduleContent() {
                   <TableHead className="text-xs font-semibold w-[100px]">Program</TableHead>
                   <TableHead className="text-xs font-semibold">Heat</TableHead>
                   <TableHead className="text-xs font-semibold text-right w-[80px]">Quantity</TableHead>
+                  <TableHead className="text-xs font-semibold text-right w-[70px]">Loads</TableHead>
                   <TableHead className="text-xs font-semibold w-[90px]">Source</TableHead>
                 </TableRow>
               </TableHeader>
@@ -265,6 +275,7 @@ export function OptimizedScheduleContent() {
                     </TableCell>
                     <TableCell className="text-xs text-muted-foreground">{row.description}</TableCell>
                     <TableCell className="font-mono text-xs text-right font-medium">{row.quantity}</TableCell>
+                    <TableCell className="font-mono text-xs text-right font-medium">{row.loads}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={`text-xs ${SOURCE_COLORS[row.source]}`}>
                         {row.source}
@@ -274,7 +285,7 @@ export function OptimizedScheduleContent() {
                 ))}
                 {filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={5} className="text-center text-xs text-muted-foreground py-8">
+                    <TableCell colSpan={6} className="text-center text-xs text-muted-foreground py-8">
                       No results match your search.
                     </TableCell>
                   </TableRow>
