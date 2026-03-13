@@ -18,7 +18,11 @@ import { CalendarClock, Download, Search } from "lucide-react"
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
-type Source = "Plan" | "Rollover" | "Manual"
+type SourceSplit = {
+  plan: number
+  rollover: number
+  manual: number
+}
 
 type ScheduleRow = {
   partNumber: string
@@ -26,15 +30,7 @@ type ScheduleRow = {
   description: string
   quantity: number
   loads: number
-  source: Source
-}
-
-// Returns loads as ceil(quantity * factor) where factor is between 0.25 and 0.5
-// Using a deterministic seed based on partNumber + quantity to avoid hydration issues
-function calcLoads(partNumber: string, quantity: number): number {
-  const seed = partNumber.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0)
-  const factor = 0.25 + ((seed * quantity) % 100) / 400 // range: 0.25 – 0.5
-  return Math.ceil(quantity * factor)
+  sourceSplit: SourceSplit
 }
 
 type DayType = "simulated" | "projected"
@@ -46,22 +42,51 @@ type ScheduleDay = {
   rows: ScheduleRow[]
 }
 
-// Heatcode mapping: each part number gets unique heatcodes based on quantity
+// ---------------------------------------------------------------------------
+// Deterministic helpers (no Math.random — avoids hydration mismatches)
+// ---------------------------------------------------------------------------
+
+function calcLoads(partNumber: string, quantity: number): number {
+  const seed = partNumber.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0)
+  const factor = 0.25 + ((seed * quantity) % 100) / 400
+  return Math.ceil(quantity * factor)
+}
+
+// Deterministic source split:
+// - All parts have a plan qty (always >= 1)
+// - Some get a small rollover (seeded by partNumber char sum)
+// - Fewer still get a small manual (seeded differently)
+function calcSourceSplit(partNumber: string, quantity: number): SourceSplit {
+  const seed = partNumber.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0)
+
+  // rollover: ~40% chance, 1-3 units
+  const hasRollover = (seed % 5) >= 3
+  const rollover = hasRollover ? 1 + ((seed * 3) % Math.min(3, Math.max(1, Math.floor(quantity * 0.15)))) : 0
+
+  // manual: ~25% chance, 1-2 units — only if enough qty left
+  const hasManual = (seed % 4) === 1
+  const manual = hasManual && quantity - rollover > 2 ? 1 + ((seed * 7) % Math.min(2, Math.max(1, Math.floor(quantity * 0.1)))) : 0
+
+  const plan = quantity - rollover - manual
+  return { plan: Math.max(1, plan), rollover, manual }
+}
+
+// Heatcode mapping
 const HEATCODE_MAP: Record<string, string[]> = {
-  "PN-10045": ["PIREX", "PIREW"],        // 12, 10, 11, 13, 10, 12, 11, 10, 8, 9, 12, 11, 10, 13, 12
-  "PN-20187": ["PIREY", "PIREZ"],        // 8, 9, 7, 8, 9
-  "PN-30291": ["PIRAB", "PIRAC"],        // 10, 12, 9, 8, 10
-  "PN-40334": ["PIRAD", "PIRAE"],        // 6, 5, 6, 7, 5, 6
-  "PN-10112": ["PIRAF"],                 // 8, 7, 6
-  "PN-20204": ["PIRAG", "PIRAH"],        // 10, 11, 10, 12, 9, 11, 12, 10, 9
-  "PN-30378": ["PIRAI", "PIRAJ", "PIRAK"], // 30, 28, 24, 25, 22, 26, 23, 27, 19, 21, 25, 24, 23
-  "PN-40412": ["PIRAL"],                 // 4
-  "PN-10223": ["PIRAM"],                 // 9, 8, 8, 7, 7, 8, 8
-  "PN-50019": ["PIRAN", "PIRAO"],        // 15, 14, 13, 11, 14, 13, 11, 12, 14, 13
-  "PN-50067": ["PIRAP"],                 // 7, 6, 5, 6, 5, 7, 6, 5, 7, 5
-  "PN-20315": ["PIRAQ"],                 // 10, 9, 8, 6, 6
-  "PN-30455": ["PIRAR"],                 // 5, 4
-  "PN-40501": ["PIRAS", "PIRAT"],        // 11, 10, 9, 8, 9, 8, 7, 9, 8
+  "PN-10045": ["PIREX", "PIREW"],
+  "PN-20187": ["PIREY", "PIREZ"],
+  "PN-30291": ["PIRAB", "PIRAC"],
+  "PN-40334": ["PIRAD", "PIRAE"],
+  "PN-10112": ["PIRAF"],
+  "PN-20204": ["PIRAG", "PIRAH"],
+  "PN-30378": ["PIRAI", "PIRAJ", "PIRAK"],
+  "PN-40412": ["PIRAL"],
+  "PN-10223": ["PIRAM"],
+  "PN-50019": ["PIRAN", "PIRAO"],
+  "PN-50067": ["PIRAP"],
+  "PN-20315": ["PIRAQ"],
+  "PN-30455": ["PIRAR"],
+  "PN-40501": ["PIRAS", "PIRAT"],
 }
 
 function getHeatcodes(partNumber: string, quantity: number): string {
@@ -72,58 +97,72 @@ function getHeatcodes(partNumber: string, quantity: number): string {
 }
 
 // ---------------------------------------------------------------------------
-// Mock data — 3 windows only
+// Row builder helpers
+// ---------------------------------------------------------------------------
+function row(partNumber: string, programFamily: string, description: string, quantity: number): ScheduleRow {
+  return {
+    partNumber,
+    programFamily,
+    description,
+    quantity,
+    loads: calcLoads(partNumber, quantity),
+    sourceSplit: calcSourceSplit(partNumber, quantity),
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Mock data — 3 windows
 // ---------------------------------------------------------------------------
 const DAYS: ScheduleDay[] = [
   {
     label: "0-24 Hrs", fullLabel: "0–24 Hour Window", type: "simulated",
     rows: [
-      { partNumber: "PN-10045", programFamily: "F135", description: getHeatcodes("PN-10045", 12), quantity: 12, loads: calcLoads("PN-10045", 12), source: "Plan" },
-      { partNumber: "PN-20187", programFamily: "GTF",  description: getHeatcodes("PN-20187", 8),  quantity: 8,  loads: calcLoads("PN-20187", 8),  source: "Plan" },
-      { partNumber: "PN-30291", programFamily: "F100", description: getHeatcodes("PN-30291", 10), quantity: 10, loads: calcLoads("PN-30291", 10), source: "Rollover" },
-      { partNumber: "PN-40334", programFamily: "PWC",  description: getHeatcodes("PN-40334", 6),  quantity: 6,  loads: calcLoads("PN-40334", 6),  source: "Plan" },
-      { partNumber: "PN-10112", programFamily: "F135", description: getHeatcodes("PN-10112", 8),  quantity: 8,  loads: calcLoads("PN-10112", 8),  source: "Manual" },
-      { partNumber: "PN-20204", programFamily: "GTF",  description: getHeatcodes("PN-20204", 10), quantity: 10, loads: calcLoads("PN-20204", 10), source: "Plan" },
-      { partNumber: "PN-30378", programFamily: "F100", description: getHeatcodes("PN-30378", 30), quantity: 30, loads: calcLoads("PN-30378", 30), source: "Rollover" },
-      { partNumber: "PN-40412", programFamily: "PWC",  description: getHeatcodes("PN-40412", 4),  quantity: 4,  loads: calcLoads("PN-40412", 4),  source: "Manual" },
-      { partNumber: "PN-10223", programFamily: "F135", description: getHeatcodes("PN-10223", 9),  quantity: 9,  loads: calcLoads("PN-10223", 9),  source: "Plan" },
-      { partNumber: "PN-50019", programFamily: "Legacy", description: getHeatcodes("PN-50019", 15), quantity: 15, loads: calcLoads("PN-50019", 15), source: "Rollover" },
-      { partNumber: "PN-50067", programFamily: "Legacy", description: getHeatcodes("PN-50067", 7),  quantity: 7,  loads: calcLoads("PN-50067", 7),  source: "Plan" },
-      { partNumber: "PN-20315", programFamily: "GTF",  description: getHeatcodes("PN-20315", 10), quantity: 10, loads: calcLoads("PN-20315", 10), source: "Plan" },
-      { partNumber: "PN-30455", programFamily: "F100", description: getHeatcodes("PN-30455", 5),  quantity: 5,  loads: calcLoads("PN-30455", 5),  source: "Manual" },
-      { partNumber: "PN-40501", programFamily: "PWC",  description: getHeatcodes("PN-40501", 11), quantity: 11, loads: calcLoads("PN-40501", 11), source: "Rollover" },
+      row("PN-10045", "F135",   getHeatcodes("PN-10045", 12), 12),
+      row("PN-20187", "GTF",    getHeatcodes("PN-20187", 8),  8),
+      row("PN-30291", "F100",   getHeatcodes("PN-30291", 10), 10),
+      row("PN-40334", "PWC",    getHeatcodes("PN-40334", 6),  6),
+      row("PN-10112", "F135",   getHeatcodes("PN-10112", 8),  8),
+      row("PN-20204", "GTF",    getHeatcodes("PN-20204", 10), 10),
+      row("PN-30378", "F100",   getHeatcodes("PN-30378", 30), 30),
+      row("PN-40412", "PWC",    getHeatcodes("PN-40412", 4),  4),
+      row("PN-10223", "F135",   getHeatcodes("PN-10223", 9),  9),
+      row("PN-50019", "Legacy", getHeatcodes("PN-50019", 15), 15),
+      row("PN-50067", "Legacy", getHeatcodes("PN-50067", 7),  7),
+      row("PN-20315", "GTF",    getHeatcodes("PN-20315", 10), 10),
+      row("PN-30455", "F100",   getHeatcodes("PN-30455", 5),  5),
+      row("PN-40501", "PWC",    getHeatcodes("PN-40501", 11), 11),
     ],
   },
   {
     label: "24-48 Hrs", fullLabel: "24–48 Hour Window", type: "simulated",
     rows: [
-      { partNumber: "PN-10045", programFamily: "F135", description: getHeatcodes("PN-10045", 10), quantity: 10, loads: calcLoads("PN-10045", 10), source: "Plan" },
-      { partNumber: "PN-20187", programFamily: "GTF",  description: getHeatcodes("PN-20187", 9),  quantity: 9,  loads: calcLoads("PN-20187", 9),  source: "Plan" },
-      { partNumber: "PN-30291", programFamily: "F100", description: getHeatcodes("PN-30291", 12), quantity: 12, loads: calcLoads("PN-30291", 12), source: "Rollover" },
-      { partNumber: "PN-40334", programFamily: "PWC",  description: getHeatcodes("PN-40334", 5),  quantity: 5,  loads: calcLoads("PN-40334", 5),  source: "Plan" },
-      { partNumber: "PN-10112", programFamily: "F135", description: getHeatcodes("PN-10112", 7),  quantity: 7,  loads: calcLoads("PN-10112", 7),  source: "Manual" },
-      { partNumber: "PN-20204", programFamily: "GTF",  description: getHeatcodes("PN-20204", 11), quantity: 11, loads: calcLoads("PN-20204", 11), source: "Plan" },
-      { partNumber: "PN-30378", programFamily: "F100", description: getHeatcodes("PN-30378", 28), quantity: 28, loads: calcLoads("PN-30378", 28), source: "Rollover" },
-      { partNumber: "PN-50019", programFamily: "Legacy", description: getHeatcodes("PN-50019", 14), quantity: 14, loads: calcLoads("PN-50019", 14), source: "Rollover" },
-      { partNumber: "PN-10223", programFamily: "F135", description: getHeatcodes("PN-10223", 8),  quantity: 8,  loads: calcLoads("PN-10223", 8),  source: "Plan" },
-      { partNumber: "PN-50067", programFamily: "Legacy", description: getHeatcodes("PN-50067", 6),  quantity: 6,  loads: calcLoads("PN-50067", 6),  source: "Plan" },
-      { partNumber: "PN-40501", programFamily: "PWC",  description: getHeatcodes("PN-40501", 10), quantity: 10, loads: calcLoads("PN-40501", 10), source: "Plan" },
-      { partNumber: "PN-20315", programFamily: "GTF",  description: getHeatcodes("PN-20315", 9),  quantity: 9,  loads: calcLoads("PN-20315", 9),  source: "Plan" },
+      row("PN-10045", "F135",   getHeatcodes("PN-10045", 10), 10),
+      row("PN-20187", "GTF",    getHeatcodes("PN-20187", 9),  9),
+      row("PN-30291", "F100",   getHeatcodes("PN-30291", 12), 12),
+      row("PN-40334", "PWC",    getHeatcodes("PN-40334", 5),  5),
+      row("PN-10112", "F135",   getHeatcodes("PN-10112", 7),  7),
+      row("PN-20204", "GTF",    getHeatcodes("PN-20204", 11), 11),
+      row("PN-30378", "F100",   getHeatcodes("PN-30378", 28), 28),
+      row("PN-50019", "Legacy", getHeatcodes("PN-50019", 14), 14),
+      row("PN-10223", "F135",   getHeatcodes("PN-10223", 8),  8),
+      row("PN-50067", "Legacy", getHeatcodes("PN-50067", 6),  6),
+      row("PN-40501", "PWC",    getHeatcodes("PN-40501", 10), 10),
+      row("PN-20315", "GTF",    getHeatcodes("PN-20315", 9),  9),
     ],
   },
   {
     label: "48-72 Hrs", fullLabel: "48–72 Hour Window", type: "projected",
     rows: [
-      { partNumber: "PN-10045", programFamily: "F135", description: "", quantity: 11, loads: calcLoads("PN-10045", 11), source: "Plan" },
-      { partNumber: "PN-20187", programFamily: "GTF",  description: "", quantity: 7,  loads: calcLoads("PN-20187", 7),  source: "Plan" },
-      { partNumber: "PN-30291", programFamily: "F100", description: "", quantity: 9,  loads: calcLoads("PN-30291", 9),  source: "Plan" },
-      { partNumber: "PN-40334", programFamily: "PWC",  description: "", quantity: 6,  loads: calcLoads("PN-40334", 6),  source: "Plan" },
-      { partNumber: "PN-20204", programFamily: "GTF",  description: "", quantity: 10, loads: calcLoads("PN-20204", 10), source: "Plan" },
-      { partNumber: "PN-30378", programFamily: "F100", description: "", quantity: 24, loads: calcLoads("PN-30378", 24), source: "Plan" },
-      { partNumber: "PN-50019", programFamily: "Legacy", description: "", quantity: 13, loads: calcLoads("PN-50019", 13), source: "Plan" },
-      { partNumber: "PN-50067", programFamily: "Legacy", description: "", quantity: 5,  loads: calcLoads("PN-50067", 5),  source: "Plan" },
-      { partNumber: "PN-40501", programFamily: "PWC",  description: "", quantity: 9,  loads: calcLoads("PN-40501", 9),  source: "Plan" },
-      { partNumber: "PN-10223", programFamily: "F135", description: "", quantity: 8,  loads: calcLoads("PN-10223", 8),  source: "Plan" },
+      row("PN-10045", "F135",   "", 11),
+      row("PN-20187", "GTF",    "", 7),
+      row("PN-30291", "F100",   "", 9),
+      row("PN-40334", "PWC",    "", 6),
+      row("PN-20204", "GTF",    "", 10),
+      row("PN-30378", "F100",   "", 24),
+      row("PN-50019", "Legacy", "", 13),
+      row("PN-50067", "Legacy", "", 5),
+      row("PN-40501", "PWC",    "", 9),
+      row("PN-10223", "F135",   "", 8),
     ],
   },
 ]
@@ -136,10 +175,11 @@ const PROGRAM_COLORS: Record<string, string> = {
   "Legacy": "border-rose-300 text-rose-700 bg-rose-50",
 }
 
-const SOURCE_COLORS: Record<Source, string> = {
-  "Plan":     "border-gray-200 text-gray-600 bg-gray-50",
-  "Rollover": "border-yellow-300 text-yellow-700 bg-yellow-50",
-  "Manual":   "border-red-300 text-red-700 bg-red-50",
+// Source chip styles
+const SOURCE_STYLES = {
+  plan:     { bg: "bg-blue-50",   border: "border-blue-200",  text: "text-blue-700",  label: "Plan" },
+  rollover: { bg: "bg-amber-50",  border: "border-amber-300", text: "text-amber-700", label: "Rollover" },
+  manual:   { bg: "bg-red-50",    border: "border-red-300",   text: "text-red-700",   label: "Manual" },
 }
 
 export function OptimizedScheduleContent() {
@@ -154,10 +194,10 @@ export function OptimizedScheduleContent() {
     row.description.toLowerCase().includes(search.toLowerCase())
   )
 
-  const totalUnits    = filtered.reduce((s, r) => s + r.quantity, 0)
-  const totalLoads    = filtered.reduce((s, r) => s + r.loads, 0)
-  const rolloverCount = filtered.filter(r => r.source === "Rollover").length
-  const manualCount   = filtered.filter(r => r.source === "Manual").length
+  const totalUnits  = filtered.reduce((s, r) => s + r.quantity, 0)
+  const totalLoads  = filtered.reduce((s, r) => s + r.loads, 0)
+  const totalRollover = filtered.reduce((s, r) => s + r.sourceSplit.rollover, 0)
+  const totalManual   = filtered.reduce((s, r) => s + r.sourceSplit.manual, 0)
 
   return (
     <div className="flex flex-col gap-3 p-4">
@@ -184,10 +224,8 @@ export function OptimizedScheduleContent() {
 
         <CardContent className="flex flex-col gap-4 pt-4 pb-4">
 
-          {/* Legend + scrollable day buttons */}
+          {/* Tab legend + day buttons */}
           <div className="flex flex-col gap-2">
-
-            {/* Legend */}
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5">
                 <span className="inline-block w-3 h-3 rounded-sm bg-amber-100 border border-amber-300" />
@@ -198,8 +236,6 @@ export function OptimizedScheduleContent() {
                 <span className="text-[11px] text-muted-foreground">Projected</span>
               </div>
             </div>
-
-            {/* Single scrollable row of day buttons */}
             <div className="overflow-x-auto pb-1 -mb-1">
               <div className="flex items-center gap-1.5 w-max">
                 {DAYS.map((d, i) => (
@@ -225,13 +261,13 @@ export function OptimizedScheduleContent() {
             </div>
           </div>
 
-          {/* Summary strip */}
+          {/* Summary KPI strip */}
           <div className="grid grid-cols-4 gap-3">
             {[
               { label: "Total Units",    value: totalUnits },
               { label: "Total Loads",    value: totalLoads },
-              { label: "Rollover",       value: rolloverCount },
-              { label: "Manual Entries", value: manualCount },
+              { label: "Rollover Units", value: totalRollover },
+              { label: "Manual Units",   value: totalManual },
             ].map(({ label, value }) => (
               <div key={label} className="bg-muted/50 rounded-lg px-4 py-3">
                 <p className="text-[11px] text-muted-foreground">{label}</p>
@@ -240,15 +276,30 @@ export function OptimizedScheduleContent() {
             ))}
           </div>
 
-          {/* Search */}
-          <div className="relative w-64">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
-            <Input
-              placeholder="Search parts or programs..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="h-8 pl-8 text-xs"
-            />
+          {/* Search + Source legend */}
+          <div className="flex items-center justify-between gap-4">
+            <div className="relative w-64">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+              <Input
+                placeholder="Search parts or programs..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="h-8 pl-8 text-xs"
+              />
+            </div>
+
+            {/* Source legend */}
+            <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
+              <span className="mr-1 font-medium">Source:</span>
+              {Object.values(SOURCE_STYLES).map(s => (
+                <span
+                  key={s.label}
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded border font-medium ${s.bg} ${s.border} ${s.text}`}
+                >
+                  {s.label}
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* Table */}
@@ -261,28 +312,46 @@ export function OptimizedScheduleContent() {
                   <TableHead className="text-xs font-semibold">Heat</TableHead>
                   <TableHead className="text-xs font-semibold text-right w-[80px]">Quantity</TableHead>
                   <TableHead className="text-xs font-semibold text-right w-[70px]">Loads</TableHead>
-                  <TableHead className="text-xs font-semibold w-[90px]">Source</TableHead>
+                  <TableHead className="text-xs font-semibold w-[160px]">Source</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filtered.map((row, i) => (
-                  <TableRow key={row.partNumber + i} className="hover:bg-muted/30">
-                    <TableCell className="font-mono text-xs">{row.partNumber}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={`text-xs ${PROGRAM_COLORS[row.programFamily] ?? "border-gray-200 text-gray-600"}`}>
-                        {row.programFamily}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-xs text-muted-foreground">{row.description}</TableCell>
-                    <TableCell className="font-mono text-xs text-right font-medium">{row.quantity}</TableCell>
-                    <TableCell className="font-mono text-xs text-right font-medium">{row.loads}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={`text-xs ${SOURCE_COLORS[row.source]}`}>
-                        {row.source}
-                      </Badge>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {filtered.map((r, i) => {
+                  const { plan, rollover, manual } = r.sourceSplit
+                  return (
+                    <TableRow key={r.partNumber + i} className="hover:bg-muted/30">
+                      <TableCell className="font-mono text-xs">{r.partNumber}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className={`text-xs ${PROGRAM_COLORS[r.programFamily] ?? "border-gray-200 text-gray-600"}`}>
+                          {r.programFamily}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-xs text-muted-foreground">{r.description}</TableCell>
+                      <TableCell className="font-mono text-xs text-right font-medium">{r.quantity}</TableCell>
+                      <TableCell className="font-mono text-xs text-right font-medium">{r.loads}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-1 flex-wrap">
+                          <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border text-[11px] font-medium ${SOURCE_STYLES.plan.bg} ${SOURCE_STYLES.plan.border} ${SOURCE_STYLES.plan.text}`}>
+                            <span className="font-mono">{plan}</span>
+                            <span className="opacity-70">P</span>
+                          </span>
+                          {rollover > 0 && (
+                            <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border text-[11px] font-medium ${SOURCE_STYLES.rollover.bg} ${SOURCE_STYLES.rollover.border} ${SOURCE_STYLES.rollover.text}`}>
+                              <span className="font-mono">{rollover}</span>
+                              <span className="opacity-70">R</span>
+                            </span>
+                          )}
+                          {manual > 0 && (
+                            <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border text-[11px] font-medium ${SOURCE_STYLES.manual.bg} ${SOURCE_STYLES.manual.border} ${SOURCE_STYLES.manual.text}`}>
+                              <span className="font-mono">{manual}</span>
+                              <span className="opacity-70">M</span>
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )
+                })}
                 {filtered.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={6} className="text-center text-xs text-muted-foreground py-8">
