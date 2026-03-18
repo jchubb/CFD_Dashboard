@@ -298,7 +298,7 @@ export function DailyActualsSection({ selectedMonth = "January 2024" }: DailyAct
                         Part Number
                       </TableHead>
                       {Array.from({ length: dayCount }, (_, i) => (
-                        <TableHead className="font-semibold text-xs text-right min-w-[52px]">
+                        <TableHead key={i} className="font-semibold text-xs text-right min-w-[52px]">
                           Day {i + 1}
                         </TableHead>
                       ))}
