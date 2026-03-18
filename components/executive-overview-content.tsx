@@ -403,7 +403,8 @@ export function ExecutiveOverviewContent() {
         </CardContent>
       </Card>
 
-      {/* Section D: Operations Dashboard & Machine Status */}
+      {/* Section D: Operations Dashboard & Machine Status — hidden */}
+      {false && (
       <div className="grid gap-4 md:grid-cols-2">
         {SECTIONS_BOTTOM.map((section) => {
           const Icon = section.icon
@@ -455,6 +456,7 @@ export function ExecutiveOverviewContent() {
           )
         })}
       </div>
+      )}
 
       {/* Section D: Recent Activity Feed */}
       <Card className="border-2 border-border bg-card">
