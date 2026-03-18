@@ -85,19 +85,6 @@ export function MonthlyPlanContent() {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-md bg-purple-50 shrink-0">
-              <Activity className="h-4 w-4 text-purple-600" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-[11px] text-muted-foreground leading-none">Daily Load Target</p>
-              <p className="text-base font-semibold font-mono leading-tight">
-                {dailyLoadTarget !== null ? dailyLoadTarget : "—"}
-              </p>
-              <p className="text-[11px] text-muted-foreground leading-none">loads / day</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
             <div className="p-2 rounded-md bg-amber-50 shrink-0">
               <Target className="h-4 w-4 text-amber-600" />
             </div>

@@ -315,7 +315,7 @@ export function DailyActualsSection({ selectedMonth = "January 2024" }: DailyAct
                         </TableCell>
                       </TableRow>
                     ) : (
-                      <>
+                      <React.Fragment>
                         {filteredData.map((row) => (
                           <TableRow key={row.id} className="hover:bg-muted/30">
                             <TableCell className="font-mono text-xs sticky left-0 bg-background z-10">
@@ -343,7 +343,7 @@ export function DailyActualsSection({ selectedMonth = "January 2024" }: DailyAct
                             {dayTotals.reduce((s, t) => s + t, 0)}
                           </TableCell>
                         </TableRow>
-                      </>
+                      </React.Fragment>
                     )}
                   </TableBody>
                 </Table>
