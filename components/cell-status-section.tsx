@@ -146,15 +146,6 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
     )
   }, [rows, searchQuery])
 
-  const statusCounts = useMemo(() => {
-    const counts: Record<string, number> = {}
-    rows.forEach(r => {
-      const s = r.status.toLowerCase()
-      counts[s] = (counts[s] || 0) + 1
-    })
-    return counts
-  }, [rows])
-
   return (
     <Card className="border border-border">
       <CardHeader className="py-3">
@@ -172,12 +163,6 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
           </div>
           {rows.length > 0 && (
             <div className="flex items-center gap-2">
-              {/* Status summary chips */}
-              {Object.entries(statusCounts).map(([s, count]) => (
-                <Badge key={s} variant="outline" className={`text-xs capitalize ${getStatusClass(s)}`}>
-                  {s}: {count}
-                </Badge>
-              ))}
               <Button
                 variant="outline"
                 size="sm"
@@ -308,11 +293,7 @@ export function CellStatusSection({ selectedMonth = "January 2024" }: CellStatus
                           <TableCell className="font-mono text-xs">{row.partNumber}</TableCell>
                           <TableCell className="font-mono text-xs">{row.heatcode}</TableCell>
                           <TableCell className="text-xs text-muted-foreground">{row.cycle}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className={`text-xs capitalize ${getStatusClass(row.status)}`}>
-                              {row.status}
-                            </Badge>
-                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground">{row.status}</TableCell>
                           <TableCell className="font-mono text-xs text-muted-foreground">{row.startTime}</TableCell>
                           <TableCell className="text-xs text-muted-foreground">{row.btid}</TableCell>
                         </TableRow>

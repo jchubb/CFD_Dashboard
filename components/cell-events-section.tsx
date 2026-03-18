@@ -148,15 +148,6 @@ export function CellEventsSection({ selectedMonth = "January 2024" }: CellEvents
     )
   }, [rows, searchQuery])
 
-  const eventCounts = useMemo(() => {
-    const counts: Record<string, number> = {}
-    rows.forEach(r => {
-      const e = r.event.toLowerCase()
-      counts[e] = (counts[e] || 0) + 1
-    })
-    return counts
-  }, [rows])
-
   return (
     <Card className="border border-border">
       <CardHeader className="py-3">
@@ -174,12 +165,6 @@ export function CellEventsSection({ selectedMonth = "January 2024" }: CellEvents
           </div>
           {rows.length > 0 && (
             <div className="flex items-center gap-2">
-              {/* Event summary chips */}
-              {Object.entries(eventCounts).map(([e, count]) => (
-                <Badge key={e} variant="outline" className={`text-xs capitalize ${getEventClass(e)}`}>
-                  {e.replace(/_/g, ' ')}: {count}
-                </Badge>
-              ))}
               <Button
                 variant="outline"
                 size="sm"
@@ -309,11 +294,7 @@ export function CellEventsSection({ selectedMonth = "January 2024" }: CellEvents
                           <TableCell className="font-mono text-xs">{row.partNumber}</TableCell>
                           <TableCell className="font-mono text-xs text-muted-foreground">{row.date}</TableCell>
                           <TableCell className="font-mono text-xs">{row.heatcode}</TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className={`text-xs capitalize ${getEventClass(row.event)}`}>
-                              {row.event.replace(/_/g, ' ')}
-                            </Badge>
-                          </TableCell>
+                          <TableCell className="text-xs text-muted-foreground">{row.event.replace(/_/g, ' ')}</TableCell>
                           <TableCell className="text-xs text-muted-foreground">{row.btid}</TableCell>
                           <TableCell className="text-xs text-muted-foreground">{row.cycle}</TableCell>
                           <TableCell className="font-mono text-xs font-semibold">{row.loadNumber}</TableCell>
