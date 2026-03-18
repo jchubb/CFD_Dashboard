@@ -23,6 +23,8 @@ import {
   Clock,
   AlertCircle,
   Info,
+  Cog,
+  FileText,
 } from "lucide-react"
 import {
   Bar,
@@ -148,39 +150,38 @@ const SECTIONS_BOTTOM = [
 const RECENT_ACTIVITY = [
   {
     time: "14:32",
-    message: "Machine CNC-07 returned to online status",
-    severity: "success" as const,
-    icon: CheckCircle2,
+    message: "User generated a forecast",
+    tag: "Schedule Optimizer",
+    icon: Calendar,
+    iconColor: "text-primary",
   },
   {
     time: "13:18",
-    message: "Schedule adherence dropped below 85% threshold",
-    severity: "destructive" as const,
-    icon: AlertCircle,
+    message: "User updated BT547824 status to Offline",
+    tag: "Machine Updates",
+    icon: Cog,
+    iconColor: "text-muted-foreground",
   },
   {
     time: "12:45",
-    message: "Monthly plan for Feb 2026 imported successfully",
-    severity: "default" as const,
-    icon: Info,
+    message: "User updated BT54782 family to F100",
+    tag: "Machine Updates",
+    icon: Cog,
+    iconColor: "text-muted-foreground",
   },
   {
     time: "11:02",
-    message: "Maintenance scheduled for EDM-03 starting tomorrow",
-    severity: "warning" as const,
-    icon: AlertTriangle,
+    message: "User manually added qty 2x of PN 9S54110895G1S to Daily LE",
+    tag: "Data Ingestion",
+    icon: FileText,
+    iconColor: "text-muted-foreground",
   },
   {
     time: "09:30",
-    message: "Bull case scenario updated with new parameters",
-    severity: "default" as const,
-    icon: Info,
-  },
-  {
-    time: "08:15",
-    message: "Shift A handoff completed — 42 units produced",
-    severity: "success" as const,
-    icon: CheckCircle2,
+    message: "User uploaded Cell Events.csv",
+    tag: "Data Ingestion",
+    icon: FileText,
+    iconColor: "text-muted-foreground",
   },
 ]
 
@@ -485,26 +486,11 @@ export function ExecutiveOverviewContent() {
                     </span>
                   </div>
                   <div className="flex items-start gap-2 flex-1 min-w-0">
-                    <Icon
-                      className={cn(
-                        "h-4 w-4 shrink-0 mt-0.5",
-                        item.severity === "success" && "text-success",
-                        item.severity === "destructive" && "text-destructive",
-                        item.severity === "warning" && "text-warning",
-                        item.severity === "default" && "text-muted-foreground",
-                      )}
-                    />
+                    <Icon className={cn("h-4 w-4 shrink-0 mt-0.5", item.iconColor)} />
                     <span className="text-sm text-foreground leading-tight">{item.message}</span>
                   </div>
-                  <Badge
-                    variant={item.severity === "default" ? "secondary" : item.severity === "success" ? "outline" : item.severity}
-                    className={cn(
-                      "shrink-0 text-[10px] font-mono uppercase",
-                      item.severity === "success" && "border-success/40 text-success bg-success/5",
-                      item.severity === "warning" && "border-warning/40 text-warning bg-warning/5",
-                    )}
-                  >
-                    {item.severity === "destructive" ? "Critical" : item.severity === "warning" ? "Warning" : "Info"}
+                  <Badge variant="secondary" className="shrink-0 text-[10px] font-mono uppercase">
+                    {item.tag}
                   </Badge>
                 </div>
               )
