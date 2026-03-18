@@ -108,7 +108,7 @@ const SECTIONS_TOP = [
     bgColor: "bg-chart-1/10",
     metrics: [
       { label: "Next Day Schedule", value: "145 units" },
-      { label: "Next Day Loads", value: "61 loads", positive: true },
+      { label: "Next Day Loads", value: "61 loads" },
       { label: "Monthly Plan", value: "On Track", positive: true },
     ],
   },
