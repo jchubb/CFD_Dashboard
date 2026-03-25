@@ -550,7 +550,7 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
                                             <p className="text-sm font-semibold">Adjust LE for {row.partNumber}</p>
                                             <p className="text-xs text-muted-foreground">Base LE: {baseValue}</p>
                                           </div>
-                                          <div className="space-y-2 grid grid-cols-2 gap-3">
+                                          <div className="space-y-1 grid grid-cols-2 gap-3">
                                             <div className="col-span-2 flex items-center gap-2">
                                               <Label className="w-24 text-xs">Rework Qty</Label>
                                               <Input
