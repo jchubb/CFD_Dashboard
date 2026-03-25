@@ -176,10 +176,11 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
   const [isUploadHovered, setIsUploadHovered] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [editingRowId, setEditingRowId] = useState<string | null>(null)
-  const [adjustments, setAdjustments] = useState<{ rework: string; hotJob: string; manual: string }>({
+  const [adjustments, setAdjustments] = useState<{ rework: string; hotJob: string; manual: string; manualReason: string }>({
     rework: "0",
     hotJob: "0",
     manual: "0",
+    manualReason: "",
   })
   const [openPopoverId, setOpenPopoverId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -284,7 +285,7 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
 
   const handleOpenAdjustment = useCallback((row: DailyLERow) => {
     setEditingRowId(row.id)
-    setAdjustments({ rework: "0", hotJob: "0", manual: "0" })
+    setAdjustments({ rework: "0", hotJob: "0", manual: "0", manualReason: "" })
     setOpenPopoverId(row.id)
   }, [])
 
@@ -303,13 +304,13 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
 
     setOpenPopoverId(null)
     setEditingRowId(null)
-    setAdjustments({ rework: "0", hotJob: "0", manual: "0" })
+    setAdjustments({ rework: "0", hotJob: "0", manual: "0", manualReason: "" })
   }, [adjustments, setCsvData])
 
   const handleCancelAdjustment = useCallback(() => {
     setOpenPopoverId(null)
     setEditingRowId(null)
-    setAdjustments({ rework: "0", hotJob: "0", manual: "0" })
+    setAdjustments({ rework: "0", hotJob: "0", manual: "0", manualReason: "" })
   }, [])
 
   const dayCount = csvData[0]?.dailyQty.length ?? 0
@@ -575,6 +576,16 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
                                                 className="h-8 text-xs font-mono"
                                                 value={adjustments.manual}
                                                 onChange={(e) => setAdjustments(prev => ({ ...prev, manual: e.target.value }))}
+                                              />
+                                            </div>
+                                            <div className="flex items-start gap-2">
+                                              <Label className="w-20 text-xs pt-2">Reason</Label>
+                                              <Input
+                                                type="text"
+                                                placeholder="Optional reason for manual adjustment"
+                                                className="h-8 text-xs flex-1"
+                                                value={adjustments.manualReason}
+                                                onChange={(e) => setAdjustments(prev => ({ ...prev, manualReason: e.target.value }))}
                                               />
                                             </div>
                                           </div>
