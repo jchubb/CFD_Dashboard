@@ -7,6 +7,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Label } from "@/components/ui/label"
+import {
   Table,
   TableBody,
   TableCell,
@@ -170,8 +176,12 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
   const [isUploadHovered, setIsUploadHovered] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
   const [editingRowId, setEditingRowId] = useState<string | null>(null)
-  const [editingValue, setEditingValue] = useState<string>("")
-  const editInputRef = useRef<HTMLInputElement>(null)
+  const [adjustments, setAdjustments] = useState<{ rework: string; hotJob: string; manual: string }>({
+    rework: "0",
+    hotJob: "0",
+    manual: "0",
+  })
+  const [openPopoverId, setOpenPopoverId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const parseCSV = useCallback((text: string) => {
@@ -272,31 +282,35 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
     URL.revokeObjectURL(url)
   }, [csvData, selectedMonth])
 
-  const handleDoubleClickLE = useCallback((row: DailyLERow) => {
-    const leIdx = (row.dailyQty.length ?? 1) - 1
+  const handleOpenAdjustment = useCallback((row: DailyLERow) => {
     setEditingRowId(row.id)
-    setEditingValue(String(row.dailyQty[leIdx]))
-    setTimeout(() => editInputRef.current?.select(), 0)
+    setAdjustments({ rework: "0", hotJob: "0", manual: "0" })
+    setOpenPopoverId(row.id)
   }, [])
 
-  const commitEdit = useCallback((rowId: string) => {
-    const parsed = parseInt(editingValue)
-    if (!isNaN(parsed)) {
-      setCsvData(prev => prev.map(r => {
-        if (r.id !== rowId) return r
-        const updated = [...r.dailyQty]
-        updated[updated.length - 1] = parsed
-        return { ...r, dailyQty: updated }
-      }))
-    }
-    setEditingRowId(null)
-    setEditingValue("")
-  }, [editingValue])
+  const handleApplyAdjustment = useCallback((rowId: string, baseValue: number) => {
+    const rework = parseInt(adjustments.rework) || 0
+    const hotJob = parseInt(adjustments.hotJob) || 0
+    const manual = parseInt(adjustments.manual) || 0
+    const newValue = baseValue + rework + hotJob + manual
 
-  const handleEditKeyDown = useCallback((e: React.KeyboardEvent, rowId: string) => {
-    if (e.key === "Enter") commitEdit(rowId)
-    if (e.key === "Escape") { setEditingRowId(null); setEditingValue("") }
-  }, [commitEdit])
+    setCsvData(prev => prev.map(r => {
+      if (r.id !== rowId) return r
+      const updated = [...r.dailyQty]
+      updated[updated.length - 1] = newValue
+      return { ...r, dailyQty: updated }
+    }))
+
+    setOpenPopoverId(null)
+    setEditingRowId(null)
+    setAdjustments({ rework: "0", hotJob: "0", manual: "0" })
+  }, [adjustments, setCsvData])
+
+  const handleCancelAdjustment = useCallback(() => {
+    setOpenPopoverId(null)
+    setEditingRowId(null)
+    setAdjustments({ rework: "0", hotJob: "0", manual: "0" })
+  }, [])
 
   const dayCount = csvData[0]?.dailyQty.length ?? 0
 
@@ -502,25 +516,103 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
                             </TableCell>
                             {row.dailyQty.map((qty, di) => {
                               const isLE = di === dayCount - 1
-                              const isEditing = isLE && editingRowId === row.id
+                              const baseValue = qty
+                              const rework = parseInt(adjustments.rework) || 0
+                              const hotJob = parseInt(adjustments.hotJob) || 0
+                              const manual = parseInt(adjustments.manual) || 0
+                              const previewValue = openPopoverId === row.id ? baseValue + rework + hotJob + manual : qty
+
+                              if (isLE) {
+                                return (
+                                  <TableCell
+                                    key={di}
+                                    className="font-mono text-xs text-right tabular-nums bg-amber-50 font-semibold text-amber-800 p-0"
+                                  >
+                                    <Popover
+                                      open={openPopoverId === row.id}
+                                      onOpenChange={(open) => {
+                                        if (open) handleOpenAdjustment(row)
+                                        else handleCancelAdjustment()
+                                      }}
+                                    >
+                                      <PopoverTrigger asChild>
+                                        <button
+                                          className="w-full h-full px-4 py-2 text-right hover:bg-amber-100 transition-colors cursor-pointer"
+                                          title="Click to adjust LE"
+                                        >
+                                          {previewValue}
+                                        </button>
+                                      </PopoverTrigger>
+                                      <PopoverContent className="w-72" align="end">
+                                        <div className="space-y-3">
+                                          <div>
+                                            <p className="text-sm font-semibold">Adjust LE for {row.partNumber}</p>
+                                            <p className="text-xs text-muted-foreground">Base LE: {baseValue}</p>
+                                          </div>
+                                          <div className="space-y-2">
+                                            <div className="flex items-center gap-2">
+                                              <Label className="w-20 text-xs">Rework Qty</Label>
+                                              <Input
+                                                type="number"
+                                                className="h-8 text-xs font-mono"
+                                                value={adjustments.rework}
+                                                onChange={(e) => setAdjustments(prev => ({ ...prev, rework: e.target.value }))}
+                                              />
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <Label className="w-20 text-xs">Hot_Job Qty</Label>
+                                              <Input
+                                                type="number"
+                                                className="h-8 text-xs font-mono"
+                                                value={adjustments.hotJob}
+                                                onChange={(e) => setAdjustments(prev => ({ ...prev, hotJob: e.target.value }))}
+                                              />
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <Label className="w-20 text-xs">Manual Qty</Label>
+                                              <Input
+                                                type="number"
+                                                className="h-8 text-xs font-mono"
+                                                value={adjustments.manual}
+                                                onChange={(e) => setAdjustments(prev => ({ ...prev, manual: e.target.value }))}
+                                              />
+                                            </div>
+                                          </div>
+                                          <div className="pt-2 border-t">
+                                            <p className="text-xs text-muted-foreground mb-2">
+                                              New LE = {baseValue} + {rework} + {hotJob} + {manual} = <span className="font-semibold text-foreground">{baseValue + rework + hotJob + manual}</span>
+                                            </p>
+                                            <div className="flex gap-2">
+                                              <Button
+                                                size="sm"
+                                                className="flex-1 h-8 text-xs"
+                                                onClick={() => handleApplyAdjustment(row.id, baseValue)}
+                                              >
+                                                Apply
+                                              </Button>
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                className="h-8 text-xs"
+                                                onClick={handleCancelAdjustment}
+                                              >
+                                                Cancel
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </PopoverContent>
+                                    </Popover>
+                                  </TableCell>
+                                )
+                              }
+
                               return (
                                 <TableCell
                                   key={di}
-                                  className={`font-mono text-xs text-right tabular-nums ${isLE ? "bg-amber-50 font-semibold text-amber-800" : ""}`}
-                                  onDoubleClick={isLE ? () => handleDoubleClickLE(row) : undefined}
-                                  title={isLE ? "Double-click to edit" : undefined}
+                                  className="font-mono text-xs text-right tabular-nums"
                                 >
-                                  {isEditing ? (
-                                    <input
-                                      ref={editInputRef}
-                                      type="number"
-                                      value={editingValue}
-                                      onChange={e => setEditingValue(e.target.value)}
-                                      onBlur={() => commitEdit(row.id)}
-                                      onKeyDown={e => handleEditKeyDown(e, row.id)}
-                                      className="w-14 h-6 text-xs font-mono text-right bg-white border border-amber-400 rounded px-1 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                                    />
-                                  ) : qty}
+                                  {qty}
                                 </TableCell>
                               )
                             })}
