@@ -544,7 +544,7 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
                                           {previewValue}
                                         </button>
                                       </PopoverTrigger>
-                                      <PopoverContent className="w-72" align="end">
+                                      <PopoverContent className="w-96" align="end">
                                         <div className="space-y-3">
                                           <div>
                                             <p className="text-sm font-semibold">Adjust LE for {row.partNumber}</p>
@@ -579,7 +579,7 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
                                               />
                                             </div>
                                             <div className="flex items-start gap-2">
-                                              <Label className="w-20 text-xs pt-2">Reason</Label>
+                                              <Label className="w-20 text-xs pt-2">Manual Reason</Label>
                                               <Input
                                                 type="text"
                                                 placeholder="Optional reason for manual adjustment"
