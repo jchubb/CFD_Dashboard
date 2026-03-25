@@ -573,13 +573,13 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
                                               <Label className="w-20 text-xs">Manual Qty</Label>
                                               <Input
                                                 type="number"
-                                                className="h-8 text-xs font-mono"
+                                                className="h-8 text-xs font-mono flex-1"
                                                 value={adjustments.manual}
                                                 onChange={(e) => setAdjustments(prev => ({ ...prev, manual: e.target.value }))}
                                               />
                                             </div>
-                                            <div className="flex items-start gap-2">
-                                              <Label className="w-20 text-xs pt-2">Manual Reason</Label>
+                                            <div className="flex items-center gap-2">
+                                              <Label className="w-20 text-xs">Manual Reason</Label>
                                               <Input
                                                 type="text"
                                                 placeholder="Optional reason for manual adjustment"
