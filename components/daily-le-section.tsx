@@ -555,7 +555,7 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
                                               <Label className="w-20 text-xs">Rework Qty</Label>
                                               <Input
                                                 type="number"
-                                                className="h-8 text-xs font-mono"
+                                                className="h-8 text-xs font-mono flex-1"
                                                 value={adjustments.rework}
                                                 onChange={(e) => setAdjustments(prev => ({ ...prev, rework: e.target.value }))}
                                               />
@@ -564,7 +564,7 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
                                               <Label className="w-20 text-xs">Hot_Job Qty</Label>
                                               <Input
                                                 type="number"
-                                                className="h-8 text-xs font-mono"
+                                                className="h-8 text-xs font-mono flex-1"
                                                 value={adjustments.hotJob}
                                                 onChange={(e) => setAdjustments(prev => ({ ...prev, hotJob: e.target.value }))}
                                               />
