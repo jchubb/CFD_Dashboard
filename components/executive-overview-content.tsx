@@ -44,7 +44,7 @@ const EXEC_KPIS = [
     value: "523",
     subtitle: "/ 950 units",
     progress: 55,
-    trend: { value: "+8.3% vs prior month", direction: "up" as const },
+    trend: { value: "+8.3% vs target", direction: "up" as const },
     variant: "default" as const,
     icon: <Target className="h-4 w-4 text-muted-foreground" />,
   },
@@ -57,9 +57,9 @@ const EXEC_KPIS = [
   },
   {
     title: "Machine Availability",
-    value: "91.2%",
-    subtitle: "18 of 20 online",
-    trend: { value: "-0.8% from last week", direction: "down" as const },
+    value: "95.0%",
+    subtitle: "76 of 80 online",
+    trend: { value: "-3.0% vs target", direction: "down" as const },
     variant: "default" as const,
     icon: <Activity className="h-4 w-4 text-muted-foreground" />,
   },
@@ -67,7 +67,7 @@ const EXEC_KPIS = [
     title: "User Adoption",
     value: "7/8",
     subtitle: "days forecast generated",
-    trend: { value: "+12.5% vs prior month", direction: "up" as const },
+    trend: { value: "+12.5% vs target", direction: "up" as const },
     variant: "default" as const,
     icon: <Users className="h-4 w-4 text-muted-foreground" />,
   },
@@ -406,57 +406,57 @@ export function ExecutiveOverviewContent() {
 
       {/* Section D: Operations Dashboard & Machine Status — hidden */}
       {false && (
-      <div className="grid gap-4 md:grid-cols-2">
-        {SECTIONS_BOTTOM.map((section) => {
-          const Icon = section.icon
-          return (
-            <Card key={section.id} className="border-2 border-border bg-card group">
-              <CardContent className="flex flex-col gap-4 pt-5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={cn("flex items-center justify-center h-9 w-9 rounded-md", section.bgColor)}>
-                      <Icon className={cn("h-5 w-5", section.color)} />
+        <div className="grid gap-4 md:grid-cols-2">
+          {SECTIONS_BOTTOM.map((section) => {
+            const Icon = section.icon
+            return (
+              <Card key={section.id} className="border-2 border-border bg-card group">
+                <CardContent className="flex flex-col gap-4 pt-5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={cn("flex items-center justify-center h-9 w-9 rounded-md", section.bgColor)}>
+                        <Icon className={cn("h-5 w-5", section.color)} />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-foreground">{section.name}</h3>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="text-sm font-semibold text-foreground">{section.name}</h3>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      asChild
+                      className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      <Link href={section.href}>
+                        Open
+                        <ArrowRight className="h-3.5 w-3.5" />
+                      </Link>
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    asChild
-                    className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    <Link href={section.href}>
-                      Open
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                  </Button>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  {section.metrics.map((metric) => (
-                    <div key={metric.label} className="flex flex-col gap-0.5">
-                      <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
-                        {metric.label}
-                      </span>
-                      <span
-                        className={cn(
-                          "font-mono text-sm font-medium",
-                          metric.negative && "text-destructive",
-                          metric.positive && "text-success",
-                          !metric.negative && !metric.positive && "text-foreground",
-                        )}
-                      >
-                        {metric.value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )
-        })}
-      </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    {section.metrics.map((metric) => (
+                      <div key={metric.label} className="flex flex-col gap-0.5">
+                        <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                          {metric.label}
+                        </span>
+                        <span
+                          className={cn(
+                            "font-mono text-sm font-medium",
+                            metric.negative && "text-destructive",
+                            metric.positive && "text-success",
+                            !metric.negative && !metric.positive && "text-foreground",
+                          )}
+                        >
+                          {metric.value}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
       )}
 
       {/* Section D: Recent Activity Feed */}
