@@ -285,7 +285,14 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
 
   const handleOpenAdjustment = useCallback((row: DailyLERow) => {
     setEditingRowId(row.id)
-    setAdjustments({ rework: "0", hotJob: "0", manual: "0", manualReason: "" })
+    // Load existing adjustments if they exist, otherwise default to 0
+    const existing = row.adjustments
+    setAdjustments({
+      rework: String(existing?.rework ?? 0),
+      hotJob: String(existing?.hotJob ?? 0),
+      manual: String(existing?.manual ?? 0),
+      manualReason: existing?.manualReason ?? "",
+    })
     setOpenPopoverId(row.id)
   }, [])
 
@@ -299,7 +306,16 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
       if (r.id !== rowId) return r
       const updated = [...r.dailyQty]
       updated[updated.length - 1] = newValue
-      return { ...r, dailyQty: updated }
+      return {
+        ...r,
+        dailyQty: updated,
+        adjustments: {
+          rework,
+          hotJob,
+          manual,
+          manualReason: adjustments.manualReason,
+        },
+      }
     }))
 
     setOpenPopoverId(null)
@@ -517,7 +533,9 @@ export function DailyLESection({ selectedMonth = "January 2024" }: DailyLESectio
                             </TableCell>
                             {row.dailyQty.map((qty, di) => {
                               const isLE = di === dayCount - 1
-                              const baseValue = qty
+                              // Base value is the qty minus any existing adjustments
+                              const existingAdj = row.adjustments
+                              const baseValue = qty - (existingAdj?.rework ?? 0) - (existingAdj?.hotJob ?? 0) - (existingAdj?.manual ?? 0)
                               const rework = parseInt(adjustments.rework) || 0
                               const hotJob = parseInt(adjustments.hotJob) || 0
                               const manual = parseInt(adjustments.manual) || 0

@@ -45,6 +45,12 @@ export interface DailyLERow {
   id: string
   partNumber: string
   dailyQty: number[]
+  adjustments?: {
+    rework: number
+    hotJob: number
+    manual: number
+    manualReason: string
+  }
 }
 
 // Shared type for available WIP rows
