@@ -7,7 +7,7 @@ const geist = Geist({ subsets: ["latin"], variable: "--font-geist-sans" })
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono" })
 
 export const metadata: Metadata = {
-  title: "Operations Dashboard | Manufacturing Control Center",
+  title: "CFD Scheduling | Manufacturing Control Center",
   description: "High-density operations dashboard for manufacturing schedule management and throughput monitoring",
   generator: "v0.app",
 }

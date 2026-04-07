@@ -1,5 +1,6 @@
 "use client"
 
+import React from "react"
 import { useState, useMemo, useRef, useCallback } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -21,6 +22,11 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import {
   Settings2,
   Activity,
   Power,
@@ -30,18 +36,19 @@ import {
   Wrench,
   Sparkles,
   Upload,
+  Calendar,
+  Trash2,
 } from "lucide-react"
 
-// Part family color definitions (consistent with scheduling-content.tsx)
-const FAMILY_COLORS: Record<string, { label: string; bg: string; border: string; text: string; dot: string }> = {
-  F135:     { label: "F135",     bg: "bg-blue-50",    border: "border-blue-300",    text: "text-blue-700",    dot: "bg-blue-500" },
-  GTF:      { label: "GTF",      bg: "bg-purple-50",  border: "border-purple-300",  text: "text-purple-700",  dot: "bg-purple-500" },
-  "LEAP-1A":{ label: "LEAP-1A",  bg: "bg-emerald-50", border: "border-emerald-300", text: "text-emerald-700", dot: "bg-emerald-500" },
-  GEnx:     { label: "GEnx",     bg: "bg-amber-50",   border: "border-amber-300",   text: "text-amber-700",   dot: "bg-amber-500" },
-  CFM56:    { label: "CFM56",    bg: "bg-gray-50",    border: "border-gray-300",    text: "text-gray-700",    dot: "bg-gray-400" },
-}
-
 type MachineStatus = "online" | "offline" | "maintenance"
+
+interface MaintenanceDowntime {
+  id: string
+  startDate: string
+  startTime: string
+  endDate: string
+  endTime: string
+}
 
 interface Machine {
   id: string
@@ -52,7 +59,18 @@ interface Machine {
   overrideEnabled: boolean | null  // null = follow real-time, true/false = manual
   assignedFamily: string
   utilization: number              // 0-100
-  hoursToday: number
+  hoursToday: number // unused in UI
+}
+
+// ------------------------------------------------------------------
+// Family color mapping
+// ------------------------------------------------------------------
+const FAMILY_COLORS: Record<string, { label: string; border: string; text: string; bg: string; dot: string }> = {
+  F135: { label: "F135", border: "border-gray-500", text: "text-gray-700", bg: "bg-gray-50", dot: "bg-gray-500" },
+  GTF: { label: "GTF", border: "border-green-300", text: "text-green-700", bg: "bg-green-50", dot: "bg-green-500" },
+  F100: { label: "F100", border: "border-blue-300", text: "text-blue-700", bg: "bg-blue-50", dot: "bg-blue-500" },
+  PWC: { label: "PWC", border: "border-rose-300", text: "text-rose-700", bg: "bg-rose-50", dot: "bg-rose-500" },
+  Legacy: { label: "Legacy", border: "border-amber-300", text: "text-amber-700", bg: "bg-amber-50", dot: "bg-amber-500" },
 }
 
 // ------------------------------------------------------------------
@@ -60,18 +78,18 @@ interface Machine {
 // ------------------------------------------------------------------
 function generateMockMachines(): Machine[] {
   const sections = [
-    { id: 1, name: "Compressor", families: ["F135","F135","GTF","GTF","LEAP-1A","LEAP-1A","GEnx","CFM56"] },
-    { id: 2, name: "Turbine",    families: ["F135","GTF","GTF","LEAP-1A","LEAP-1A","GEnx","GEnx","CFM56"] },
-    { id: 3, name: "Combustor",  families: ["F135","F135","GTF","LEAP-1A","GEnx","GEnx","CFM56","CFM56"] },
-    { id: 4, name: "Fan & Cases",families: ["F135","GTF","GTF","GTF","LEAP-1A","GEnx","CFM56","CFM56"] },
+    { id: 1, name: "Line 1", families: ["F135", "F135", "GTF", "GTF", "F100", "F100", "PWC", "Legacy"] },
+    { id: 2, name: "Line 2", families: ["F135", "GTF", "GTF", "F100", "F100", "PWC", "PWC", "Legacy"] },
+    { id: 3, name: "Line 3", families: ["F135", "F135", "GTF", "F100", "PWC", "PWC", "Legacy", "Legacy"] },
+    { id: 4, name: "Line 4", families: ["F135", "GTF", "GTF", "GTF", "F100", "PWC", "Legacy", "Legacy"] },
   ]
 
   // Simulated real-time statuses (some offline / maintenance for realism)
   const statusPatterns: MachineStatus[][] = [
-    ["online","online","online","online","online","offline","online","maintenance"],
-    ["online","online","maintenance","online","online","online","online","online"],
-    ["online","online","online","offline","online","online","online","online"],
-    ["online","offline","online","online","online","online","maintenance","online"],
+    ["online", "online", "online", "online", "online", "offline", "online", "maintenance"],
+    ["online", "online", "maintenance", "online", "online", "online", "online", "online"],
+    ["online", "online", "online", "offline", "online", "online", "online", "online"],
+    ["online", "offline", "online", "online", "online", "online", "maintenance", "online"],
   ]
 
   const machines: Machine[] = []
@@ -101,13 +119,31 @@ function generateMockMachines(): Machine[] {
   return machines
 }
 
-const SECTION_NAMES = ["Compressor", "Turbine", "Combustor", "Fan & Cases"]
+const SECTION_NAMES = ["Line 1", "Line 2", "Line 3", "Line 4"]
 
 // ------------------------------------------------------------------
 // Component
 // ------------------------------------------------------------------
 export function ParametersContent() {
   const [machines, setMachines] = useState<Machine[]>(generateMockMachines)
+  const [lineDowntimes, setLineDowntimes] = useState<Record<number, MaintenanceDowntime[]>>({
+    1: [],
+    2: [],
+    3: [],
+    4: [],
+  })
+  const [openPopovers, setOpenPopovers] = useState<Record<number, boolean>>({
+    1: false,
+    2: false,
+    3: false,
+    4: false,
+  })
+  const [newDowntime, setNewDowntime] = useState<Record<number, MaintenanceDowntime>>({
+    1: { id: "", startDate: "", startTime: "", endDate: "", endTime: "" },
+    2: { id: "", startDate: "", startTime: "", endDate: "", endTime: "" },
+    3: { id: "", startDate: "", startTime: "", endDate: "", endTime: "" },
+    4: { id: "", startDate: "", startTime: "", endDate: "", endTime: "" },
+  })
 
   // Derived counts
   const summary = useMemo(() => {
@@ -156,9 +192,9 @@ export function ParametersContent() {
     const demandWeights: Record<string, number> = {
       "F135": 0.28,
       "GTF": 0.25,
-      "LEAP-1A": 0.22,
-      "GEnx": 0.15,
-      "CFM56": 0.10,
+      "F100": 0.22,
+      "PWC": 0.15,
+      "Legacy": 0.10,
     }
 
     const families = Object.keys(demandWeights)
@@ -247,40 +283,71 @@ export function ParametersContent() {
   const sectionMachines = (sectionId: number) =>
     machines.filter(m => m.sectionId === sectionId)
 
+  function addDowntime(sectionId: number) {
+    const dt = newDowntime[sectionId]
+    if (!dt.startDate || !dt.startTime || !dt.endDate || !dt.endTime) return
+
+    const id = `dt-${Date.now()}`
+    setLineDowntimes(prev => ({
+      ...prev,
+      [sectionId]: [...(prev[sectionId] || []), { ...dt, id }],
+    }))
+    setNewDowntime(prev => ({
+      ...prev,
+      [sectionId]: { id: "", startDate: "", startTime: "", endDate: "", endTime: "" },
+    }))
+    setOpenPopovers(prev => ({ ...prev, [sectionId]: false }))
+  }
+
+  function deleteDowntime(sectionId: number, id: string) {
+    setLineDowntimes(prev => ({
+      ...prev,
+      [sectionId]: prev[sectionId].filter(dt => dt.id !== id),
+    }))
+  }
+
+  function formatDowntimeDisplay(dt: MaintenanceDowntime): string {
+    const start = new Date(`${dt.startDate}T${dt.startTime}`)
+    const end = new Date(`${dt.endDate}T${dt.endTime}`)
+    const startStr = start.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    const startTime = start.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })
+    const endStr = end.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+    const endTime = end.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true })
+
+    if (dt.startDate === dt.endDate) {
+      return `${startStr}, ${startTime} - ${endTime}`
+    }
+    return `${startStr}, ${startTime} - ${endStr}, ${endTime}`
+  }
+
   return (
     <div className="flex flex-col gap-6 p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Parameters Configuration</h1>
-          <p className="text-sm text-muted-foreground">Machine status, overrides, and part-family allocation across 4 plant sections</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Badge variant="outline" className="gap-1.5 font-mono text-xs border-emerald-300 text-emerald-700 bg-emerald-50">
-            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500" />
-            {summary.online} Online
+      {/* Machine status summary badges */}
+      <div className="flex items-center gap-3">
+        <Badge variant="outline" className="gap-1.5 font-mono text-xs border-blue-300 text-blue-700 bg-blue-50">
+          <span className="inline-block w-2 h-2 rounded-full bg-blue-500" />
+          {summary.online} Online
+        </Badge>
+        <Badge variant="outline" className="gap-1.5 font-mono text-xs border-rose-300 text-rose-700 bg-rose-50">
+          <span className="inline-block w-2 h-2 rounded-full bg-rose-500" />
+          {summary.offline} Offline
+        </Badge>
+        <Badge variant="outline" className="gap-1.5 font-mono text-xs border-rose-300 text-rose-700 bg-rose-50">
+          <span className="inline-block w-2 h-2 rounded-full bg-rose-500" />
+          {summary.maint} Maint
+        </Badge>
+        {summary.overrides > 0 && (
+          <Badge variant="outline" className="gap-1.5 font-mono text-xs border-gray-300 text-gray-700 bg-gray-50">
+            {summary.overrides} Override{summary.overrides > 1 ? "s" : ""}
           </Badge>
-          <Badge variant="outline" className="gap-1.5 font-mono text-xs border-red-300 text-red-700 bg-red-50">
-            <span className="inline-block w-2 h-2 rounded-full bg-red-500" />
-            {summary.offline} Offline
-          </Badge>
-          <Badge variant="outline" className="gap-1.5 font-mono text-xs border-amber-300 text-amber-700 bg-amber-50">
-            <span className="inline-block w-2 h-2 rounded-full bg-amber-500" />
-            {summary.maint} Maint
-          </Badge>
-          {summary.overrides > 0 && (
-            <Badge variant="outline" className="gap-1.5 font-mono text-xs border-blue-300 text-blue-700 bg-blue-50">
-              {summary.overrides} Override{summary.overrides > 1 ? "s" : ""}
-            </Badge>
-          )}
-        </div>
+        )}
       </div>
 
       {/* Part Family Legend */}
       <Card className="border border-border">
         <CardHeader className="py-3">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Part Family Color Legend</CardTitle>
+            <CardTitle className="text-xs font-medium uppercase tracking-wide text-muted-foreground">HT Asset Overview</CardTitle>
             <div className="flex items-center gap-2">
               {/* Optimize Allocation Button */}
               <TooltipProvider>
@@ -300,16 +367,16 @@ export function ParametersContent() {
                     <div className="space-y-2">
                       <p className="text-sm font-semibold">Optimize Allocation</p>
                       <p className="text-xs text-muted-foreground">
-                        Automatically redistributes part family assignments across all machines based on monthly demand targets and optimized mix ratios.
+                        Automatically roseistributes part family assignments across all machines based on monthly demand targets and optimized mix ratios.
                       </p>
                       <div className="text-xs border-t pt-2 space-y-1">
                         <p className="font-medium text-muted-foreground">Current Demand Weights:</p>
                         <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
                           <span>F135: <span className="font-mono font-semibold">28%</span></span>
                           <span>GTF: <span className="font-mono font-semibold">25%</span></span>
-                          <span>LEAP-1A: <span className="font-mono font-semibold">22%</span></span>
-                          <span>GEnx: <span className="font-mono font-semibold">15%</span></span>
-                          <span>CFM56: <span className="font-mono font-semibold">10%</span></span>
+                          <span>F100: <span className="font-mono font-semibold">22%</span></span>
+                          <span>PWC: <span className="font-mono font-semibold">15%</span></span>
+                          <span>Legacy: <span className="font-mono font-semibold">10%</span></span>
                         </div>
                       </div>
                     </div>
@@ -338,19 +405,22 @@ export function ParametersContent() {
                         Upload a .csv file to manually assign part families to specific machines, overriding the current allocation.
                       </p>
                       <div className="text-xs border-t pt-2 space-y-1">
-                        <p className="font-medium text-muted-foreground">Required CSV Schema:</p>
+                        <p className="font-medium text-muted-foreground">Requirose CSV Schema:</p>
                         <div className="bg-muted/50 rounded p-2 font-mono text-[11px] space-y-0.5">
-                          <p className="text-muted-foreground">machine_id,assigned_family</p>
+                          <p className="text-muted-foreground">BT_id,assigned_family,status</p>
                           <p>S1-A1,F135</p>
                           <p>S1-A2,GTF</p>
-                          <p>S2-B3,LEAP-1A</p>
+                          <p>S2-B3,F100</p>
                           <p className="text-muted-foreground">...</p>
                         </div>
-                        <p className="text-muted-foreground pt-1">
-                          Valid families: <span className="font-mono">F135, GTF, LEAP-1A, GEnx, CFM56</span>
-                        </p>
                         <p className="text-muted-foreground">
                           Machine IDs: <span className="font-mono">S[1-4]-[A|B][1-4]</span>
+                        </p>
+                        <p className="text-muted-foreground pt-1">
+                          Valid families: <span className="font-mono">F135, GTF, F100, PWC, Legacy</span>
+                        </p>
+                        <p className="text-muted-foreground pt-1">
+                          Statuses: <span className="font-mono"> 0 (off), 1 (on), 2 (maint)</span>
                         </p>
                       </div>
                     </div>
@@ -367,8 +437,68 @@ export function ParametersContent() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pb-3 pt-0">
-          <div className="flex flex-wrap items-center gap-4">
+        <CardContent className="pb-4 pt-0 flex flex-col gap-4">
+
+          {/* Machine map: 4 sections × 2 columns each = 8 columns total */}
+          <div className="grid grid-cols-4 gap-x-6 gap-y-0">
+            {[1, 2, 3, 4].map(sectionId => {
+              const mList = machines.filter(m => m.sectionId === sectionId)
+              const groupA = mList.filter(m => m.group === "A")
+              const groupB = mList.filter(m => m.group === "B")
+              return (
+                <div key={sectionId} className="flex flex-col gap-2">
+                  {/* Section title — centerose */}
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide text-center">
+                    Line {sectionId}
+                  </p>
+                  {/* Two columns: Oven (A) + Quench (B) */}
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {/* Column headers */}
+                    <p className="text-[10px] text-muted-foreground/70 text-center">Oven</p>
+                    <p className="text-[10px] text-muted-foreground/70 text-center">Quench</p>
+                    {/* Machine chips interleaved row by row */}
+                    {groupA.map((ma, i) => {
+                      const mb = groupB[i]
+                      const renderChip = (m: Machine) => {
+                        const fc = FAMILY_COLORS[m.assignedFamily] ?? FAMILY_COLORS.Legacy
+                        const eff = getEffectiveStatus(m)
+                        const isDown = eff !== "online"
+                        return (
+                          <TooltipProvider key={m.id}>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div
+                                  className={`flex items-center justify-center rounded px-1 py-1.5 border text-[10px] font-mono font-semibold leading-none select-none transition-colors ${isDown
+                                    ? "bg-transparent border-border/30 text-muted-foreground/30"
+                                    : `${fc.bg} ${fc.border} ${fc.text}`
+                                    }`}
+                                >
+                                  {m.name}
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent side="top" className="bg-white border border-border shadow-lg text-foreground">
+                                <p className="text-xs font-semibold">{m.id}</p>
+                                <p className="text-[11px] text-muted-foreground">{m.assignedFamily} · {eff}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )
+                      }
+                      return (
+                        <React.Fragment key={ma.id}>
+                          {renderChip(ma)}
+                          {mb && renderChip(mb)}
+                        </React.Fragment>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Color key — below machine map, centerose */}
+          <div className="flex flex-wrap justify-center items-center gap-4 border-t border-border pt-3">
             {Object.values(FAMILY_COLORS).map(fc => (
               <div key={fc.label} className="flex items-center gap-2">
                 <span className={`inline-block w-3 h-3 rounded-full ${fc.dot}`} />
@@ -378,11 +508,12 @@ export function ParametersContent() {
               </div>
             ))}
           </div>
+
         </CardContent>
       </Card>
 
       {/* Sections grid */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
+      <div className="grid grid-cols-1 gap-5">
         {[1, 2, 3, 4].map(sectionId => {
           const sectionName = SECTION_NAMES[sectionId - 1]
           const mList = sectionMachines(sectionId)
@@ -397,20 +528,129 @@ export function ParametersContent() {
                   <div className="flex items-center gap-2">
                     <Settings2 className="h-4 w-4 text-muted-foreground" />
                     <CardTitle className="text-sm font-semibold">
-                      Section {sectionId}: {sectionName}
+                      {sectionName}
                     </CardTitle>
+                    {/* Maintenance downtime scheduler — all lines */}
+                    {(
+                      <Popover open={openPopovers[sectionId]} onOpenChange={(open) => setOpenPopovers(prev => ({ ...prev, [sectionId]: open }))}>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 px-1.5 ml-1 gap-1"
+                                >
+                                  <Wrench className="h-3 w-3 text-muted-foreground" />
+                                  <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+                                </Button>
+                              </PopoverTrigger>
+                            </TooltipTrigger>
+                            <TooltipContent side="top" className="text-xs">
+                              Planned Maintenance
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        <PopoverContent className="w-80" align="start">
+                          <div className="space-y-3">
+                            <p className="text-sm font-semibold">Schedule Downtime</p>
+                            <div className="space-y-2">
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <label className="text-[11px] text-muted-foreground">Start Date</label>
+                                  <Input
+                                    type="date"
+                                    className="h-8 text-xs"
+                                    value={newDowntime[sectionId].startDate}
+                                    onChange={(e) => setNewDowntime(prev => ({
+                                      ...prev,
+                                      [sectionId]: { ...prev[sectionId], startDate: e.target.value }
+                                    }))}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-[11px] text-muted-foreground">Start Time</label>
+                                  <Input
+                                    type="time"
+                                    className="h-8 text-xs"
+                                    value={newDowntime[sectionId].startTime}
+                                    onChange={(e) => setNewDowntime(prev => ({
+                                      ...prev,
+                                      [sectionId]: { ...prev[sectionId], startTime: e.target.value }
+                                    }))}
+                                  />
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                  <label className="text-[11px] text-muted-foreground">End Date</label>
+                                  <Input
+                                    type="date"
+                                    className="h-8 text-xs"
+                                    value={newDowntime[sectionId].endDate}
+                                    onChange={(e) => setNewDowntime(prev => ({
+                                      ...prev,
+                                      [sectionId]: { ...prev[sectionId], endDate: e.target.value }
+                                    }))}
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-[11px] text-muted-foreground">End Time</label>
+                                  <Input
+                                    type="time"
+                                    className="h-8 text-xs"
+                                    value={newDowntime[sectionId].endTime}
+                                    onChange={(e) => setNewDowntime(prev => ({
+                                      ...prev,
+                                      [sectionId]: { ...prev[sectionId], endTime: e.target.value }
+                                    }))}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <Button
+                              size="sm"
+                              className="w-full h-8 text-xs"
+                              onClick={() => addDowntime(sectionId)}
+                            >
+                              Add Downtime
+                            </Button>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    )}
                   </div>
                   <Badge variant="secondary" className="font-mono text-xs">
                     {onlineCount}/8 online
                   </Badge>
                 </div>
+                {/* Display scheduled downtimes */}
+                {lineDowntimes[sectionId]?.length > 0 && (
+                  <div className="flex flex-col gap-1 mt-2">
+                    {[...lineDowntimes[sectionId]]
+                      .sort((a, b) => new Date(`${a.startDate}T${a.startTime}`).getTime() - new Date(`${b.startDate}T${b.startTime}`).getTime())
+                      .map(dt => (
+                        <div key={dt.id} className="flex items-center justify-between gap-1.5 bg-rose-50 border border-rose-200 rounded px-2 py-1">
+                          <span className="text-[11px] text-rose-900">{formatDowntimeDisplay(dt)}</span>
+                          <button
+                            onClick={() => deleteDowntime(sectionId, dt.id)}
+                            className="p-0.5 hover:bg-rose-100 rounded transition-colors shrink-0"
+                            title="Delete downtime"
+                          >
+                            <Trash2 className="h-3 w-3 text-rose-600" />
+                          </button>
+                        </div>
+                      ))}
+                  </div>
+                )}
               </CardHeader>
               <CardContent className="pb-4 pt-0">
                 <div className="grid grid-cols-2 gap-4">
                   {/* Group A */}
                   <div className="space-y-2">
                     <div className="flex items-center gap-1.5 mb-3">
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Group A</span>
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Oven</span>
                       <span className="flex-1 h-px bg-border" />
                     </div>
                     {groupA.map(machine => (
@@ -428,7 +668,7 @@ export function ParametersContent() {
                   {/* Group B */}
                   <div className="space-y-2 border-l border-dashed border-border pl-4">
                     <div className="flex items-center gap-1.5 mb-3">
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Group B</span>
+                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Quench</span>
                       <span className="flex-1 h-px bg-border" />
                     </div>
                     {groupB.map(machine => (
@@ -482,22 +722,21 @@ function MachineRow({
   onToggle: (id: string) => void
   onFamilyChange: (id: string, family: string) => void
 }) {
-  const fc = FAMILY_COLORS[machine.assignedFamily] ?? FAMILY_COLORS.CFM56
+  const fc = FAMILY_COLORS[machine.assignedFamily] ?? FAMILY_COLORS.Legacy
   const isOverridden = machine.overrideEnabled !== null
-  const statusIcon = effectiveStatus === "online" 
-    ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> 
-    : effectiveStatus === "maintenance" 
-      ? <Wrench className="h-3.5 w-3.5 text-amber-600" /> 
-      : <XCircle className="h-3.5 w-3.5 text-red-500" />
+  const statusIcon = effectiveStatus === "online"
+    ? <CheckCircle2 className="h-3.5 w-3.5 text-blue-600" />
+    : effectiveStatus === "maintenance"
+      ? <Wrench className="h-3.5 w-3.5 text-rose-600" />
+      : <XCircle className="h-3.5 w-3.5 text-rose-500" />
 
   return (
-    <div className={`flex items-center gap-3 rounded-lg border p-2.5 transition-colors ${
-      effectiveStatus === "online"
-        ? "border-emerald-200 bg-emerald-50/40"
-        : effectiveStatus === "maintenance"
-          ? "border-amber-200 bg-amber-50/40"
-          : "border-red-200 bg-red-50/40"
-    }`}>
+    <div className={`flex items-center gap-3 rounded-lg border p-2.5 transition-colors ${effectiveStatus === "online"
+      ? "border-blue-200 bg-blue-50/40"
+      : effectiveStatus === "maintenance"
+        ? "border-rose-200 bg-rose-50/40"
+        : "border-rose-200 bg-rose-50/40"
+      }`}>
       {/* Family color indicator */}
       <TooltipProvider>
         <Tooltip>
@@ -516,7 +755,7 @@ function MachineRow({
           {statusIcon}
           <span className="text-sm font-mono font-semibold text-foreground">{machine.id}</span>
           {isOverridden && (
-            <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 border-blue-300 text-blue-600 bg-blue-50 font-medium">
+            <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 border-gray-300 text-gray-600 bg-gray-50 font-medium">
               Override
             </Badge>
           )}
@@ -541,16 +780,11 @@ function MachineRow({
               ))}
             </SelectContent>
           </Select>
-          {effectiveStatus === "online" && (
-            <span className="text-[10px] text-muted-foreground font-mono">
-              {machine.utilization}% util | {machine.hoursToday}h
-            </span>
-          )}
           {effectiveStatus === "maintenance" && (
-            <span className="text-[10px] text-amber-600 font-medium">Scheduled maintenance</span>
+            <span className="text-[10px] text-rose-600 font-medium">Scheduled maintenance</span>
           )}
           {effectiveStatus === "offline" && (
-            <span className="text-[10px] text-red-600 font-medium">Inactive</span>
+            <span className="text-[10px] text-rose-600 font-medium">Inactive</span>
           )}
         </div>
       </div>
@@ -565,7 +799,7 @@ function MachineRow({
                 onCheckedChange={() => onToggle(machine.id)}
                 aria-label={`Toggle machine ${machine.id}`}
               />
-              <Power className={`h-3.5 w-3.5 ${effectiveStatus === "online" ? "text-emerald-600" : "text-muted-foreground"}`} />
+              <Power className={`h-3.5 w-3.5 ${effectiveStatus === "online" ? "text-blue-600" : "text-muted-foreground"}`} />
             </div>
           </TooltipTrigger>
           <TooltipContent side="top" className="bg-white border border-border shadow-lg text-foreground max-w-[200px]">
