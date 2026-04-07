@@ -276,7 +276,7 @@ export function OptimizedScheduleContent() {
             ))}
           </div>
 
-          {/* Search + Source legend */}
+          {/* Search */}
           <div className="flex items-center justify-between gap-4">
             <div className="relative w-64">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
@@ -286,19 +286,6 @@ export function OptimizedScheduleContent() {
                 onChange={e => setSearch(e.target.value)}
                 className="h-8 pl-8 text-xs"
               />
-            </div>
-
-            {/* Source legend */}
-            <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-              <span className="mr-1 font-medium">Source:</span>
-              {Object.values(SOURCE_STYLES).map(s => (
-                <span
-                  key={s.label}
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded border font-medium ${s.bg} ${s.border} ${s.text}`}
-                >
-                  {s.label}
-                </span>
-              ))}
             </div>
           </div>
 
@@ -312,12 +299,10 @@ export function OptimizedScheduleContent() {
                   <TableHead className="text-xs font-semibold">Heat</TableHead>
                   <TableHead className="text-xs font-semibold text-right w-[80px]">Quantity</TableHead>
                   <TableHead className="text-xs font-semibold text-right w-[70px]">Loads</TableHead>
-                  <TableHead className="text-xs font-semibold w-[160px]">Source</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map((r, i) => {
-                  const { plan, rollover, manual } = r.sourceSplit
                   return (
                     <TableRow key={r.partNumber + i} className="hover:bg-muted/30">
                       <TableCell className="font-mono text-xs">{r.partNumber}</TableCell>
@@ -329,32 +314,12 @@ export function OptimizedScheduleContent() {
                       <TableCell className="text-xs text-muted-foreground">{r.description}</TableCell>
                       <TableCell className="font-mono text-xs text-right font-medium">{r.quantity}</TableCell>
                       <TableCell className="font-mono text-xs text-right font-medium">{r.loads}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1 flex-wrap">
-                          <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border text-[11px] font-medium ${SOURCE_STYLES.plan.bg} ${SOURCE_STYLES.plan.border} ${SOURCE_STYLES.plan.text}`}>
-                            <span className="font-mono">{plan}</span>
-                            <span className="opacity-70">P</span>
-                          </span>
-                          {rollover > 0 && (
-                            <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border text-[11px] font-medium ${SOURCE_STYLES.rollover.bg} ${SOURCE_STYLES.rollover.border} ${SOURCE_STYLES.rollover.text}`}>
-                              <span className="font-mono">{rollover}</span>
-                              <span className="opacity-70">R</span>
-                            </span>
-                          )}
-                          {manual > 0 && (
-                            <span className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded border text-[11px] font-medium ${SOURCE_STYLES.manual.bg} ${SOURCE_STYLES.manual.border} ${SOURCE_STYLES.manual.text}`}>
-                              <span className="font-mono">{manual}</span>
-                              <span className="opacity-70">M</span>
-                            </span>
-                          )}
-                        </div>
-                      </TableCell>
                     </TableRow>
                   )
                 })}
                 {filtered.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center text-xs text-muted-foreground py-8">
+                    <TableCell colSpan={5} className="text-center text-xs text-muted-foreground py-8">
                       No results match your search.
                     </TableCell>
                   </TableRow>
